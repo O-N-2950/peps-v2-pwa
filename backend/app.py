@@ -57,7 +57,7 @@ def generate_ai_text():
     data = request.json
     prompt = f"Rédige une description courte (max 20 mots), punchy et vendeuse pour une offre PEP's : {data.get('context')}. Utilise des emojis."
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'text': response.text})
     except Exception as e:
