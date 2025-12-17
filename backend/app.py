@@ -34,6 +34,12 @@ db.init_app(app)
 jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+# Initialisation automatique de la base de données au démarrage
+with app.app_context():
+    print("🔧 Création des tables PostgreSQL...", file=sys.stdout)
+    db.create_all()
+    print("✅ Tables créées avec succès !", file=sys.stdout)
+
 # --- ROUTE SETUP ---
 @app.route('/api/setup')
 def setup_db():
