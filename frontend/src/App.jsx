@@ -56,14 +56,24 @@ function Admin() {
   useEffect(() => { if (!token) navigate('/login'); }, [token]);
 
   const generateAI = async () => {
+    console.log('🔥 generateAI appelé !');
     if (!form.title) return alert("Entrez d'abord un titre !");
-    const res = await fetch('/api/ai/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ context: form.title })
-    });
-    const data = await res.json();
-    setForm({ ...form, description: data.text });
+    console.log('📝 Titre:', form.title);
+    console.log('🔑 Token:', token);
+    try {
+      const res = await fetch('/api/ai/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ context: form.title })
+      });
+      console.log('📡 Réponse reçue:', res.status);
+      const data = await res.json();
+      console.log('📦 Data:', data);
+      setForm({ ...form, description: data.text });
+    } catch (error) {
+      console.error('❌ Erreur:', error);
+      alert('Erreur lors de la génération: ' + error.message);
+    }
   };
 
   const submitOffer = async () => {
