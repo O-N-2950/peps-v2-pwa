@@ -1,26 +1,34 @@
-FROM python:3.11-slim
+# ÉTAPE 1 : Construction du Frontend (Node.js)
+FROM node:18-alpine as frontend-build
+WORKDIR /app/frontend
+# On copie les fichiers de config npm
+COPY frontend/package*.json ./
+# On installe et on build
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
 
+# ÉTAPE 2 : Construction du Backend (Python)
+FROM python:3.11-slim
 WORKDIR /app
 
-# Installer Node.js pour construire le frontend
-RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copier les fichiers du projet
-COPY . .
-
-# Construire le frontend
-WORKDIR /app/frontend
-RUN npm install && npm run build
-
-# Installer les dépendances Python
-WORKDIR /app/backend
+# Installation des dépendances Python
+COPY backend/requirements.txt ./
+# Installation propre sans cache
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Exposer le port
-EXPOSE 5000
+# Copie du code Backend
+COPY backend/ ./backend
 
-# Commande de démarrage
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "app:app"]
+# ÉTAPE 3 : Fusion (On récupère le build React de l'étape 1)
+# On place le build React exactement là où Flask l'attend (../frontend/dist)
+COPY --from=frontend-build /app/frontend/dist ./frontend/dist
+
+# Configuration finale
+ENV PORT=8080
+# Variable DB (Railway l'écrasera avec la vraie URL)
+ENV DATABASE_URL=sqlite:///peps_dev.db
+
+# Démarrage forcé de Gunicorn (Pas de Caddy ici !)
+# On force le dossier de travail 'backend' et on lance l'app
+CMD gunicorn --chdir backend -k eventlet -w 1 --bind 0.0.0.0:$PORT app:app
