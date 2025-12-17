@@ -1,0 +1,10 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd frontend && npm install && npm run build"
+  },
+  "deploy": {
+    "startCommand": "cd backend && pip install -r requirements.txt && gunicorn -k eventlet -w 1 app:app",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
