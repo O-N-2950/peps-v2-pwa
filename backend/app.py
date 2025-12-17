@@ -142,6 +142,7 @@ def reserve(offer_id):
         return jsonify({"success": True, "remaining": offer.stock})
     return jsonify({"success": False, "message": "Stock épuisé"}), 400
 
+# --- FRONTEND ROUTES (DOIT ÊTRE APRÈS LES /api) ---
 @app.route('/')
 def serve():
     try: return send_from_directory(app.static_folder, 'index.html')
