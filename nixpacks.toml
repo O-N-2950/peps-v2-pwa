@@ -1,4 +1,6 @@
-# Configuration forcée Python + Node
+# 1. On force les providers : Python d'abord, Node ensuite.
+# CELA EMPÊCHE NIXPACKS DE LANCER CADDY.
+providers = ["python", "node"]
 
 [phases.setup]
 nixPkgs = ["python3", "nodejs", "npm"]
@@ -13,4 +15,5 @@ cmds = [
 cmds = ["cd frontend && npm run build"]
 
 [start]
+# On lance Gunicorn explicitement sur le port fourni par Railway ($PORT)
 cmd = "cd backend && gunicorn -k eventlet -w 1 --bind 0.0.0.0:$PORT app:app"
