@@ -2,15 +2,21 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
         'peps-primary': '#FF6B35',
-        'peps-light': '#FFE5D9',
-        'peps-dark': '#2C3E50',
-        'peps-accent': '#FFD700'
+        'peps-secondary': '#004E89',
+        'peps-accent': '#F7B32B',
+        'peps-dark': '#1A1A2E',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       }
     },
   },
