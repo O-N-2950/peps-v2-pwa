@@ -40,103 +40,147 @@ with app.app_context():
     db.create_all()
     print("✅ Tables créées avec succès !", file=sys.stdout)
 
-# --- ROUTE SETUP ---
-@app.route('/api/setup')
+# ========== ROUTES API ==========
+
+@app.route('/api/setup', methods=['GET'])
 def setup_db():
-    print("🛠️ ACCÈS SETUP ROUTE", file=sys.stdout)
-    try:
-        db.create_all()
-        details = []
-        if not User.query.filter_by(email="admin@peps.swiss").first():
-            admin = User(email="admin@peps.swiss", password_hash=generate_password_hash("admin123"), role="admin")
-            db.session.add(admin)
-            details.append("✅ Admin créé")
-        else: details.append("ℹ️ Admin existe")
+    """Initialise la DB avec un admin et des données démo"""
+    admin = User.query.filter_by(email='admin@peps.swiss').first()
+    if admin:
+        return jsonify({'status': 'SUCCESS', 'details': ['ℹ️ Admin existe']})
+    
+    # Créer admin
+    admin = User(email='admin@peps.swiss', password=generate_password_hash('admin123'), role='admin')
+    db.session.add(admin)
+    
+    # Créer partenaire démo
+    partner = Partner(name='Café Central', address='Rue de Nidau 24, Bienne', category='Restaurant')
+    db.session.add(partner)
+    db.session.commit()
+    
+    # Créer offre démo
+    offer = Offer(
+        partner_id=partner.id,
+        title='Menu Midi',
+        description='Plat + Dessert + Café',
+        original_price=32.0,
+        flash_price=16.0,
+        discount_percent=50,
+        stock=10
+    )
+    db.session.add(offer)
+    db.session.commit()
+    
+    return jsonify({'status': 'SUCCESS', 'details': ['✅ Admin créé', '✅ Données démo']})
 
-        if not Partner.query.first():
-            p1 = Partner(name="Sushi Palace", distance="250m", image_url="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500")
-            db.session.add(p1)
-            db.session.commit()
-            o1 = Offer(partner_id=p1.id, title="Offre Test", description="Test", price="20.-", old_price="40.-", discount="-50%", stock=5)
-            db.session.add(o1)
-            details.append("✅ Données démo")
-        
-        db.session.commit()
-        return jsonify({"status": "SUCCESS", "details": details})
-    except Exception as e:
-        return jsonify({"status": "ERROR", "error": str(e)}), 500
-
-# --- ROUTES API ---
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     user = User.query.filter_by(email=data.get('email')).first()
-    if user and check_password_hash(user.password_hash, data.get('password')):
+    if user and check_password_hash(user.password, data.get('password')):
         token = create_access_token(identity=str(user.id), additional_claims={'role': user.role})
         return jsonify({'token': token, 'role': user.role})
-    return jsonify({'error': 'Login failed'}), 401
-
-@app.route('/api/offers')
-def get_offers():
-    try:
-        offers = Offer.query.filter(Offer.stock > 0).order_by(Offer.is_urgent.desc()).all()
-        return jsonify([{ "id": o.id, "partner": o.partner.name, "title": o.title, "stock": o.stock } for o in offers])
-    except: return jsonify([])
+    return jsonify({'error': 'Identifiants invalides'}), 401
 
 @app.route('/api/ai/generate', methods=['POST'])
 @jwt_required()
 def generate_ai_text():
     if not GOOGLE_API_KEY:
-        return jsonify({'text': "⚠️ Clé API Google manquante. Ajoutez GOOGLE_API_KEY dans Railway."})
+        return jsonify({'text': "⚠️ Clé API Google manquante."})
+    
+    # LE NOM EXACT DU MODÈLE ACTUEL
+    model_name = 'gemini-1.5-flash'
+    
+    data = request.json
+    offer_context = data.get('context', 'Offre spéciale')
+    sector = data.get('sector', 'restaurant')  # Secteur d'activité du partenaire
+    
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        offer_context = request.json.get('context', 'Offre spéciale')
-        prompt = f"Tu es un expert marketing restaurant. Rédige une description courte, urgente et attractive (max 20 mots) pour cette offre : '{offer_context}'. Ne mets pas de guillemets."
+        model = genai.GenerativeModel(model_name)
+        
+        # Prompt optimisé pour la rapidité (20 mots)
+        prompt = (
+            f"Tu es un expert marketing {sector}. Rédige une description courte (max 20 mots), "
+            f"urgente et attractive avec des emojis pour cette offre : '{offer_context}'. "
+            f"Ne mets pas de guillemets."
+        )
+        
+        # Generation
         response = model.generate_content(prompt)
         return jsonify({'text': response.text.strip()})
+        
     except Exception as e:
-        return jsonify({'text': f"Erreur IA: {str(e)}"})
+        print(f"Erreur IA: {str(e)}")
+        # Fallback si l'IA échoue
+        return jsonify({'text': f"🔥 Offre exclusive : {offer_context} à ne pas manquer ! ⏳"})
 
-@app.route('/api/admin/offers', methods=['POST'])
+@app.route('/api/offers', methods=['GET'])
+def get_offers():
+    offers = Offer.query.filter(Offer.stock > 0).all()
+    return jsonify([{
+        'id': o.id,
+        'title': o.title,
+        'description': o.description,
+        'original_price': o.original_price,
+        'flash_price': o.flash_price,
+        'discount_percent': o.discount_percent,
+        'stock': o.stock,
+        'partner': {'name': o.partner.name, 'address': o.partner.address}
+    } for o in offers])
+
+@app.route('/api/offers', methods=['POST'])
 @jwt_required()
 def create_offer():
     data = request.json
     partner = Partner.query.first()
-    if not partner: return jsonify({'error': 'No partner'}), 400
-    new_offer = Offer(partner_id=partner.id, title=data['title'], description=data.get('description', ''), price=data['price'], old_price=data['old_price'], discount=data['discount'], stock=int(data['stock']))
-    db.session.add(new_offer)
+    if not partner:
+        return jsonify({'error': 'Aucun partenaire trouvé'}), 400
+    
+    offer = Offer(
+        partner_id=partner.id,
+        title=data['title'],
+        description=data['description'],
+        original_price=float(data['original_price']),
+        flash_price=float(data['flash_price']),
+        discount_percent=int(data['discount_percent']),
+        stock=int(data['stock'])
+    )
+    db.session.add(offer)
     db.session.commit()
-    socketio.emit('stock_update', {'id': new_offer.id, 'new_stock': new_offer.stock})
-    return jsonify({'success': True})
+    
+    # Notifier tous les clients via Socket.io
+    socketio.emit('new_offer', {
+        'id': offer.id,
+        'title': offer.title,
+        'description': offer.description,
+        'flash_price': offer.flash_price,
+        'stock': offer.stock
+    })
+    
+    return jsonify({'success': True, 'offer_id': offer.id})
 
-@app.route('/api/reserve/<int:offer_id>', methods=['POST'])
-def reserve(offer_id):
+@app.route('/api/offers/<int:offer_id>/reserve', methods=['POST'])
+def reserve_offer(offer_id):
     offer = Offer.query.get_or_404(offer_id)
-    if offer.stock > 0:
-        offer.stock -= 1
-        db.session.commit()
-        socketio.emit('stock_update', {'id': offer.id, 'new_stock': offer.stock})
-        return jsonify({"success": True})
-    return jsonify({"success": False}), 400
+    if offer.stock <= 0:
+        return jsonify({'error': 'Stock épuisé'}), 400
+    
+    offer.stock -= 1
+    db.session.commit()
+    
+    # Notifier tous les clients du nouveau stock
+    socketio.emit('stock_update', {'offer_id': offer.id, 'stock': offer.stock})
+    
+    return jsonify({'success': True, 'remaining_stock': offer.stock})
 
-# --- SERVING FRONTEND (SMART 404) ---
+# ========== ROUTES FRONTEND ==========
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
-    # Si c'est un fichier statique existant (JS/CSS)
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+    if path and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
-    # Sinon on renvoie index.html (SPA)
-    return send_from_directory(app.static_folder, 'index.html')
-
-@app.errorhandler(404)
-def not_found(e):
-    # Si l'URL commence par /api, c'est une erreur Backend -> JSON
-    if request.path.startswith('/api/'):
-        return jsonify({"error": "API Route Not Found"}), 404
-    # Sinon -> Frontend
     return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
-# Updated at Wed Dec 17 17:15:02 EST 2025
+    socketio.run(app, host='0.0.0.0', port=8080, debug=True)
