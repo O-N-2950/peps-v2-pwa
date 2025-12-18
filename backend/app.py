@@ -88,7 +88,7 @@ def get_offers():
 def generate_ai_text():
     if not GOOGLE_API_KEY: return jsonify({'text': "⚠️ Configurer API Key"})
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(f"Offre commerciale courte: {request.json.get('context')}")
         return jsonify({'text': response.text})
     except Exception as e: return jsonify({'text': f"Erreur IA: {str(e)}"})
