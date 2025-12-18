@@ -86,12 +86,16 @@ def get_offers():
 @app.route('/api/ai/generate', methods=['POST'])
 @jwt_required()
 def generate_ai_text():
-    if not GOOGLE_API_KEY: return jsonify({'text': "⚠️ Configurer API Key"})
+    if not GOOGLE_API_KEY:
+        return jsonify({'text': "⚠️ Clé API Google manquante. Ajoutez GOOGLE_API_KEY dans Railway."})
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(f"Offre commerciale courte: {request.json.get('context')}")
-        return jsonify({'text': response.text})
-    except Exception as e: return jsonify({'text': f"Erreur IA: {str(e)}"})
+        offer_context = request.json.get('context', 'Offre spéciale')
+        prompt = f"Tu es un expert marketing restaurant. Rédige une description courte, urgente et attractive (max 20 mots) pour cette offre : '{offer_context}'. Ne mets pas de guillemets."
+        response = model.generate_content(prompt)
+        return jsonify({'text': response.text.strip()})
+    except Exception as e:
+        return jsonify({'text': f"Erreur IA: {str(e)}"})
 
 @app.route('/api/admin/offers', methods=['POST'])
 @jwt_required()
