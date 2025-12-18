@@ -72,7 +72,7 @@ def login():
     data = request.json
     user = User.query.filter_by(email=data.get('email')).first()
     if user and check_password_hash(user.password_hash, data.get('password')):
-        token = create_access_token(identity={'id': user.id, 'role': user.role})
+        token = create_access_token(identity=str(user.id), additional_claims={'role': user.role})
         return jsonify({'token': token, 'role': user.role})
     return jsonify({'error': 'Login failed'}), 401
 
