@@ -50,7 +50,7 @@ def setup_db():
         return jsonify({'status': 'SUCCESS', 'details': ['ℹ️ Admin existe']})
     
     # Créer admin
-    admin = User(email='admin@peps.swiss', password=generate_password_hash('admin123'), role='admin')
+    admin = User(email='admin@peps.swiss', password_hash=generate_password_hash('admin123'), role='admin')
     db.session.add(admin)
     
     # Créer partenaire démo
@@ -63,9 +63,9 @@ def setup_db():
         partner_id=partner.id,
         title='Menu Midi',
         description='Plat + Dessert + Café',
-        original_price=32.0,
-        flash_price=16.0,
-        discount_percent=50,
+        old_price='32.-',
+        price='16.-',
+        discount='-50%',
         stock=10
     )
     db.session.add(offer)
@@ -77,7 +77,7 @@ def setup_db():
 def login():
     data = request.json
     user = User.query.filter_by(email=data.get('email')).first()
-    if user and check_password_hash(user.password, data.get('password')):
+    if user and check_password_hash(user.password_hash, data.get('password')):
         token = create_access_token(identity=str(user.id), additional_claims={'role': user.role})
         return jsonify({'token': token, 'role': user.role})
     return jsonify({'error': 'Identifiants invalides'}), 401
@@ -121,9 +121,9 @@ def get_offers():
         'id': o.id,
         'title': o.title,
         'description': o.description,
-        'original_price': o.original_price,
-        'flash_price': o.flash_price,
-        'discount_percent': o.discount_percent,
+        'original_price': o.old_price,
+        'flash_price': o.price,
+        'discount_percent': o.discount,
         'stock': o.stock,
         'partner': {'name': o.partner.name, 'address': o.partner.address}
     } for o in offers])
@@ -140,10 +140,10 @@ def create_offer():
         partner_id=partner.id,
         title=data['title'],
         description=data['description'],
-        original_price=float(data['original_price']),
-        flash_price=float(data['flash_price']),
-        discount_percent=int(data['discount_percent']),
-        stock=int(data['stock'])
+        old_price=data.get('original_price', '0.-'),
+        price=data.get('flash_price', '0.-'),
+        discount=data.get('discount_percent', '-0%'),
+        stock=int(data.get('stock', 5))
     )
     db.session.add(offer)
     db.session.commit()
@@ -153,7 +153,7 @@ def create_offer():
         'id': offer.id,
         'title': offer.title,
         'description': offer.description,
-        'flash_price': offer.flash_price,
+        'flash_price': offer.price,
         'stock': offer.stock
     })
     
