@@ -3,10 +3,15 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+# Table Followers
+followers = db.Table('followers',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
+)
+
 class Pack(db.Model):
     __tablename__ = 'packs'
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(50)) # Individual, Family, Business
     name = db.Column(db.String(100), nullable=False)
     access_count = db.Column(db.Integer, nullable=False)
     price_chf = db.Column(db.Float, nullable=False)
@@ -16,12 +21,8 @@ class Company(db.Model):
     __tablename__ = 'companies'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    pack_id = db.Column(db.Integer, db.ForeignKey('packs.id'))
-    
-    # Gestion des places (Quotas)
     access_total = db.Column(db.Integer, default=0)
-    access_used = db.Column(db.Integer, default=0)
-    
+    stripe_customer_id = db.Column(db.String(100))
     employees = db.relationship('User', backref='company_ref', lazy=True)
 
 class User(db.Model):
@@ -30,34 +31,9 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='member')
-    
-    access_expires_at = db.Column(db.DateTime)
-    
-    # Parrainage
-    referral_code = db.Column(db.String(50), unique=True)
-    referred_by = db.Column(db.String(50))
-    bonus_months_earned = db.Column(db.Integer, default=0)
-    
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
-    
-    # Relation vers les appareils (Sécurité)
-    devices = db.relationship('UserDevice', backref='owner', lazy=True)
     partner_profile = db.relationship('Partner', backref='owner', uselist=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class UserDevice(db.Model):
-    __tablename__ = 'user_devices'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    device_fingerprint = db.Column(db.String(100), nullable=False) # ID unique appareil
-    last_login = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Referral(db.Model):
-    __tablename__ = 'referrals'
-    id = db.Column(db.Integer, primary_key=True)
-    referrer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    referred_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    status = db.Column(db.String(20), default='completed')
+    followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers', lazy='dynamic'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Partner(db.Model):
@@ -65,12 +41,15 @@ class Partner(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(100), nullable=False)
-    category = db.Column(db.String(50))
+    category = db.Column(db.String(50))     
+    icon_slug = db.Column(db.String(100))   
+    
+    # GPS
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    
     image_url = db.Column(db.String(500))
-    distance = db.Column(db.String(20))
-    follower_count = db.Column(db.Integer, default=0)
     offers = db.relationship('Offer', backref='partner', lazy=True)
-    feedbacks = db.relationship('PartnerFeedback', backref='partner', lazy=True)
 
 class Offer(db.Model):
     __tablename__ = 'offers'
@@ -78,20 +57,28 @@ class Offer(db.Model):
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    is_permanent = db.Column(db.Boolean, default=False) 
-    is_flash = db.Column(db.Boolean, default=False)
-    stock = db.Column(db.Integer, nullable=True)
+    
+    # Types: 'flash', 'permanent', 'daily', 'weekly', 'seasonal'
+    offer_type = db.Column(db.String(20), default='permanent') 
+    
+    # Règles
+    stock = db.Column(db.Integer, nullable=True) 
+    day_of_week = db.Column(db.Integer, nullable=True) # 0=Lundi
+    start_date = db.Column(db.DateTime, nullable=True)
+    end_date = db.Column(db.DateTime, nullable=True)
+    
     price = db.Column(db.String(20))
-    old_price = db.Column(db.String(20))
     discount_val = db.Column(db.String(20))
     active = db.Column(db.Boolean, default=True)
+    
+    # Sécurité
+    activation_pin = db.Column(db.String(6)) # Code PIN
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class PartnerFeedback(db.Model):
-    __tablename__ = 'partner_feedbacks'
+class Activation(db.Model):
+    __tablename__ = 'activations'
     id = db.Column(db.Integer, primary_key=True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
-    rating = db.Column(db.Integer)
-    comment = db.Column(db.Text)
-    sentiment = db.Column(db.String(20))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    offer_id = db.Column(db.Integer, db.ForeignKey('offers.id'))
+    code = db.Column(db.String(50)) # QR Data
+    used_at = db.Column(db.DateTime, default=datetime.utcnow)
