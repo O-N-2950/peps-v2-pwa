@@ -11,7 +11,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🚀 FORCE REBUILD V5...'",
+  "echo '🚀 FORCE REBUILD V7 - PEP\'s Digital...'",
   "cd frontend && rm -rf dist",
   "cd frontend && npm run build"
 ]

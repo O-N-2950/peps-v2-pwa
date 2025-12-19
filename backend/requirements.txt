@@ -11,3 +11,5 @@ eventlet==0.33.3
 werkzeug==3.0.1
 # LE NOUVEAU STANDARD GOOGLE (V1)
 google-genai==0.3.0
+requests==2.31.0
+apscheduler==3.10.4
