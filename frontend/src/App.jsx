@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import MemberHome from './components/MemberHome';
@@ -14,13 +14,29 @@ const ProtectedRoute = ({ allowedRoles }) => {
   return <Outlet />;
 };
 
+function LoginWrapper() {
+  const navigate = useNavigate();
+  
+  const handleLogin = (role) => {
+    if (role === 'company_admin') {
+      navigate('/company');
+    } else if (role === 'partner') {
+      navigate('/partner');
+    } else {
+      navigate('/');
+    }
+  };
+  
+  return <Login onLogin={handleLogin} />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <div className="bg-gray-50 min-h-screen font-sans text-gray-900 max-w-md mx-auto shadow-2xl relative">
         <Routes>
           <Route path="/" element={<MemberHome />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<LoginWrapper />} />
           <Route path="/register" element={<Register />} />
           
           <Route element={<ProtectedRoute allowedRoles={['partner']} />}>
