@@ -1,35 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Zap, Calendar, Clock, Infinity } from 'lucide-react';
+import { MapPin, Heart, Zap, Users } from 'lucide-react';
 
-export default function WahooCard({ offer, onReserve, dist }) {
-  const badges = {
-    flash: { bg: 'bg-red-500', icon: <Zap size={10}/>, txt: 'FLASH' },
-    permanent: { bg: 'bg-peps-turquoise', icon: <Infinity size={10}/>, txt: 'CLUB' },
-    daily: { bg: 'bg-orange-500', icon: <Calendar size={10}/>, txt: 'DU JOUR' }
+export default function WahooCard({ offer, onReserve, isFollowed }) {
+  const [followed, setFollowed] = useState(isFollowed);
+  const [fCount, setFCount] = useState(offer.partner.followers);
+
+  const toggleFollow = async (e) => {
+    e.stopPropagation();
+    const token = localStorage.getItem('token');
+    if(!token) return alert("Connectez-vous !");
+    
+    setFollowed(!followed);
+    setFCount(prev => followed ? prev - 1 : prev + 1);
+    
+    const action = followed ? 'unfollow' : 'follow';
+    await fetch(`/api/partner/${action}/${offer.partner.id}`, { method: 'POST', headers: {'Authorization': `Bearer ${token}`} });
   };
-  const b = badges[offer.type] || badges.permanent;
 
   return (
-    <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="bg-white rounded-3xl shadow-lg overflow-hidden mb-4 border border-gray-100">
+    <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="bg-white rounded-3xl shadow-lg overflow-hidden mb-4 border border-gray-100 relative">
       <div className="h-40 relative">
         <img src={offer.partner.img} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-        <div className={`absolute top-3 right-3 text-white text-[10px] font-black px-2 py-1 rounded-full flex items-center gap-1 ${b.bg} ${offer.type==='flash'?'animate-pulse':''}`}>
-            {b.icon} {b.txt}
-        </div>
-        <div className="absolute bottom-3 left-3 text-white">
-            <h3 className="font-bold text-lg shadow-black">{offer.partner.name}</h3>
-            <div className="flex items-center text-xs"><MapPin size={10}/> {dist} km</div>
+        
+        <button onClick={toggleFollow} className="absolute top-3 right-3 bg-white/20 backdrop-blur p-2 rounded-full active:scale-90 transition">
+            <Heart size={18} className={followed ? "fill-peps-pink text-peps-pink" : "text-white"} />
+        </button>
+        
+        <div className="absolute bottom-3 left-3 text-white pr-4">
+            <h3 className="font-bold text-lg shadow-black leading-none">{offer.partner.name}</h3>
+            <div className="flex gap-3 text-xs mt-1 opacity-90">
+                <span className="flex items-center gap-1"><Users size={10}/> {fCount}</span>
+            </div>
         </div>
       </div>
-      <div className="p-4 flex justify-between items-end">
-        <div>
-            <h4 className="font-bold text-gray-800">{offer.title}</h4>
-            <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">{offer.discount}</span>
-            {offer.type === 'flash' && <div className="text-orange-500 text-xs font-bold mt-1 flex gap-1"><Clock size={10}/> Stock: {offer.stock}</div>}
-        </div>
-        <button onClick={()=>onReserve(offer)} className="bg-gray-900 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-lg">RÉSERVER</button>
+      <div className="p-4 flex justify-between items-center">
+        <div><h4 className="font-bold text-gray-800">{offer.title}</h4><span className="text-peps-turquoise font-black">{offer.discount}</span></div>
+        <button onClick={onReserve} className="bg-gray-900 text-white px-4 py-2 rounded-xl font-bold text-xs">RÉSERVER</button>
       </div>
     </motion.div>
   );

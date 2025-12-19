@@ -5,6 +5,7 @@ import Register from './components/Register';
 import MemberHome from './components/MemberHome';
 import PartnerDashboard from './components/PartnerDashboard';
 import CompanyDashboard from './components/CompanyDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const role = localStorage.getItem('role');
@@ -44,6 +45,9 @@ export default function App() {
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['company_admin']} />}>
             <Route path="/company" element={<CompanyDashboard />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/admin" element={<AdminDashboard />} />
           </Route>
         </Routes>
       </div>

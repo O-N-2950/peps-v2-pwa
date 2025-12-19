@@ -1,49 +1,69 @@
-import React, { useState } from 'react';
-import { Save, Zap, Infinity, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Users, TrendingUp, Zap, Sparkles, LayoutDashboard } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function PartnerDashboard() {
-  const [form, setForm] = useState({ title: '', price: '', discount: '-20%', stock: 5, description: '', is_flash: true });
-  
-  const magicWrite = async () => {
-    if (!form.title) return alert("Titre requis !");
-    const token = localStorage.getItem('token');
-    const res = await fetch('/api/ai/generate', {
-        method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
-        body: JSON.stringify({ context: form.title })
-    });
-    const data = await res.json();
-    setForm({...form, description: data.text});
-  };
+  const [stats, setStats] = useState(null);
+  const [chartData, setChartData] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const submit = async () => {
+  useEffect(() => {
     const token = localStorage.getItem('token');
-    const res = await fetch('/api/partner/create-offer', {
-        method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
-        body: JSON.stringify(form)
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    Promise.all([
+      fetch('/api/partner/my-stats', {headers}).then(r => r.json()),
+      fetch('/api/partner/followers-evolution', {headers}).then(r => r.json()),
+      fetch('/api/partner/growth-suggestions', {headers}).then(r => r.json())
+    ]).then(([s, c, g]) => {
+      setStats(s);
+      setChartData(c.labels.map((l, i) => ({name: l, val: c.data[i]})));
+      setSuggestions(g.suggestions || []);
+      setLoading(false);
     });
-    if(res.ok) { alert("Publié !"); setForm({...form, title: ''}); }
-  };
+  }, []);
+
+  if(loading) return <div className="p-10 text-center animate-pulse">Chargement Intelligence...</div>;
 
   return (
-    <div className="p-6 pb-24 max-w-lg mx-auto">
-      <h1 className="text-2xl font-black mb-6">Nouvelle Offre</h1>
-      <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-        <button onClick={()=>setForm({...form, is_flash:true})} className={`flex-1 py-2 rounded-lg font-bold text-xs flex justify-center gap-2 ${form.is_flash?'bg-white shadow':''}`}><Zap size={14}/> FLASH</button>
-        <button onClick={()=>setForm({...form, is_flash:false})} className={`flex-1 py-2 rounded-lg font-bold text-xs flex justify-center gap-2 ${!form.is_flash?'bg-white shadow':''}`}><Infinity size={14}/> PERMANENT</button>
+    <div className="p-6 pb-24 max-w-xl mx-auto bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
+         <LayoutDashboard className="text-peps-turquoise"/> {stats.name}
+      </h1>
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-peps-turquoise">
+            <div className="text-gray-400 text-xs font-bold uppercase flex items-center gap-1"><Users size={14}/> Followers</div>
+            <div className="text-4xl font-black text-gray-900 mt-1">{stats.followers_count}</div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-peps-pink">
+            <div className="text-gray-400 text-xs font-bold uppercase flex items-center gap-1"><TrendingUp size={14}/> Score</div>
+            <div className="text-4xl font-black text-gray-900 mt-1">{stats.engagement_score}</div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        <input className="w-full p-4 bg-white border border-gray-200 rounded-xl font-bold" placeholder="Titre" value={form.title} onChange={e=>setForm({...form, title:e.target.value})}/>
-        <div className="relative">
-            <textarea className="w-full p-4 bg-white border border-gray-200 rounded-xl text-sm h-24" placeholder="Description" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}/>
-            <button onClick={magicWrite} className="absolute bottom-2 right-2 text-indigo-600 text-xs font-bold flex gap-1"><Sparkles size={12}/> IA</button>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-            <input className="p-4 bg-white border border-gray-200 rounded-xl" placeholder="Prix" value={form.price} onChange={e=>setForm({...form, price:e.target.value})}/>
-            <input className="p-4 bg-white border border-gray-200 rounded-xl" placeholder="Remise" value={form.discount} onChange={e=>setForm({...form, discount:e.target.value})}/>
-        </div>
-        {form.is_flash && <input type="number" className="w-full p-4 bg-white border border-gray-200 rounded-xl" placeholder="Stock" value={form.stock} onChange={e=>setForm({...form, stock:e.target.value})}/>}
-        <button onClick={submit} className="w-full bg-black text-white p-4 rounded-xl font-bold">METTRE EN LIGNE</button>
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 h-64">
+        <h3 className="font-bold text-sm mb-4">Croissance Audience (7j)</h3>
+        <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+                <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
+                <Tooltip />
+                <Line type="monotone" dataKey="val" stroke="#3D9A9A" strokeWidth={3} dot={{r:4}} activeDot={{r:6}} />
+            </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <h3 className="font-black text-lg mb-3 flex items-center gap-2"><Sparkles className="text-yellow-500 fill-current"/> Coach IA</h3>
+      <div className="space-y-3">
+        {suggestions.map((s, i) => (
+            <motion.div key={i} initial={{x:-10, opacity:0}} animate={{x:0, opacity:1}} transition={{delay:i*0.1}} 
+                className={`p-4 rounded-xl border-l-4 shadow-sm bg-white ${s.priority===1?'border-red-500':'border-green-500'}`}>
+                <h4 className="font-bold text-sm flex items-center gap-2">{s.icon} {s.action}</h4>
+                <p className="text-xs text-gray-500 mt-1">{s.desc}</p>
+            </motion.div>
+        ))}
       </div>
     </div>
   );
