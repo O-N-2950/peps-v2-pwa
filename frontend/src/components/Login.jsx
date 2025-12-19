@@ -1,77 +1,49 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({ email: '', password: '' });
   const navigate = useNavigate();
+
+  // Génération Device ID stable (sans npm install pour la stabilité)
+  const getDeviceId = () => {
+    let id = localStorage.getItem('device_id');
+    if (!id) {
+        // ID unique aléatoire persistant
+        id = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now();
+        localStorage.setItem('device_id', id);
+    }
+    return id;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        
-        // Redirection selon le rôle
-        if (data.role === 'partner') navigate('/partner');
-        else if (data.role === 'company_admin') navigate('/company');
-        else if (data.role === 'super_admin') navigate('/admin');
-        else navigate('/');
-      } else {
-        alert('Login échoué !');
-      }
-    } catch (err) {
-      alert('Erreur réseau');
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, device_id: getDeviceId() }) // On envoie l'ID
+    });
+    const data = await res.json();
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+      if (data.role === 'company_admin') navigate('/company');
+      else if (data.role === 'partner') navigate('/partner');
+      else navigate('/');
+    } else {
+      alert("Erreur: " + data.error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-peps-primary to-peps-secondary p-6">
-      <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
-        <h1 className="text-3xl font-black text-gray-900 mb-2 text-center">PEP's</h1>
-        <p className="text-gray-500 text-sm text-center mb-8">Connexion Partenaire</p>
-        
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-peps-primary"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-peps-primary"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-peps-primary text-white font-bold p-4 rounded-xl shadow-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2"
-          >
-            <LogIn size={20} /> SE CONNECTER
-          </button>
-        </form>
-        
-        <div className="mt-6 p-4 bg-gray-50 rounded-xl text-xs text-gray-600">
-          <p className="font-bold mb-2">Comptes de démo :</p>
-          <p>👤 Partner: partner@peps.swiss / partner123</p>
-          <p>🏢 Company: company@peps.swiss / company123</p>
-          <p>👥 Member: member@peps.swiss / member123</p>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col justify-center p-8 bg-white">
+      <h1 className="text-3xl font-black text-center mb-6 text-peps-primary">Connexion</h1>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <input className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100" placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} />
+        <input className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100" type="password" placeholder="Mot de passe" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} />
+        <button className="w-full bg-black text-white p-4 rounded-xl font-bold">ENTRER</button>
+      </form>
+      <Link to="/register" className="mt-4 block text-center text-sm text-gray-500">Pas de compte ? S'inscrire</Link>
     </div>
   );
 }

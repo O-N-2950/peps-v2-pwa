@@ -3,26 +3,27 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-# --- 1. PACKS & ENTREPRISES ---
 class Pack(db.Model):
     __tablename__ = 'packs'
     id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(50)) # Individual, Family, Business
     name = db.Column(db.String(100), nullable=False)
     access_count = db.Column(db.Integer, nullable=False)
     price_chf = db.Column(db.Float, nullable=False)
     price_eur = db.Column(db.Float, nullable=False)
-    is_active = db.Column(db.Boolean, default=True)
 
 class Company(db.Model):
     __tablename__ = 'companies'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     pack_id = db.Column(db.Integer, db.ForeignKey('packs.id'))
+    
+    # Gestion des places (Quotas)
     access_total = db.Column(db.Integer, default=0)
     access_used = db.Column(db.Integer, default=0)
+    
     employees = db.relationship('User', backref='company_ref', lazy=True)
 
-# --- 2. UTILISATEURS & PARRAINAGE ---
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -30,17 +31,26 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='member')
     
-    # Gestion Abonnement (12 mois par défaut)
     access_expires_at = db.Column(db.DateTime)
     
-    # Système Parrainage (CORRECTION TAILLE : 50 chars)
-    referral_code = db.Column(db.String(50), unique=True) 
+    # Parrainage
+    referral_code = db.Column(db.String(50), unique=True)
     referred_by = db.Column(db.String(50))
     bonus_months_earned = db.Column(db.Integer, default=0)
     
-    partner_profile = db.relationship('Partner', backref='owner', uselist=False)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
+    
+    # Relation vers les appareils (Sécurité)
+    devices = db.relationship('UserDevice', backref='owner', lazy=True)
+    partner_profile = db.relationship('Partner', backref='owner', uselist=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class UserDevice(db.Model):
+    __tablename__ = 'user_devices'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    device_fingerprint = db.Column(db.String(100), nullable=False) # ID unique appareil
+    last_login = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Referral(db.Model):
     __tablename__ = 'referrals'
@@ -50,7 +60,6 @@ class Referral(db.Model):
     status = db.Column(db.String(20), default='completed')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# --- 3. PARTENAIRES & OFFRES ---
 class Partner(db.Model):
     __tablename__ = 'partners'
     id = db.Column(db.Integer, primary_key=True)
