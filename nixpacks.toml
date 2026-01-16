@@ -11,9 +11,12 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🚀 FORCE REBUILD V7 - PEP\'s Digital...'",
+  "echo '🚀 FORCE REBUILD V10 - PEP\'s Digital...'",
   "cd frontend && rm -rf dist",
-  "cd frontend && npm run build"
+  "cd frontend && npm run build",
+  "echo '📁 Vérification du build frontend:'",
+  "ls -lh frontend/dist/ || echo 'ERROR: frontend/dist not found!'",
+  "ls -lh frontend/dist/assets/ || echo 'ERROR: frontend/dist/assets not found!'"
 ]
 
 [start]
