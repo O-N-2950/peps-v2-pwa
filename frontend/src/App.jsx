@@ -1,3 +1,18 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import Navigation from './components/Navigation';
+import LandingPage from './components/LandingPage';
+import Login from './components/Login';
+import Register from './components/Register';
+import MemberHome from './components/MemberHome';
+import MemberDashboard from './components/MemberDashboard';
+import PartnerDashboard from './components/PartnerDashboard';
+import PartnerBookings from './components/PartnerBookings';
+import AdminDashboard from './components/AdminDashboard';
+import MapView from './components/MapView';
+
+const ProtectedRoute = ({ allowedRoles }) => {
+  const role = localStorage.getItem('role');
   const token = localStorage.getItem('token');
   if (!token) return <Navigate to="/login" replace />;
   if (allowedRoles && !allowedRoles.includes(role)) return <Navigate to="/" replace />;
@@ -34,15 +49,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-🚀 LANCEMENT V9
-Copiez les 8 fichiers.
-
-Poussez sur GitHub.
-
-Reset & Setup :
-
-https://www.peps.swiss/api/nuke_db
-
-https://www.peps.swiss/api/setup_v8 (Charge les données V9 enrichies).
-
-Testez : Landing Page → Login (partner@peps.swiss / 123) → Dashboard.
