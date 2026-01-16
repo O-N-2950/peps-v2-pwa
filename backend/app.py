@@ -15,6 +15,10 @@ from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Av
 # Chemin absolu pour Railway
 import os
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend', 'dist')
+print(f"[INIT] STATIC_DIR={STATIC_DIR}")
+print(f"[INIT] STATIC_DIR exists? {os.path.exists(STATIC_DIR)}")
+if os.path.exists(STATIC_DIR):
+    print(f"[INIT] STATIC_DIR contents: {os.listdir(STATIC_DIR)[:10]}")
 app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='/')
 CORS(app)
 
