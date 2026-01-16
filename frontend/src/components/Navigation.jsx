@@ -1,26 +1,53 @@
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, User, Home, LayoutDashboard, Calendar } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, LayoutDashboard, Map, User, Store } from 'lucide-react';
 
 export default function Navigation() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
+  const isBoth = localStorage.getItem('is_both') === 'true';
+  
+  if (['/login', '/register'].includes(location.pathname)) return null;
 
-  if (!token || ['/','/login','/register'].includes(location.pathname)) return null;
-
-  const logout = () => { localStorage.clear(); window.location.href = '/'; };
+  const NavItem = ({ to, icon: Icon, label }) => {
+    const isActive = location.pathname === to;
+    return (
+      <Link to={to} className={`flex flex-col items-center justify-center w-16 ${isActive ? 'text-[#3D9A9A]' : 'text-gray-400'}`}>
+        <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+        <span className="text-[10px] font-medium mt-1">{label}</span>
+      </Link>
+    );
+  };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe pt-2 px-6 z-50 flex justify-between items-center h-16 max-w-md mx-auto">
-      <Link to="/" className="font-black text-xl text-[#14b8a6] hidden md:block">PEP's</Link>
-      <div className="flex w-full justify-between md:w-auto md:gap-8">
-        {role === 'member' && <><Link to="/offers" className="flex flex-col items-center text-xs text-gray-500 hover:text-[#14b8a6]"><Home size={20}/> Offres</Link><Link to="/member-profile" className="flex flex-col items-center text-xs text-gray-500 hover:text-[#14b8a6]"><User size={20}/> Profil</Link></>}
-        {role === 'partner' && <><Link to="/partner" className="flex flex-col items-center text-xs text-gray-500 hover:text-[#f97316]"><LayoutDashboard size={20}/> Stats</Link><Link to="/partner/bookings" className="flex flex-col items-center text-xs text-gray-500 hover:text-[#f97316]"><Calendar size={20}/> Agenda</Link></>}
-        {role === 'admin' && <Link to="/admin" className="flex flex-col items-center text-xs text-red-500 font-bold"><LayoutDashboard size={20}/> Admin</Link>}
-        <button onClick={logout} className="flex flex-col items-center text-xs text-gray-300 hover:text-red-500"><LogOut size={20}/> Sortir</button>
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-safe pt-2 px-4 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] z-50">
+      <div className="flex justify-around items-center h-14 max-w-md mx-auto">
+        
+        {/* OFFRES : Visible pour Membre OU Hybride (Both) */}
+        {(role === 'member' || isBoth) && (
+            <NavItem to="/" icon={Home} label="Offres" />
+        )}
+        
+        {/* CARTE : Pour tout le monde */}
+        <NavItem to="/map" icon={Map} label="Carte" />
+
+        {/* DASHBOARD : Pour Partenaire OU Hybride */}
+        {(role === 'partner' || isBoth) && (
+            <NavItem to="/partner" icon={Store} label="Boutique" />
+        )}
+
+        {/* ENTREPRISE */}
+        {(role === 'company_admin' || role === 'admin') && (
+            <NavItem to="/company" icon={LayoutDashboard} label="Pro" />
+        )}
+        
+        {/* ADMIN / PROFIL */}
+        <Link to={role === 'admin' ? "/admin" : "/login"} className="flex flex-col items-center justify-center w-16 text-gray-400">
+            <User size={24} />
+            <span className="text-[10px] font-medium mt-1">{role === 'admin' ? 'Admin' : 'Profil'}</span>
+        </Link>
+
       </div>
-    </nav>
+    </div>
   );
 }

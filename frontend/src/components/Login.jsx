@@ -1,101 +1,56 @@
 import React, { useState } from 'react';
-import { LogIn, Sparkles } from 'lucide-react';
 
-export default function Login({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  // Génération d'un device_id unique (stocké dans localStorage)
-  const getDeviceId = () => {
-    let deviceId = localStorage.getItem('device_id');
-    if (!deviceId) {
-      deviceId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('device_id', deviceId);
-    }
-    return deviceId;
-  };
+export default function Login() {
+  const [form, setForm] = useState({ email: '', password: '' });
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    
     const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        email, 
-        password,
-        device_id: getDeviceId() // Envoi du device_id
-      })
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
     });
-
     const data = await res.json();
     
-    if (res.ok) {
+    if (data.token) {
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
-      onLogin(data.role);
+      localStorage.setItem('is_both', data.is_both ? 'true' : 'false');
+      
+      // Redirection Intelligente V10
+      if (data.role === 'admin') window.location.href = '/admin';
+      else if (data.role === 'company_admin') window.location.href = '/company';
+      else if (data.role === 'partner') window.location.href = '/partner'; 
+      else window.location.href = '/'; 
     } else {
-      setError(data.error || 'Erreur de connexion');
+      alert("Erreur: " + (data.error || "Problème connexion"));
     }
   };
 
+  const fill = (email, pass) => setForm({email, password: pass});
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl mb-4">
-            <Sparkles className="text-white" size={32} />
-          </div>
-          <h1 className="text-3xl font-black text-gray-900">PEP's</h1>
-          <p className="text-gray-500 text-sm mt-2">Connexion Sécurisée</p>
-        </div>
+    <div className="min-h-screen flex flex-col justify-center p-8 bg-white">
+      <div className="mb-8 text-center">
+          <h1 className="text-4xl font-black text-[#3D9A9A] mb-2">Connexion</h1>
+          <p className="text-gray-400 text-sm">Espace sécurisé PEP's</p>
+      </div>
+      
+      <form onSubmit={handleLogin} className="w-full max-w-sm mx-auto space-y-4">
+        <input className="w-full p-4 bg-gray-50 rounded-xl border font-bold" placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} />
+        <input className="w-full p-4 bg-gray-50 rounded-xl border font-bold" type="password" placeholder="Mot de passe" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} />
+        <button className="w-full bg-black text-white p-4 rounded-xl font-bold text-lg shadow-lg hover:scale-105 transition">SE CONNECTER</button>
+      </form>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition"
-              required
-            />
-          </div>
-          
-          <div>
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-indigo-500 transition"
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition"
-          >
-            <LogIn size={20} />
-            SE CONNECTER
-          </button>
-        </form>
-
-        <div className="mt-6 text-center text-xs text-gray-400">
-          <p>Comptes démo :</p>
-          <p className="font-mono mt-1">company@peps.swiss / 123456</p>
-          <p className="font-mono">partner@peps.swiss / 123456</p>
+      <div className="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-100 w-full max-w-sm mx-auto">
+        <p className="font-bold text-gray-900 text-xs uppercase mb-2 text-center">Comptes de Test V10 :</p>
+        <div className="space-y-2 text-xs text-gray-600 font-mono">
+            <div onClick={()=>fill('admin@peps.swiss','admin123')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>👑 Admin</span><span>admin@peps.swiss</span></div>
+            <div onClick={()=>fill('partner@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>🏪 Partner</span><span>partner@peps.swiss</span></div>
+            <div onClick={()=>fill('company@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>🏢 Company</span><span>company@peps.swiss</span></div>
+            <div onClick={()=>fill('both@peps.swiss','123456')} className="flex justify-between cursor-pointer text-[#3D9A9A] font-bold bg-[#3D9A9A]/10 p-1 rounded"><span>🔄 Hybride</span><span>both@peps.swiss</span></div>
         </div>
       </div>
+      
+      <a href="/register" className="mt-6 block text-center text-sm font-bold text-gray-400 hover:text-[#3D9A9A]">Pas de compte ? S'inscrire</a>
     </div>
   );
 }

@@ -3,6 +3,7 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+# Table Followers (Many-to-Many)
 followers = db.Table('followers',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
@@ -26,17 +27,27 @@ class Company(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True)
-    password_hash = db.Column(db.String(256))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    
+    # Rôles: 'member', 'partner', 'company_admin', 'admin'
     role = db.Column(db.String(20), default='member')
+    
+    # ✅ NOUVEAU CHAMP V10 : Statut Hybride
+    is_both = db.Column(db.Boolean, default=False)
+    
     access_expires_at = db.Column(db.DateTime, nullable=True)
+    referral_code = db.Column(db.String(50), unique=True)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
+    
     partner_profile = db.relationship('Partner', backref='owner', uselist=False)
     followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers_list', lazy='dynamic'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     @property
     def is_active_member(self):
+        # Un partenaire hybride a automatiquement les avantages membre
+        if self.is_both: return True
         return self.access_expires_at and self.access_expires_at > datetime.utcnow()
 
 class Partner(db.Model):
@@ -49,8 +60,6 @@ class Partner(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     image_url = db.Column(db.String(500))
-    
-    # ✅ LA COLONNE QUI MANQUAIT
     booking_enabled = db.Column(db.Boolean, default=False)
     
     offers = db.relationship('Offer', backref='partner', lazy=True)
@@ -71,9 +80,9 @@ class Offer(db.Model):
 class Service(db.Model):
     __tablename__ = 'services'
     id = db.Column(db.Integer, primary_key=True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    duration_minutes = db.Column(db.Integer, nullable=False)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    name = db.Column(db.String(100))
+    duration_minutes = db.Column(db.Integer)
     price_chf = db.Column(db.Float)
     description = db.Column(db.String(255))
     is_active = db.Column(db.Boolean, default=True)
@@ -92,26 +101,29 @@ class Booking(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'))
-    start_at = db.Column(db.DateTime, nullable=False)
-    end_at = db.Column(db.DateTime, nullable=False)
+    start_at = db.Column(db.DateTime)
+    end_at = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='confirmed')
     is_privilege_applied = db.Column(db.Boolean, default=False)
     privilege_details = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     service = db.relationship('Service')
 
-class Activation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    offer_id = db.Column(db.Integer, db.ForeignKey('offers.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    code = db.Column(db.String(50))
-
 class UserDevice(db.Model):
+    __tablename__ = 'user_devices'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     device_fingerprint = db.Column(db.String(100))
 
+class Activation(db.Model):
+    __tablename__ = 'activations'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    offer_id = db.Column(db.Integer, db.ForeignKey('offers.id'))
+    code = db.Column(db.String(50))
+
 class PartnerFeedback(db.Model):
+    __tablename__ = 'partner_feedbacks'
     id = db.Column(db.Integer, primary_key=True)
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
     rating = db.Column(db.Integer)

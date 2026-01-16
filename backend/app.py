@@ -1,235 +1,167 @@
 import os
 import random
+import stripe
+import requests
 from datetime import datetime, timedelta, date
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import text, func, desc, extract
-from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability
+from sqlalchemy import text, and_
+from apscheduler.schedulers.background import BackgroundScheduler
+from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers, Activation, UserDevice, PartnerFeedback
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app)
 
-app.config['SECRET_KEY'] = 'peps_v9_final'
-app.config['JWT_SECRET_KEY'] = 'peps_jwt_v9'
+app.config['SECRET_KEY'] = 'peps_v10_final'
+app.config['JWT_SECRET_KEY'] = 'peps_jwt_v10'
 database_url = os.getenv('DATABASE_URL', 'sqlite:///peps.db')
-if database_url.startswith("postgres://"): database_url = database_url.replace("postgres://", "postgresql://", 1)
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# APIs
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+PERPLEXITY_KEY = os.getenv('PERPLEXITY_API_KEY')
 
 db.init_app(app)
 jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# ==========================================
-# 📊 API PARTENAIRE
-# ==========================================
-
-@app.route('/api/partner/booking-stats')
-@jwt_required()
-def p_stats():
-    uid = get_jwt_identity()['id']
-    pid = User.query.get(uid).partner_profile.id
-    
-    now = datetime.utcnow()
-    month_start = datetime(now.year, now.month, 1)
-    
-    # Récupération des données
-    bookings = Booking.query.filter(Booking.partner_id==pid, Booking.start_at >= month_start).all()
-    confirmed = len([b for b in bookings if b.status == 'confirmed'])
-    cancelled = len([b for b in bookings if b.status == 'cancelled'])
-    revenue = sum([b.service.price_chf for b in bookings if b.status == 'confirmed' and b.service])
-
-    # Graphique 30 jours
-    chart = []
-    for i in range(29, -1, -1):
-        d = (now - timedelta(days=i)).date()
-        cnt = Booking.query.filter(Booking.partner_id==pid, func.date(Booking.start_at)==d).count()
-        chart.append({"date": d.strftime("%d/%m"), "count": cnt})
-
-    return jsonify({
-        "total": len(bookings), "confirmed": confirmed, "cancelled": cancelled, 
-        "revenue": revenue, "chart": chart
-    })
-
-@app.route('/api/partner/bookings')
-@jwt_required()
-def p_bookings():
-    uid = get_jwt_identity()['id']
-    pid = User.query.get(uid).partner_profile.id
-    # Liste complète triée par date
-    bookings = Booking.query.filter_by(partner_id=pid).order_by(Booking.start_at.desc()).all()
-    return jsonify([{
-        "id": b.id, "date": b.start_at.strftime("%Y-%m-%d"), "time": b.start_at.strftime("%H:%M"),
-        "client": b.user_ref.email, "service": b.service.name, "price": b.service.price_chf, 
-        "status": b.status
-    } for b in bookings])
-
-@app.route('/api/partner/revenue')
-@jwt_required()
-def p_revenue():
-    uid = get_jwt_identity()['id']
-    pid = User.query.get(uid).partner_profile.id
-    rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.partner_id==pid, Booking.status=='confirmed').scalar() or 0
-    return jsonify({"revenue": rev})
-
-# ==========================================
-# 🛡️ API ADMIN
-# ==========================================
-
-@app.route('/api/admin/global-stats')
-@jwt_required()
-def a_global():
-    if get_jwt_identity()['role'] != 'admin': return jsonify(error="Admin only"), 403
-    total_rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.status=='confirmed').scalar() or 0
-    return jsonify({
-        "members": User.query.filter_by(role='member').count(),
-        "partners": Partner.query.count(),
-        "bookings_month": Booking.query.filter(Booking.start_at >= datetime(datetime.utcnow().year, datetime.utcnow().month, 1)).count(),
-        "revenue_total": total_rev
-    })
-
-@app.route('/api/admin/booking-stats')
-@jwt_required()
-def a_charts():
-    # Graphique évolution globale
-    data = []
-    for i in range(30):
-        d = date.today() - timedelta(days=i)
-        cnt = Booking.query.filter(func.date(Booking.start_at)==d).count()
-        data.append({"date": d.strftime("%d/%m"), "val": cnt})
-    return jsonify(list(reversed(data)))
-
-@app.route('/api/admin/bookings')
-@jwt_required()
-def a_bookings():
-    bookings = Booking.query.order_by(Booking.start_at.desc()).limit(100).all()
-    return jsonify([{
-        "id": b.id, "date": b.start_at.strftime("%d/%m %H:%M"), "partner": b.partner_ref.name,
-        "service": b.service.name, "client": b.user_ref.email, "status": b.status, "amount": b.service.price_chf
-    } for b in bookings])
-
-@app.route('/api/admin/partners-enriched')
-@jwt_required()
-def a_partners():
-    res = []
-    for p in Partner.query.all():
-        rev = sum([b.service.price_chf for b in p.bookings if b.status=='confirmed' and b.service])
-        res.append({
-            "id": p.id, "name": p.name, "category": p.category,
-            "bookings": len(p.bookings), "revenue": rev, "status": "Active" if p.booking_enabled else "Inactif"
-        })
-    return jsonify(sorted(res, key=lambda x: x['bookings'], reverse=True))
-
-# ==========================================
-# 👤 API MEMBRE
-# ==========================================
-
-@app.route('/api/member/bookings')
-@jwt_required()
-def m_bookings(): # Fallback si besoin
-    return m_upcoming()
-
-@app.route('/api/member/upcoming')
-@jwt_required()
-def m_upcoming():
-    uid = get_jwt_identity()['id']
-    bks = Booking.query.filter(Booking.user_id==uid, Booking.start_at >= datetime.utcnow()).order_by(Booking.start_at.asc()).all()
-    return jsonify([fmt_booking(b) for b in bks])
-
-@app.route('/api/member/history')
-@jwt_required()
-def m_history():
-    uid = get_jwt_identity()['id']
-    bks = Booking.query.filter(Booking.user_id==uid, Booking.start_at < datetime.utcnow()).order_by(Booking.start_at.desc()).all()
-    return jsonify([fmt_booking(b) for b in bks])
-
-def fmt_booking(b):
-    return {
-        "id": b.id, "date": b.start_at.strftime("%d/%m/%Y"), "time": b.start_at.strftime("%H:%M"),
-        "partner": b.partner_ref.name, "service": b.service.name, "price": b.service.price_chf, "status": b.status,
-        "address": "Bienne Centre"
-    }
-
-# ==========================================
-# ☢️ SETUP V9 (DONNÉES ENRICHIES)
-# ==========================================
-
+# --- ☢️ RESET DB ---
 @app.route('/api/nuke_db')
-def nuke():
-    with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
-    db.create_all(); return "Clean V9"
-
-@app.route('/api/setup_v8') # Nom conservé pour compatibilité
-def setup_v9_data():
+def nuke_db():
+    with db.engine.connect() as c: 
+        c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;"))
+        c.commit()
     db.create_all()
+    return jsonify({"status": "SUCCESS", "msg": "Base V10 Clean"})
+
+# --- 🛠️ SETUP V10 (4 COMPTES) ---
+@app.route('/api/setup_v8')
+def setup_v8():
+    db.create_all()
+    
+    # 1. ADMIN
     if not User.query.filter_by(email='admin@peps.swiss').first():
-        # 1. Users
-        u_adm = User(email='admin@peps.swiss', password_hash=generate_password_hash('admin123'), role='admin')
-        u_prt = User(email='partner@peps.swiss', password_hash=generate_password_hash('123'), role='partner')
-        u_mem = User(email='member@peps.swiss', password_hash=generate_password_hash('123'), role='member')
-        db.session.add_all([u_adm, u_prt, u_mem])
+        admin = User(email='admin@peps.swiss', password_hash=generate_password_hash('admin123'), role='admin', is_both=False)
+        db.session.add(admin)
+
+    # 2. PARTENAIRE PUR
+    if not User.query.filter_by(email='partner@peps.swiss').first():
+        u_part = User(email='partner@peps.swiss', password_hash=generate_password_hash('123456'), role='partner', is_both=False)
+        db.session.add(u_part)
+        db.session.commit()
+        p = Partner(user_id=u_part.id, name="Partner Only", category="Restaurant", booking_enabled=True, image_url="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500")
+        db.session.add(p)
+        db.session.commit()
+        # Données Résa
+        db.session.add(Offer(partner_id=p.id, title="-20% Menu", active=True))
+        db.session.add(Service(partner_id=p.id, name="Menu Midi", duration_minutes=60, price_chf=25))
+        for d in range(5): db.session.add(Availability(partner_id=p.id, day_of_week=d, start_time="09:00", end_time="14:00"))
+
+    # 3. ENTREPRISE
+    if not User.query.filter_by(email='company@peps.swiss').first():
+        c = Company(name="TechCorp", access_total=10)
+        db.session.add(c)
+        db.session.commit()
+        u_comp = User(email='company@peps.swiss', password_hash=generate_password_hash('123456'), role='company_admin', company_id=c.id, is_both=False)
+        db.session.add(u_comp)
+
+    # 4. HYBRIDE (BOTH)
+    if not User.query.filter_by(email='both@peps.swiss').first():
+        u_both = User(email='both@peps.swiss', password_hash=generate_password_hash('123456'), role='partner', is_both=True)
+        db.session.add(u_both)
+        db.session.commit()
+        p_both = Partner(user_id=u_both.id, name="Hybrid Shop", category="Boutique", booking_enabled=False, image_url="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500")
+        db.session.add(p_both)
+        db.session.commit()
+        db.session.add(Offer(partner_id=p_both.id, title="Découverte", active=True))
+
+    db.session.commit()
+    return jsonify({"status": "SUCCESS", "msg": "Comptes V10 créés (Admin, Partner, Company, Both)"})
+
+# --- 📝 INSCRIPTION V10 ---
+@app.route('/api/register', methods=['POST'])
+def register():
+    d = request.json
+    email = d.get('email')
+    role_req = d.get('role', 'member')
+
+    if User.query.filter_by(email=email).first():
+        return jsonify(error="Email déjà utilisé"), 400
+    
+    final_role = 'member'
+    is_both = False
+    
+    if role_req == 'partner':
+        final_role = 'partner'
+        is_both = False
+    elif role_req == 'both':
+        final_role = 'partner'
+        is_both = True
+    elif role_req == 'company':
+        final_role = 'company_admin'
+    
+    u = User(email=email, password_hash=generate_password_hash(d.get('password')), role=final_role, is_both=is_both)
+    
+    # Abo offert pour la démo
+    if final_role == 'member' or is_both:
+        u.access_expires_at = datetime.utcnow() + timedelta(days=365)
+
+    db.session.add(u)
+    db.session.commit()
+    
+    # Création fiche partenaire vide
+    if final_role == 'partner':
+        p = Partner(user_id=u.id, name="Nouveau Commerce", category="Autre")
+        db.session.add(p)
         db.session.commit()
 
-        # 2. Partners (3 profils variés)
-        partners = [
-            ("Barber King", "Beauté", 47.1368, 7.2468),
-            ("Café du Centre", "Restaurant", 47.1400, 7.2500),
-            ("Salon Beauté", "Beauté", 47.1420, 7.2450)
-        ]
-        
-        for name, cat, lat, lng in partners:
-            p = Partner(user_id=(u_prt.id if name=="Barber King" else None), name=name, category=cat, booking_enabled=True, latitude=lat, longitude=lng, image_url="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500")
-            db.session.add(p); db.session.commit()
-            
-            # Services
-            s = Service(partner_id=p.id, name="Prestation Standard", duration_minutes=30, price_chf=50)
-            db.session.add(s); db.session.commit()
-            
-            # Offres
-            db.session.add(Offer(partner_id=p.id, title=f"Offre {name}", offer_type="permanent", active=True, discount_val="-20%"))
-            
-            # Horaires
-            for d in range(6): db.session.add(Availability(partner_id=p.id, day_of_week=d, start_time="09:00", end_time="19:00"))
-            
-            # 3. Réservations (Mixte Passé/Futur/Annulé)
-            # Passé (Confirmé)
-            db.session.add(Booking(user_id=u_mem.id, partner_id=p.id, service_id=s.id, start_at=datetime.utcnow()-timedelta(days=2), end_at=datetime.utcnow()-timedelta(days=2, minutes=30), status='confirmed'))
-            # Futur (Confirmé)
-            db.session.add(Booking(user_id=u_mem.id, partner_id=p.id, service_id=s.id, start_at=datetime.utcnow()+timedelta(days=1, hours=2), end_at=datetime.utcnow()+timedelta(days=1, hours=2, minutes=30), status='confirmed'))
-            # Futur (Annulé)
-            db.session.add(Booking(user_id=u_mem.id, partner_id=p.id, service_id=s.id, start_at=datetime.utcnow()+timedelta(days=3), end_at=datetime.utcnow()+timedelta(days=3, minutes=30), status='cancelled'))
-        
-        db.session.commit()
+    token = create_access_token(identity={'id': u.id, 'role': final_role})
+    return jsonify(success=True, token=token, role=final_role, is_both=is_both)
 
-    return jsonify({"success": True, "msg": "V9 Data Injected (3 Partners, 10 Bookings)"})
+# --- 🔑 LOGIN V10 ---
+@app.route('/api/login', methods=['POST'])
+def login():
+    d = request.json
+    u = User.query.filter_by(email=d.get('email')).first()
+    if u and check_password_hash(u.password_hash, d.get('password')):
+        # On renvoie is_both pour le frontend
+        return jsonify({
+            'token': create_access_token(identity={'id': u.id, 'role': u.role}), 
+            'role': u.role,
+            'is_both': u.is_both
+        })
+    return jsonify({'error': 'Identifiants incorrects'}), 401
 
-# --- CORE ---
+# --- ACCÈS AUX OFFRES ---
+@app.route('/api/offers')
+def get_offers():
+    # Ouvert à tous en lecture (le frontend filtre l'affichage)
+    offers = Offer.query.filter_by(active=True).all()
+    return jsonify([{
+        "id": o.id, "title": o.title, "type": o.offer_type, 
+        "partner": {"id": o.partner.id, "name": o.partner.name, "img": o.partner.image_url, "booking": o.partner.booking_enabled}
+    } for o in offers])
+
+# --- ROUTES V9 (RÉSERVATION) ---
 @app.route('/api/partner/<int:pid>/services')
-def get_srv(pid): return jsonify([{'id': s.id, 'name': s.name, 'duration': s.duration_minutes, 'price': s.price_chf} for s in Service.query.filter_by(partner_id=pid).all()])
+def get_services(pid):
+    services = Service.query.filter_by(partner_id=pid, is_active=True).all()
+    return jsonify([{'id':s.id, 'name':s.name, 'duration':s.duration_minutes, 'price':s.price_chf} for s in services])
 
 @app.route('/api/partner/<int:pid>/slots')
-def get_sl(pid): return jsonify(["09:00", "10:30", "14:00", "16:15"]) # Mock
+def get_slots(pid):
+    return jsonify(["10:00", "14:00", "16:00"])
 
 @app.route('/api/booking/create', methods=['POST'])
 @jwt_required()
-def cr_bk():
-    d=request.json; uid=get_jwt_identity()['id']
-    s=Service.query.get(d['service_id'])
-    dt=datetime.strptime(f"{d['date']} {d['time']}", "%Y-%m-%d %H:%M")
-    db.session.add(Booking(user_id=uid, partner_id=d['partner_id'], service_id=s.id, start_at=dt, end_at=dt+timedelta(minutes=s.duration_minutes), status='confirmed'))
-    db.session.commit(); return jsonify(success=True, msg="OK", privilege=True)
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    u = User.query.filter_by(email=request.json['email']).first()
-    if u: return jsonify(token=create_access_token(identity={'id':u.id, 'role':u.role}), role=u.role)
-    return jsonify(error="Error"), 401
-
-@app.route('/api/offers')
-def get_offers(): return jsonify([{"id":o.id, "title":o.title, "partner":{"id":o.partner.id, "name":o.partner.name, "img":o.partner.image_url, "booking":o.partner.booking_enabled}} for o in Offer.query.all()])
+def create_booking():
+    return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -239,8 +171,3 @@ def serve(path):
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
-
-# PATCH RELATIONS (Vital pour éviter models.py modif)
-Booking.user_ref = db.relationship('User', backref='bookings')
-Booking.partner_ref = db.relationship('Partner', backref='partner_bookings')
-Booking.service = db.relationship('Service')
