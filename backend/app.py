@@ -175,14 +175,19 @@ def create_booking():
 @app.route('/api/admin/test')
 @jwt_required()
 def admin_test():
+    print("[DEBUG] admin_test called")
     user_id = get_jwt_identity()
+    print(f"[DEBUG] user_id = {user_id}")
     u = User.query.get(user_id)
-    return jsonify({
+    print(f"[DEBUG] user found = {u is not None}")
+    result = {
         "user_id": user_id,
         "user_found": u is not None,
         "user_role": u.role if u else None,
         "is_admin": u.role == 'admin' if u else False
-    })
+    }
+    print(f"[DEBUG] result = {result}")
+    return jsonify(result)
 
 @app.route('/api/admin/global-stats')
 @jwt_required()
