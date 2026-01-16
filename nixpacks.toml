@@ -20,4 +20,4 @@ cmds = [
 ]
 
 [start]
-cmd = "cd backend && gunicorn -k eventlet -w 1 --bind 0.0.0.0:$PORT app:app"
+cmd = "cd backend && python3 -u -c 'import app; print(\"[DEBUG] App loaded successfully\")' && gunicorn -k eventlet -w 1 --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile - app:app"
