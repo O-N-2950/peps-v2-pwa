@@ -171,6 +171,38 @@ def get_slots(pid):
 def create_booking():
     return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
 
+# Routes Admin
+@app.route('/api/admin/global-stats')
+@jwt_required()
+def a_global():
+    if get_jwt_identity()['role'] != 'admin': return jsonify(error="Admin only"), 403
+    total_rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.status=='confirmed').scalar() or 0
+    return jsonify({
+        "members": User.query.filter_by(role='member').count(),
+        "partners": Partner.query.count(),
+        "bookings_month": Booking.query.filter(Booking.start_at >= datetime(datetime.utcnow().year, datetime.utcnow().month, 1)).count(),
+        "total_revenue": total_rev
+    })
+
+@app.route('/api/admin/booking-stats')
+@jwt_required()
+def a_charts():
+    data = []
+    for i in range(30):
+        d = date.today() - timedelta(days=i)
+        cnt = Booking.query.filter(func.date(Booking.start_at)==d).count()
+        data.append({"date": d.strftime("%d/%m"), "val": cnt})
+    return jsonify(list(reversed(data)))
+
+@app.route('/api/admin/bookings')
+@jwt_required()
+def a_bookings():
+    bookings = Booking.query.order_by(Booking.start_at.desc()).limit(100).all()
+    return jsonify([{
+        "id": b.id, "date": b.start_at.strftime("%d/%m %H:%M"), "partner": b.partner_ref.name,
+        "service": b.service.name, "client": b.user_ref.email, "status": b.status, "amount": b.service.price_chf
+    } for b in bookings])
+
 # SPA routing: Fallback vers index.html pour toutes les routes non-API
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
