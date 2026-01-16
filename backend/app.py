@@ -129,7 +129,7 @@ def register():
         db.session.add(p)
         db.session.commit()
 
-    token = create_access_token(identity={'id': u.id, 'role': final_role})
+    token = create_access_token(identity=u.id)
     return jsonify(success=True, token=token, role=final_role, is_both=is_both)
 
 # --- 🔑 LOGIN V10 ---
@@ -140,7 +140,7 @@ def login():
     if u and check_password_hash(u.password_hash, d.get('password')):
         # On renvoie is_both pour le frontend
         return jsonify({
-            'token': create_access_token(identity={'id': u.id, 'role': u.role}), 
+            'token': create_access_token(identity=u.id), 
             'role': u.role,
             'is_both': u.is_both
         })
@@ -175,7 +175,9 @@ def create_booking():
 @app.route('/api/admin/global-stats')
 @jwt_required()
 def a_global():
-    if get_jwt_identity()['role'] != 'admin': return jsonify(error="Admin only"), 403
+    user_id = get_jwt_identity()
+    u = User.query.get(user_id)
+    if not u or u.role != 'admin': return jsonify(error="Admin only"), 403
     total_rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.status=='confirmed').scalar() or 0
     return jsonify({
         "members": User.query.filter_by(role='member').count(),
