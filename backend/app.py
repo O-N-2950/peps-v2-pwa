@@ -172,6 +172,18 @@ def create_booking():
     return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
 
 # Routes Admin
+@app.route('/api/admin/test')
+@jwt_required()
+def admin_test():
+    user_id = get_jwt_identity()
+    u = User.query.get(user_id)
+    return jsonify({
+        "user_id": user_id,
+        "user_found": u is not None,
+        "user_role": u.role if u else None,
+        "is_admin": u.role == 'admin' if u else False
+    })
+
 @app.route('/api/admin/global-stats')
 @jwt_required()
 def a_global():
