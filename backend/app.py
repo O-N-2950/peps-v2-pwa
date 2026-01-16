@@ -3,7 +3,7 @@ import random
 import stripe
 import requests
 from datetime import datetime, timedelta, date
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
@@ -171,7 +171,17 @@ def get_slots(pid):
 def create_booking():
     return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
 
-# SPA routing handled by WhiteNoise middleware
+# SPA routing: Fallback vers index.html pour toutes les routes non-API
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_spa(path):
+    # Si le path existe comme fichier statique, WhiteNoise le sert déjà
+    # Sinon, on renvoie index.html pour le routing React
+    if path and not path.startswith('api/'):
+        file_path = os.path.join(STATIC_DIR, path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return send_from_directory(STATIC_DIR, path)
+    return send_from_directory(STATIC_DIR, 'index.html')
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
