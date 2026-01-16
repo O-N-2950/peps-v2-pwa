@@ -12,7 +12,10 @@ from sqlalchemy import text, and_
 from apscheduler.schedulers.background import BackgroundScheduler
 from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers, Activation, UserDevice, PartnerFeedback
 
-app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
+# Chemin absolu pour Railway
+import os
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend', 'dist')
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='/')
 CORS(app)
 
 app.config['SECRET_KEY'] = 'peps_v10_final'
