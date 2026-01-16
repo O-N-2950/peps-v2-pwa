@@ -172,6 +172,10 @@ def create_booking():
     return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
 
 # Routes Admin
+@app.route('/api/admin/test-no-jwt')
+def admin_test_no_jwt():
+    return jsonify({"status": "ok", "message": "Route sans JWT fonctionne"})
+
 @app.route('/api/admin/test')
 @jwt_required()
 def admin_test():
