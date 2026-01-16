@@ -3,7 +3,7 @@ import random
 import stripe
 import requests
 from datetime import datetime, timedelta, date
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
@@ -12,15 +12,16 @@ from sqlalchemy import text, and_
 from apscheduler.schedulers.background import BackgroundScheduler
 from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers, Activation, UserDevice, PartnerFeedback
 
-# Chemin absolu pour Railway
+# Configuration Flask
 import os
-STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend', 'dist')
-print(f"[INIT] STATIC_DIR={STATIC_DIR}")
-print(f"[INIT] STATIC_DIR exists? {os.path.exists(STATIC_DIR)}")
-if os.path.exists(STATIC_DIR):
-    print(f"[INIT] STATIC_DIR contents: {os.listdir(STATIC_DIR)[:10]}")
-app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='/')
+from whitenoise import WhiteNoise
+
+app = Flask(__name__)
 CORS(app)
+
+# WhiteNoise pour servir les fichiers statiques et gérer le SPA routing
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend', 'dist')
+app.wsgi_app = WhiteNoise(app.wsgi_app, root=STATIC_DIR, index_file='index.html')
 
 app.config['SECRET_KEY'] = 'peps_v10_final'
 app.config['JWT_SECRET_KEY'] = 'peps_jwt_v10'
@@ -170,13 +171,7 @@ def get_slots(pid):
 def create_booking():
     return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    print(f"[SPA ROUTE] path={path}, static_folder={app.static_folder}")
-    if path and os.path.exists(os.path.join(app.static_folder, path)): 
-        return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
+# SPA routing handled by WhiteNoise middleware
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))

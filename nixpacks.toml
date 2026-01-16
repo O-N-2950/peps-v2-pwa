@@ -11,13 +11,10 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🚀 FORCE REBUILD V10 - PEP\'s Digital...'",
+  "echo '🚀 BUILD V10 WhiteNoise - PEP\'s Digital'",
   "cd frontend && rm -rf dist",
-  "cd frontend && npm run build",
-  "echo '📁 Vérification du build frontend:'",
-  "ls -lh frontend/dist/ || echo 'ERROR: frontend/dist not found!'",
-  "ls -lh frontend/dist/assets/ || echo 'ERROR: frontend/dist/assets not found!'"
+  "cd frontend && npm run build"
 ]
 
 [start]
-cmd = "cd backend && python3 -u -c 'import app; print(\"[DEBUG] App loaded successfully\")' && gunicorn -k eventlet -w 1 --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile - app:app"
+cmd = "cd backend && gunicorn -k eventlet -w 1 --bind 0.0.0.0:$PORT app:app"
