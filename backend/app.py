@@ -169,7 +169,9 @@ def create_booking():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    if path and os.path.exists(os.path.join(app.static_folder, path)): return send_from_directory(app.static_folder, path)
+    print(f"[SPA ROUTE] path={path}, static_folder={app.static_folder}")
+    if path and os.path.exists(os.path.join(app.static_folder, path)): 
+        return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
