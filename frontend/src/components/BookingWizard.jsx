@@ -1,208 +1,135 @@
-import os
-import stripe
-import requests
-import random
-from datetime import datetime, timedelta, date
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
-from flask_socketio import SocketIO
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import text, and_
-from apscheduler.schedulers.background import BackgroundScheduler
-from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, CheckCircle, AlertTriangle, X } from 'lucide-react';
 
-app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
-CORS(app)
+export default function BookingWizard({ partner, onClose }) {
+  const [step, setStep] = useState(1); // 1:Service, 2:Date, 3:Confirm
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [slots, setSlots] = useState([]);
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
 
-app.config['SECRET_KEY'] = 'peps_v8_final'
-app.config['JWT_SECRET_KEY'] = 'peps_jwt_v8'
-database_url = os.getenv('DATABASE_URL', 'sqlite:///peps.db')
-if database_url.startswith("postgres://"): database_url = database_url.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+  useEffect(() => {
+    fetch(`/api/partner/${partner.id}/services`).then(r=>r.json()).then(setServices);
+  }, [partner.id]);
 
-db.init_app(app)
-jwt = JWTManager(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+  useEffect(() => {
+    if(selectedService && date) {
+      setLoading(true);
+      fetch(`/api/partner/${partner.id}/slots?date=${date}&service_id=${selectedService.id}`)
+        .then(r=>r.json())
+        .then(d => { setSlots(d); setLoading(false); });
+    }
+  }, [date, selectedService]);
 
-# --- 📅 API RÉSERVATION ---
+  const confirmBooking = async () => {
+    const token = localStorage.getItem('token');
+    if(!token) return alert("Veuillez vous connecter (compte gratuit) pour réserver !");
 
-@app.route('/api/partner/<int:pid>/services')
-def get_services(pid):
-    services = Service.query.filter_by(partner_id=pid, is_active=True).all()
-    return jsonify([{
-        'id': s.id, 'name': s.name, 'duration': s.duration_minutes, 
-        'price': s.price_chf, 'desc': s.description
-    } for s in services])
-
-@app.route('/api/partner/<int:pid>/slots')
-def get_slots(pid):
-    """Algorithme de disponibilité"""
-    date_str = request.args.get('date')
-    service_id = request.args.get('service_id')
-    
-    if not date_str or not service_id: return jsonify([])
-    
-    target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    service = Service.query.get(service_id)
-    day_idx = target_date.weekday() # 0=Lundi
-    
-    # 1. Horaires du jour
-    hours = Availability.query.filter_by(partner_id=pid, day_of_week=day_idx).first()
-    if not hours: return jsonify([]) 
-
-    # 2. Réservations existantes
-    day_start = datetime.combine(target_date, datetime.min.time())
-    day_end = datetime.combine(target_date, datetime.max.time())
-    
-    existing = Booking.query.filter(
-        Booking.partner_id == pid,
-        Booking.status == 'confirmed',
-        Booking.start_at >= day_start,
-        Booking.start_at <= day_end
-    ).all()
-
-    # 3. Calcul créneaux
-    slots = []
-    open_time = datetime.strptime(hours.start_time, "%H:%M").time()
-    close_time = datetime.strptime(hours.end_time, "%H:%M").time()
-    
-    current = datetime.combine(target_date, open_time)
-    closing = datetime.combine(target_date, close_time)
-    duration = timedelta(minutes=service.duration_minutes)
-    
-    now = datetime.utcnow() + timedelta(hours=1) # UTC+1 (Zurich approx)
-
-    while current + duration <= closing:
-        # Ne pas proposer le passé
-        if current > now:
-            slot_end = current + duration
-            is_taken = False
-            for b in existing:
-                # Chevauchement : (StartA < EndB) and (EndA > StartB)
-                if current < b.end_at and slot_end > b.start_at:
-                    is_taken = True
-                    break
-            
-            if not is_taken:
-                slots.append(current.strftime("%H:%M"))
-        
-        current += timedelta(minutes=15) # Pas de 15 min
-
-    return jsonify(slots)
-
-@app.route('/api/booking/create', methods=['POST'])
-@jwt_required()
-def create_booking():
-    """Transaction avec verrouillage"""
-    uid = get_jwt_identity()['id']
-    data = request.json
-    
-    partner = Partner.query.get(data['partner_id'])
-    user = User.query.get(uid)
-    service = Service.query.get(data['service_id'])
-    
-    # RÈGLE 1 : Partner doit avoir un privilège actif pour activer la résa
-    has_privilege_offer = Offer.query.filter_by(partner_id=partner.id, active=True).first()
-    if not has_privilege_offer:
-        return jsonify(error="Réservation indisponible (Partenaire sans privilège actif)."), 403
-
-    start_dt = datetime.strptime(f"{data['date']} {data['time']}", "%Y-%m-%d %H:%M")
-    end_dt = start_dt + timedelta(minutes=service.duration_minutes)
-
-    try:
-        # RÈGLE 2 : ANTI-DOUBLE BOOKING (Verrouillage)
-        # On verrouille le Partenaire pour s'assurer qu'on est le seul à écrire
-        # (Sur Postgres, cela met en file d'attente les écritures simultanées)
-        db.session.query(Partner).with_for_update().get(partner.id)
-
-        # On vérifie s'il y a collision
-        collision = Booking.query.filter(
-            Booking.partner_id == partner.id,
-            Booking.status == 'confirmed',
-            Booking.start_at < end_dt,
-            Booking.end_at > start_dt
-        ).first()
-
-        if collision:
-            return jsonify(error="Oups ! Ce créneau vient d'être pris."), 409
-
-        # RÈGLE 3 : STATUT MEMBRE
-        # Le privilège est appliqué SI l'utilisateur est membre actif
-        is_vip = user.is_active_member
-        privilege_txt = "Privilège Membre Appliqué ✅" if is_vip else "Tarif Standard (Non-membre)"
-
-        new_b = Booking(
-            user_id=uid, partner_id=partner.id, service_id=service.id,
-            start_at=start_dt, end_at=end_dt,
-            is_privilege_applied=is_vip,
-            privilege_details=privilege_txt
-        )
-        
-        db.session.add(new_b)
-        db.session.commit()
-        
-        return jsonify({
-            "success": True, 
-            "msg": "Rendez-vous confirmé !", 
-            "privilege": is_vip,
-            "details": privilege_txt
+    const res = await fetch('/api/booking/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify({
+            partner_id: partner.id,
+            service_id: selectedService.id,
+            date: date,
+            time: selectedSlot
         })
+    });
+    const data = await res.json();
+    if(data.success) setResult(data);
+    else alert(data.error);
+  };
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify(error=str(e)), 500
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col animate-slide-up">
+        
+        <div className="bg-[#3D9A9A] p-4 text-white flex justify-between items-center">
+            <h2 className="font-black text-lg">Réserver : {partner.name}</h2>
+            <button onClick={onClose}><X size={20}/></button>
+        </div>
 
-# --- ☢️ SETUP V8 ---
-@app.route('/api/setup_v8')
-def setup_v8():
-    with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
-    db.create_all()
-    
-    # 1. Comptes
-    u_part = User(email='partner@peps.swiss', password_hash=generate_password_hash('123'), role='partner')
-    u_memb = User(email='member@peps.swiss', password_hash=generate_password_hash('123'), role='member') # Gratuit
-    db.session.add_all([u_part, u_memb])
-    db.session.commit()
+        <div className="p-6 overflow-y-auto">
+            {result ? (
+                <div className="text-center py-8">
+                    <CheckCircle size={64} className="text-green-500 mx-auto mb-4"/>
+                    <h3 className="text-2xl font-black mb-2">Confirmé !</h3>
+                    <p className="text-gray-500 mb-6">{result.msg}</p>
+                    
+                    {result.privilege ? (
+                        <div className="bg-green-100 text-green-700 p-4 rounded-xl font-bold border border-green-200 flex items-center gap-2 justify-center">
+                            ✨ {result.details}
+                        </div>
+                    ) : (
+                        <div className="bg-gray-100 text-gray-500 p-4 rounded-xl text-sm border">
+                            Réservation Standard
+                            <div className="text-xs mt-1 text-pink-500 font-bold">Passez Membre Actif pour -20% !</div>
+                        </div>
+                    )}
+                    <button onClick={onClose} className="mt-6 w-full bg-black text-white py-3 rounded-xl font-bold">Terminer</button>
+                </div>
+            ) : (
+                <>
+                {step === 1 && (
+                    <div className="space-y-3">
+                        <p className="text-sm font-bold text-gray-400 uppercase">Choisir une prestation</p>
+                        {services.map(s => (
+                            <div key={s.id} onClick={()=>{setSelectedService(s); setStep(2)}} 
+                                 className="border p-4 rounded-xl hover:border-[#3D9A9A] cursor-pointer flex justify-between items-center bg-gray-50 hover:bg-white transition">
+                                <div>
+                                    <div className="font-bold">{s.name}</div>
+                                    <div className="text-xs text-gray-400">{s.duration} min</div>
+                                </div>
+                                <div className="font-black">{s.price} CHF</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
-    # 2. Partenaire & Offre (Obligatoire)
-    p = Partner(user_id=u_part.id, name="Barber King", category="Beauté", booking_enabled=True, image_url="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500")
-    db.session.add(p); db.session.commit()
-    db.session.add(Offer(partner_id=p.id, title="-20% Coupe", offer_type="permanent", active=True, discount_val="-20%"))
-    
-    # 3. Prestations & Horaires
-    db.session.add(Service(partner_id=p.id, name="Coupe Homme", duration_minutes=30, price_chf=35.0))
-    db.session.add(Service(partner_id=p.id, name="Barbe", duration_minutes=15, price_chf=20.0))
-    
-    for d in range(5): # Lun-Ven
-        db.session.add(Availability(partner_id=p.id, day_of_week=d, start_time="09:00", end_time="19:00"))
+                {step === 2 && (
+                    <div>
+                        <button onClick={()=>setStep(1)} className="text-xs text-gray-400 mb-4">← Retour</button>
+                        <input type="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={e=>setDate(e.target.value)} className="w-full p-3 border rounded-xl mb-4 font-bold"/>
+                        
+                        {loading ? <div className="text-center py-4 text-gray-400">Chargement...</div> : (
+                            <div className="grid grid-cols-4 gap-2">
+                                {slots.map(slot => (
+                                    <button key={slot} onClick={()=>{setSelectedSlot(slot); setStep(3)}} 
+                                            className="py-2 bg-gray-100 rounded-lg text-sm font-bold hover:bg-black hover:text-white transition">
+                                        {slot}
+                                    </button>
+                                ))}
+                                {slots.length === 0 && <div className="col-span-4 text-center text-red-400 text-xs py-2">Aucun créneau.</div>}
+                            </div>
+                        )}
+                    </div>
+                )}
 
-    db.session.commit()
-    return jsonify(success=True, msg="V8 Ready")
+                {step === 3 && (
+                    <div>
+                        <button onClick={()=>setStep(2)} className="text-xs text-gray-400 mb-4">← Retour</button>
+                        <div className="bg-gray-50 p-4 rounded-xl mb-6 border space-y-1">
+                            <div className="flex justify-between font-bold"><span>{selectedService.name}</span><span>{selectedService.price} CHF</span></div>
+                            <div className="flex justify-between text-sm text-gray-500"><span>{date}</span><span>{selectedSlot}</span></div>
+                        </div>
+                        
+                        <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-800 mb-6 flex gap-2">
+                            <AlertTriangle size={16} className="shrink-0"/>
+                            <p>Paiement sur place. Votre statut de membre sera vérifié lors du paiement pour appliquer le privilège.</p>
+                        </div>
 
-# --- AUTH & SERVE ---
-@app.route('/api/login', methods=['POST'])
-def login():
-    d = request.json
-    u = User.query.filter_by(email=d.get('email')).first()
-    if u and check_password_hash(u.password_hash, d.get('password')):
-        return jsonify(token=create_access_token(identity={'id': u.id, 'role': u.role}), role=u.role)
-    return jsonify(error="Incorrect"), 401
-
-@app.route('/api/offers')
-def get_offers():
-    offers = Offer.query.filter_by(active=True).all()
-    return jsonify([{
-        "id": o.id, "title": o.title, "type": o.offer_type, 
-        "partner": {"id": o.partner.id, "name": o.partner.name, "img": o.partner.image_url, "booking": o.partner.booking_enabled}
-    } for o in offers])
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path and os.path.exists(os.path.join(app.static_folder, path)): return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+                        <button onClick={confirmBooking} className="w-full bg-[#3D9A9A] text-white py-4 rounded-xl font-black text-lg shadow-xl">
+                            VALIDER LE RDV
+                        </button>
+                    </div>
+                )}
+                </>
+            )}
+        </div>
+      </div>
+    </div>
+  );
+}

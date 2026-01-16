@@ -1,301 +1,136 @@
-PROMPT OFFICIEL À TRANSMETTRE À GEMINI
-Implémentation du module Réservation PEPS – Spécification fonctionnelle complète
-🎯 CONTEXTE GÉNÉRAL PEPS
-
-PEPS est une application communautaire mettant en relation :
-
-des utilisateurs (clients),
-
-et des commerçants partenaires.
-
-Le modèle PEPS repose sur 3 principes non négociables :
-
-Tout le monde peut s’inscrire gratuitement sur PEPS
-
-Les privilèges sont réservés exclusivement aux membres actifs PEPS (abonnement payant)
-
-Tout commerçant partenaire PEPS DOIT obligatoirement proposer au moins un privilège exclusif
-
-La réservation en ligne est introduite comme :
-
-un outil de croissance
-
-un levier d’acquisition d’utilisateurs
-
-et non comme une barrière financière.
-
-1️⃣ STATUTS UTILISATEURS (CLIENTS)
-1. Utilisateur non inscrit
-
-Peut :
-
-consulter l’application
-
-voir les commerçants partenaires
-
-voir les prestations et privilèges
-
-Ne peut PAS :
-
-réserver
-
-bénéficier de privilèges
-
-2. Utilisateur inscrit gratuit (compte PEPS)
-
-Peut :
-
-réserver un rendez-vous chez un commerçant partenaire
-
-consulter son historique de réservations
-
-Ne peut PAS :
-
-bénéficier des privilèges PEPS
-
-Doit voir clairement :
-
-qu’un privilège existe
-
-qu’il est réservé aux membres actifs
-
-👉 Inscription gratuite obligatoire pour réserver
-👉 Aucun abonnement requis pour réserver
-
-3. Membre actif PEPS (abonnement payé)
-
-Peut :
-
-réserver
-
-bénéficier automatiquement du privilège exclusif du commerçant partenaire
-
-Doit être identifié clairement comme “Membre actif PEPS”
-
-2️⃣ RÈGLES FONDAMENTALES – PRÉCISION CRITIQUE
-
-Réservation ≠ privilège
-
-Le privilège :
-
-est obligatoire pour chaque commerçant partenaire
-
-est exclusivement réservé aux membres actifs PEPS
-
-Aucun commerçant partenaire ne peut :
-
-être visible comme “partenaire actif”
-
-activer la réservation
-sans avoir défini un privilège valide
-
-⚠️ Bloquer techniquement le statut “partenaire actif” si aucun privilège n’est défini.
-
-3️⃣ STATUT COMMERÇANT PARTENAIRE
-Principe fondamental
-
-👉 PEPS est gratuit pour les commerçants partenaires.
-
-Contrepartie obligatoire
-
-Tout commerçant partenaire PEPS doit proposer au minimum un privilège exclusif pour les membres actifs PEPS.
-
-Règles
-
-Un commerçant partenaire :
-
-DOIT :
-
-définir au moins un privilège exclusif
-
-PEUT :
-
-activer la réservation en ligne
-
-NE PEUT PAS :
-
-être listé sans privilège
-
-bénéficier de la visibilité PEPS sans privilège
-
-4️⃣ MODULE “RÉSERVATION” – POSITIONNEMENT PRODUIT
-Décision stratégique
-
-La réservation est offerte au lancement
-
-Elle est :
-
-optionnelle pour le commerçant
-
-gratuite
-
-pensée comme un moteur de croissance
-
-Aucune facturation n’est activée à ce stade
-
-5️⃣ GESTION DES PRESTATIONS (OBLIGATOIRE)
-
-Chaque commerçant partenaire doit pouvoir gérer une liste de prestations réservables, propre à son établissement.
-
-Exemples
-
-Coupe cheveux
-
-Barbe
-
-Coupe + barbe
-
-Massage 60 minutes
-
-Massage 90 minutes
-
-Soin du visage
-
-Règles techniques
-
-Implémenter une entité services liée à partner_id avec au minimum :
-
-name
-
-duration_minutes
-
-price_chf (prix indicatif)
-
-description (optionnel)
-
-is_active
-
-Règles fonctionnelles
-
-Le flux de réservation commence obligatoirement par le choix d’une prestation
-
-La durée de la prestation détermine :
-
-la durée du rendez-vous
-
-les créneaux disponibles
-
-Le service_id doit appartenir au même partner_id que le rendez-vous (validation serveur obligatoire)
-
-6️⃣ AGENDA PAR COMMERÇANT + TEMPS RÉEL (ANTI DOUBLE BOOKING)
-
-Chaque commerçant partenaire dispose de son agenda indépendant.
-
-Calcul des disponibilités
-
-Les créneaux sont calculés à partir :
-
-des règles d’ouverture (jours / horaires)
-
-des exceptions (jours fermés, vacances)
-
-des rendez-vous existants pour ce partner_id
-reminds.
-
-Garantie anti double booking
-
-Au moment de la confirmation :
-
-le backend revalide la disponibilité
-
-empêche tout chevauchement de rendez-vous
-
-👉 Implémenter une garantie transactionnelle :
-
-idéalement via une contrainte PostgreSQL de non-chevauchement (partner_id + interval start_at/end_at)
-
-ou à défaut via transaction + verrouillage + vérification avant insertion
-
-Comportement UX
-
-Si un créneau est pris entre affichage et confirmation :
-
-afficher un message clair
-
-forcer le rafraîchissement des créneaux
-
-7️⃣ RÈGLES CÔTÉ RÉSERVATION (CLIENT)
-
-Pour réserver :
-
-inscription gratuite PEPS obligatoire
-
-abonnement PEPS NON requis
-
-Lors de la réservation :
-
-membre actif → privilège appliqué
-
-non-membre → réservation standard
-
-UX obligatoire
-
-Badge visible :
-
-“Privilège PEPS appliqué”
-
-ou “Réservation standard”
-
-Message non bloquant :
-
-“Ce privilège est réservé aux membres actifs PEPS.”
-
-⚠️ Ne jamais bloquer une réservation pour forcer un abonnement.
-
-8️⃣ NOTIFICATIONS
-
-Confirmation + rappels envoyés :
-
-par email
-
-par push PEPS
-
-Pas de SMS (volontairement exclu)
-
-9️⃣ PRÉPARATION À L’ÉVOLUTION FUTURE (SANS L’ACTIVER)
-
-Même si la réservation est gratuite au lancement, prévoir :
-
-un flag booking_enabled
-
-un flag booking_plan = free | pro
-
-une architecture compatible Stripe (abonnement futur)
-
-du tracking par commerçant :
-
-nombre de réservations
-
-utilisateurs générés
-
-taux membres actifs / non actifs
-
-⚠️ Aucune facturation n’est activée à ce stade.
-
-1️⃣0️⃣ UX / TECH – POINTS DE VIGILANCE
-
-Inscription rapide et fluide
-
-Réservation simple (pas de tunnel long)
-
-Privilège toujours visible
-
-Historique des rendez-vous (client + commerçant)
-
-Politique d’annulation visible
-
-Fuseau horaire par défaut : Europe/Zurich
-
-🧠 PHILOSOPHIE PEPS (NON NÉGOCIABLE)
-
-Le privilège est la clé du modèle PEPS
-
-La réservation est un accélérateur
-
-La valeur précède la monétisation
-
-L’abonnement est une conséquence de l’usage, jamais une contrainte
-
-✅ RÉSUMÉ FINAL
-
-Tout utilisateur peut s’inscrire gratuitement et réserver sur PEPS ; tout commerçant partenaire doit obligatoirement offrir un privilège exclusif aux membres actifs ; chaque commerçant dispose de son propre agenda de réservation en temps réel avec prestations définies ; la réservation est gratuite au lancement et pensée comme un moteur de croissance durable pour l’écosystème PEPS.
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
+# Table Followers
+followers = db.Table('followers',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
+)
+
+# --- CORE ---
+class Pack(db.Model):
+    __tablename__ = 'packs'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    access_count = db.Column(db.Integer)
+    price_chf = db.Column(db.Float)
+    price_eur = db.Column(db.Float)
+
+class Company(db.Model):
+    __tablename__ = 'companies'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    access_total = db.Column(db.Integer, default=0)
+    employees = db.relationship('User', backref='company_ref', lazy=True)
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True)
+    password_hash = db.Column(db.String(256))
+    role = db.Column(db.String(20), default='member')
+    
+    # ABONNEMENT (Le Graal)
+    access_expires_at = db.Column(db.DateTime, nullable=True)
+    
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
+    partner_profile = db.relationship('Partner', backref='owner', uselist=False)
+    followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers_list', lazy='dynamic'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    @property
+    def is_active_member(self):
+        """Vrai si l'abo est actif"""
+        return self.access_expires_at and self.access_expires_at > datetime.utcnow()
+
+class Partner(db.Model):
+    __tablename__ = 'partners'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    name = db.Column(db.String(100))
+    category = db.Column(db.String(50))
+    icon_slug = db.Column(db.String(100))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    image_url = db.Column(db.String(500))
+    
+    # CONFIG RÉSERVATION
+    booking_enabled = db.Column(db.Boolean, default=False)
+    
+    offers = db.relationship('Offer', backref='partner', lazy=True)
+    # Relations Réservation
+    services = db.relationship('Service', backref='partner', lazy=True)
+    availabilities = db.relationship('Availability', backref='partner', lazy=True)
+    bookings = db.relationship('Booking', backref='partner', lazy=True)
+
+class Offer(db.Model):
+    __tablename__ = 'offers'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    title = db.Column(db.String(100))
+    offer_type = db.Column(db.String(20)) 
+    active = db.Column(db.Boolean, default=True)
+    discount_val = db.Column(db.String(20))
+    stock = db.Column(db.Integer, nullable=True)
+
+# --- MODULE RÉSERVATION V8 ---
+
+class Service(db.Model):
+    """Prestations (ex: Coupe Homme, 30min)"""
+    __tablename__ = 'services'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    price_chf = db.Column(db.Float)
+    description = db.Column(db.String(255))
+    is_active = db.Column(db.Boolean, default=True)
+
+class Availability(db.Model):
+    """Horaires (0=Lundi)"""
+    __tablename__ = 'availabilities'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    day_of_week = db.Column(db.Integer) 
+    start_time = db.Column(db.String(5)) # "09:00"
+    end_time = db.Column(db.String(5))   # "18:00"
+
+class Booking(db.Model):
+    """Rendez-vous"""
+    __tablename__ = 'bookings'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'))
+    
+    start_at = db.Column(db.DateTime, nullable=False)
+    end_at = db.Column(db.DateTime, nullable=False)
+    status = db.Column(db.String(20), default='confirmed')
+    
+    # SNAPSHOT DU PRIVILÈGE (Le cœur du modèle)
+    # On stocke l'état AU MOMENT de la résa (Membre ou pas ?)
+    is_privilege_applied = db.Column(db.Boolean, default=False)
+    privilege_details = db.Column(db.String(200))
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    service = db.relationship('Service')
+
+# Tables utilitaires V7 conservées
+class Activation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    offer_id = db.Column(db.Integer, db.ForeignKey('offers.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    code = db.Column(db.String(50))
+
+class UserDevice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    device_fingerprint = db.Column(db.String(100))
+
+class PartnerFeedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    rating = db.Column(db.Integer)
