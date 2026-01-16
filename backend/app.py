@@ -178,12 +178,18 @@ def a_global():
     user_id = get_jwt_identity()
     u = User.query.get(user_id)
     if not u or u.role != 'admin': return jsonify(error="Admin only"), 403
-    total_rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.status=='confirmed').scalar() or 0
+    
+    # Calcul sécurisé du revenu total
+    try:
+        total_rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.status=='confirmed').scalar() or 0
+    except:
+        total_rev = 0
+    
     return jsonify({
         "members": User.query.filter_by(role='member').count(),
         "partners": Partner.query.count(),
         "bookings_month": Booking.query.filter(Booking.start_at >= datetime(datetime.utcnow().year, datetime.utcnow().month, 1)).count(),
-        "total_revenue": total_rev
+        "total_revenue": int(total_rev)
     })
 
 @app.route('/api/admin/booking-stats')
