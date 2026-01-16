@@ -33,18 +33,3 @@ export default function MemberDashboard() {
     </div>
   );
 }
-🚦 8. ROUTING & LOGIN (App.jsx)
-Fichier : /frontend/src/App.jsx (Remplacez TOUT)
-
-JavaScript
-
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import Navigation from './components/Navigation';
-import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import Register from './components/Register';
-import MemberHome from './components/MemberHome';
-import MemberDashboard from './components/MemberDashboard';
-import PartnerDashboard from './components/PartnerDashboard';
-import PartnerBookings from './components/PartnerBookings';
