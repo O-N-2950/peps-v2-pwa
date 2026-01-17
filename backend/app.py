@@ -65,9 +65,7 @@ def admin_test_no_jwt():
 @app.route('/api/admin/global-stats')
 @jwt_required()
 def admin_global_stats():
-    from flask_jwt_extended import get_jwt
-    claims = get_jwt()
-    if claims.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    if get_jwt_identity().get('role') != 'admin': return jsonify(error="Unauthorized"), 403
     
     try:
         # Utilisation de func.count (nécessite l'import ajouté en haut)
@@ -91,9 +89,7 @@ def admin_global_stats():
 @app.route('/api/admin/partners-overview')
 @jwt_required()
 def admin_partners_overview():
-    from flask_jwt_extended import get_jwt
-    claims = get_jwt()
-    if claims.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    if get_jwt_identity().get('role') != 'admin': return jsonify(error="Unauthorized"), 403
     
     try:
         partners = Partner.query.all()
@@ -118,9 +114,7 @@ def admin_partners_overview():
 @app.route('/api/admin/booking-stats')
 @jwt_required()
 def admin_booking_stats():
-    from flask_jwt_extended import get_jwt
-    claims = get_jwt()
-    if claims.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    if get_jwt_identity().get('role') != 'admin': return jsonify(error="Unauthorized"), 403
     try:
         confirmed = Booking.query.filter_by(status='confirmed').count()
         return jsonify([{"name": "Confirmés", "value": confirmed}])
@@ -129,9 +123,7 @@ def admin_booking_stats():
 @app.route('/api/admin/bookings')
 @jwt_required()
 def admin_bookings_list():
-    from flask_jwt_extended import get_jwt
-    claims = get_jwt()
-    if claims.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    if get_jwt_identity().get('role') != 'admin': return jsonify(error="Unauthorized"), 403
     try:
         # Utilisation de desc() nécessite l'import
         bookings = Booking.query.order_by(desc(Booking.created_at)).limit(20).all()
@@ -196,7 +188,7 @@ def growth_ai():
 @app.route('/api/partner/my-stats')
 @jwt_required()
 def my_stats():
-    uid = get_jwt_identity()
+    uid = get_jwt_identity()['id']
     u = User.query.get(uid)
     if not u.partner_profile: return jsonify(error="Not partner"), 403
     return jsonify({"name": u.partner_profile.name, "followers_count": u.partner_profile.followers_list.count(), "engagement_score": 5})
@@ -219,7 +211,7 @@ def register():
         db.session.add(Partner(user_id=u.id, name="Nouveau", category="Autre"))
         db.session.commit()
 
-    return jsonify(success=True, token=create_access_token(identity=u.id, additional_claims={'role': final_role}), role=final_role, is_both=is_both)
+    return jsonify(success=True, token=create_access_token(identity={'id': u.id, 'role': final_role}), role=final_role, is_both=is_both)
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -227,7 +219,7 @@ def login():
     u = User.query.filter_by(email=d.get('email')).first()
     if u and check_password_hash(u.password_hash, d.get('password')):
         return jsonify({
-            'token': create_access_token(identity=u.id, additional_claims={'role': u.role}), 
+            'token': create_access_token(identity={'id': u.id, 'role': u.role}), 
             'role': u.role,
             'is_both': u.is_both
         })
