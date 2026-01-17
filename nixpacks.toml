@@ -1,7 +1,7 @@
 providers = ["python", "node"]
 
 [phases.setup]
-nixPkgs = ["python3", "nodejs", "npm", "gcc", "libpq-dev"]
+nixPkgs = ["python3", "nodejs", "npm", "libpq-dev"]
 
 [phases.install]
 cmds = [
@@ -11,11 +11,14 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🚀 BUILDING V10.3 STABLE...'",
+  "echo '🚀 BUILDING V11 RESCUE...'",
   "cd frontend && rm -rf dist",
   "cd frontend && npm run build"
 ]
 
 [start]
-# Timeout augmenté à 120s pour éviter les kills prématurés
-cmd = "cd backend && gunicorn -k eventlet -w 1 --timeout 120 --log-level debug --bind 0.0.0.0:$PORT app:app"
+# MODE STANDARD (Pas d'eventlet). Timeout long.
+cmd = "cd backend && gunicorn -w 1 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT app:app"
+
+[variables]
+PYTHONUNBUFFERED = "1"
