@@ -1,37 +1,37 @@
+# 1. MONKEY PATCH OBLIGATOIRE (DOIT ÊTRE LA TOUTE PREMIÈRE LIGNE)
+import eventlet
+eventlet.monkey_patch()
+
 import os
-import random
 import stripe
 import requests
+import json
+import random
 from datetime import datetime, timedelta, date
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import text, and_
+# 2. AJOUT DES IMPORTS SQL MANQUANTS (func, desc)
+from sqlalchemy import text, func, desc, and_
 from apscheduler.schedulers.background import BackgroundScheduler
+# 3. AJOUT DE L'IMPORT 'followers'
 from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers, Activation, UserDevice, PartnerFeedback
 
-# Configuration Flask
-import os
-from whitenoise import WhiteNoise
-
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app)
 
-# WhiteNoise pour servir les fichiers statiques et gérer le SPA routing
-STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend', 'dist')
-app.wsgi_app = WhiteNoise(app.wsgi_app, root=STATIC_DIR, index_file='index.html')
-
-app.config['SECRET_KEY'] = 'peps_v10_final'
-app.config['JWT_SECRET_KEY'] = 'peps_jwt_v10'
+# CONFIGURATION
+app.config['SECRET_KEY'] = 'peps_v10_final_fix'
+app.config['JWT_SECRET_KEY'] = 'peps_jwt_v10_fix'
 database_url = os.getenv('DATABASE_URL', 'sqlite:///peps.db')
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# APIs
+# API KEYS
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 PERPLEXITY_KEY = os.getenv('PERPLEXITY_API_KEY')
 
@@ -39,210 +39,211 @@ db.init_app(app)
 jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# --- ☢️ RESET DB ---
+# --- 🔄 MAINTENANCE ---
+def maintenance():
+    with app.app_context():
+        try:
+            Offer.query.filter(Offer.offer_type=='flash', Offer.stock<=0).update({Offer.active: False})
+            db.session.commit()
+        except: db.session.rollback()
+
+# Démarrage conditionnel du scheduler
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(maintenance, 'interval', minutes=30)
+    scheduler.start()
+
+# ==========================================
+# 🛡️ ROUTES ADMIN (EN PREMIER POUR ÉVITER LES CONFLITS)
+# ==========================================
+
+@app.route('/api/admin/test-no-jwt')
+def admin_test_no_jwt():
+    # Cette route doit répondre instantanément si le Monkey Patch fonctionne
+    return jsonify({"status": "ok", "message": "Le serveur répond correctement (Patch OK)."})
+
+@app.route('/api/admin/global-stats')
+@jwt_required()
+def admin_global_stats():
+    identity = get_jwt_identity()
+    if identity.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    
+    try:
+        # Utilisation de func.count (nécessite l'import ajouté en haut)
+        total_partners = Partner.query.count()
+        total_members = User.query.filter_by(role='member').count()
+        total_offers = Offer.query.count()
+        # Calcul safe des followers via la table de liaison
+        total_follows = db.session.query(func.count(followers.c.user_id)).scalar() or 0
+
+        return jsonify({
+            "total_partners": total_partners,
+            "total_members": total_members,
+            "total_followers": total_follows,
+            "total_offers": total_offers,
+            "avg_engagement": round(total_follows / max(1, total_partners), 1)
+        })
+    except Exception as e:
+        print(f"ADMIN ERROR: {e}")
+        return jsonify(error=str(e)), 500
+
+@app.route('/api/admin/partners-overview')
+@jwt_required()
+def admin_partners_overview():
+    identity = get_jwt_identity()
+    if identity.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    
+    try:
+        partners = Partner.query.all()
+        res = []
+        for p in partners:
+            # p.followers_list fonctionne grâce au backref lazy='dynamic' dans models.py
+            f_count = p.followers_list.count()
+            active_offers = Offer.query.filter_by(partner_id=p.id, active=True).count()
+            
+            res.append({
+                "id": p.id,
+                "name": p.name,
+                "category": p.category,
+                "followers_count": f_count,
+                "active_offers": active_offers,
+                "status": "active" if f_count > 5 else "low_engagement"
+            })
+        return jsonify(sorted(res, key=lambda x: x['followers_count'], reverse=True))
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+@app.route('/api/admin/booking-stats')
+@jwt_required()
+def admin_booking_stats():
+    identity = get_jwt_identity()
+    if identity.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    try:
+        confirmed = Booking.query.filter_by(status='confirmed').count()
+        return jsonify([{"name": "Confirmés", "value": confirmed}])
+    except: return jsonify([])
+
+@app.route('/api/admin/bookings')
+@jwt_required()
+def admin_bookings_list():
+    identity = get_jwt_identity()
+    if identity.get('role') != 'admin': return jsonify(error="Unauthorized"), 403
+    try:
+        # Utilisation de desc() nécessite l'import
+        bookings = Booking.query.order_by(desc(Booking.created_at)).limit(20).all()
+        return jsonify([{
+            "id": b.id, 
+            "date": b.start_at.strftime("%d/%m"),
+            "status": b.status
+        } for b in bookings])
+    except: return jsonify([])
+
+# ==========================================
+# FIN ROUTES ADMIN
+# ==========================================
+
+# --- ☢️ SETUP & UTILS ---
+
 @app.route('/api/nuke_db')
 def nuke_db():
-    with db.engine.connect() as c: 
-        c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;"))
-        c.commit()
-    db.create_all()
-    return jsonify({"status": "SUCCESS", "msg": "Base V10 Clean"})
+    try:
+        with db.engine.connect() as c: 
+            c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;"))
+            c.commit()
+        db.create_all()
+        return jsonify({"status": "SUCCESS", "msg": "Base Clean"})
+    except Exception as e: return jsonify(error=str(e)), 500
 
-# --- 🛠️ SETUP V10 (4 COMPTES) ---
 @app.route('/api/setup_v8')
 def setup_v8():
-    db.create_all()
-    
-    # 1. ADMIN
-    if not User.query.filter_by(email='admin@peps.swiss').first():
-        admin = User(email='admin@peps.swiss', password_hash=generate_password_hash('admin123'), role='admin', is_both=False)
-        db.session.add(admin)
+    try:
+        db.create_all()
+        # Admin
+        if not User.query.filter_by(email='admin@peps.swiss').first():
+            db.session.add(User(email='admin@peps.swiss', password_hash=generate_password_hash('admin123'), role='admin', is_both=False))
+        
+        # Partner
+        if not User.query.filter_by(email='partner@peps.swiss').first():
+            u = User(email='partner@peps.swiss', password_hash=generate_password_hash('123456'), role='partner', is_both=False)
+            db.session.add(u); db.session.commit()
+            db.session.add(Partner(user_id=u.id, name="Mario Pizza", category="Restaurant"))
+        
+        # Company
+        if not User.query.filter_by(email='company@peps.swiss').first():
+            c = Company(name="TechCorp"); db.session.add(c); db.session.commit()
+            db.session.add(User(email='company@peps.swiss', password_hash=generate_password_hash('123456'), role='company_admin', company_id=c.id, is_both=False))
+        
+        # Both
+        if not User.query.filter_by(email='both@peps.swiss').first():
+            u = User(email='both@peps.swiss', password_hash=generate_password_hash('123456'), role='partner', is_both=True)
+            db.session.add(u); db.session.commit()
+            db.session.add(Partner(user_id=u.id, name="Hybrid Shop", category="Boutique"))
 
-    # 2. PARTENAIRE PUR
-    if not User.query.filter_by(email='partner@peps.swiss').first():
-        u_part = User(email='partner@peps.swiss', password_hash=generate_password_hash('123456'), role='partner', is_both=False)
-        db.session.add(u_part)
         db.session.commit()
-        p = Partner(user_id=u_part.id, name="Partner Only", category="Restaurant", booking_enabled=True, image_url="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500")
-        db.session.add(p)
-        db.session.commit()
-        # Données Résa
-        db.session.add(Offer(partner_id=p.id, title="-20% Menu", active=True))
-        db.session.add(Service(partner_id=p.id, name="Menu Midi", duration_minutes=60, price_chf=25))
-        for d in range(5): db.session.add(Availability(partner_id=p.id, day_of_week=d, start_time="09:00", end_time="14:00"))
+        return jsonify({"status": "SUCCESS", "msg": "Comptes V10 créés"})
+    except Exception as e: return jsonify(error=str(e)), 500
 
-    # 3. ENTREPRISE
-    if not User.query.filter_by(email='company@peps.swiss').first():
-        c = Company(name="TechCorp", access_total=10)
-        db.session.add(c)
-        db.session.commit()
-        u_comp = User(email='company@peps.swiss', password_hash=generate_password_hash('123456'), role='company_admin', company_id=c.id, is_both=False)
-        db.session.add(u_comp)
+# --- 🧠 IA & PARTNER ---
+@app.route('/api/partner/growth-suggestions')
+@jwt_required()
+def growth_ai():
+    return jsonify({"suggestions": [{"action": "Offre Flash", "desc": "Boostez votre visibilité", "priority": 1}], "level": "basic"})
 
-    # 4. HYBRIDE (BOTH)
-    if not User.query.filter_by(email='both@peps.swiss').first():
-        u_both = User(email='both@peps.swiss', password_hash=generate_password_hash('123456'), role='partner', is_both=True)
-        db.session.add(u_both)
-        db.session.commit()
-        p_both = Partner(user_id=u_both.id, name="Hybrid Shop", category="Boutique", booking_enabled=False, image_url="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500")
-        db.session.add(p_both)
-        db.session.commit()
-        db.session.add(Offer(partner_id=p_both.id, title="Découverte", active=True))
+@app.route('/api/partner/my-stats')
+@jwt_required()
+def my_stats():
+    uid = get_jwt_identity()['id']
+    u = User.query.get(uid)
+    if not u.partner_profile: return jsonify(error="Not partner"), 403
+    return jsonify({"name": u.partner_profile.name, "followers_count": u.partner_profile.followers_list.count(), "engagement_score": 5})
 
-    db.session.commit()
-    return jsonify({"status": "SUCCESS", "msg": "Comptes V10 créés (Admin, Partner, Company, Both)"})
-
-# --- 📝 INSCRIPTION V10 ---
+# --- AUTH & PUBLIC ---
 @app.route('/api/register', methods=['POST'])
 def register():
     d = request.json
-    email = d.get('email')
-    role_req = d.get('role', 'member')
-
-    if User.query.filter_by(email=email).first():
-        return jsonify(error="Email déjà utilisé"), 400
+    if User.query.filter_by(email=d.get('email')).first(): return jsonify(error="Email pris"), 400
     
-    final_role = 'member'
-    is_both = False
+    role = d.get('role', 'member')
+    is_both = (role == 'both')
+    final_role = 'partner' if is_both or role == 'partner' else role
+    if role == 'company': final_role = 'company_admin'
     
-    if role_req == 'partner':
-        final_role = 'partner'
-        is_both = False
-    elif role_req == 'both':
-        final_role = 'partner'
-        is_both = True
-    elif role_req == 'company':
-        final_role = 'company_admin'
+    u = User(email=d.get('email'), password_hash=generate_password_hash(d.get('password')), role=final_role, is_both=is_both)
+    db.session.add(u); db.session.commit()
     
-    u = User(email=email, password_hash=generate_password_hash(d.get('password')), role=final_role, is_both=is_both)
-    
-    # Abo offert pour la démo
-    if final_role == 'member' or is_both:
-        u.access_expires_at = datetime.utcnow() + timedelta(days=365)
-
-    db.session.add(u)
-    db.session.commit()
-    
-    # Création fiche partenaire vide
     if final_role == 'partner':
-        p = Partner(user_id=u.id, name="Nouveau Commerce", category="Autre")
-        db.session.add(p)
+        db.session.add(Partner(user_id=u.id, name="Nouveau", category="Autre"))
         db.session.commit()
 
-    token = create_access_token(identity=u.id)
-    return jsonify(success=True, token=token, role=final_role, is_both=is_both)
+    return jsonify(success=True, token=create_access_token(identity={'id': u.id, 'role': final_role}), role=final_role, is_both=is_both)
 
-# --- 🔑 LOGIN V10 ---
 @app.route('/api/login', methods=['POST'])
 def login():
     d = request.json
     u = User.query.filter_by(email=d.get('email')).first()
     if u and check_password_hash(u.password_hash, d.get('password')):
-        # On renvoie is_both pour le frontend
         return jsonify({
-            'token': create_access_token(identity=u.id), 
+            'token': create_access_token(identity={'id': u.id, 'role': u.role}), 
             'role': u.role,
             'is_both': u.is_both
         })
-    return jsonify({'error': 'Identifiants incorrects'}), 401
+    return jsonify({'error': 'Incorrect'}), 401
 
-# --- ACCÈS AUX OFFRES ---
 @app.route('/api/offers')
 def get_offers():
-    # Ouvert à tous en lecture (le frontend filtre l'affichage)
     offers = Offer.query.filter_by(active=True).all()
     return jsonify([{
         "id": o.id, "title": o.title, "type": o.offer_type, 
         "partner": {"id": o.partner.id, "name": o.partner.name, "img": o.partner.image_url, "booking": o.partner.booking_enabled}
     } for o in offers])
 
-# --- ROUTES V9 (RÉSERVATION) ---
-@app.route('/api/partner/<int:pid>/services')
-def get_services(pid):
-    services = Service.query.filter_by(partner_id=pid, is_active=True).all()
-    return jsonify([{'id':s.id, 'name':s.name, 'duration':s.duration_minutes, 'price':s.price_chf} for s in services])
-
-@app.route('/api/partner/<int:pid>/slots')
-def get_slots(pid):
-    return jsonify(["10:00", "14:00", "16:00"])
-
-@app.route('/api/booking/create', methods=['POST'])
-@jwt_required()
-def create_booking():
-    return jsonify(success=True, msg="Rendez-vous confirmé", privilege=True, details="Privilège Membre")
-
-# Routes Admin
-@app.route('/api/admin/test-no-jwt')
-def admin_test_no_jwt():
-    return jsonify({"status": "ok", "message": "Route sans JWT fonctionne"})
-
-@app.route('/api/admin/test')
-@jwt_required()
-def admin_test():
-    print("[DEBUG] admin_test called")
-    user_id = get_jwt_identity()
-    print(f"[DEBUG] user_id = {user_id}")
-    u = User.query.get(user_id)
-    print(f"[DEBUG] user found = {u is not None}")
-    result = {
-        "user_id": user_id,
-        "user_found": u is not None,
-        "user_role": u.role if u else None,
-        "is_admin": u.role == 'admin' if u else False
-    }
-    print(f"[DEBUG] result = {result}")
-    return jsonify(result)
-
-@app.route('/api/admin/global-stats')
-@jwt_required()
-def a_global():
-    user_id = get_jwt_identity()
-    u = User.query.get(user_id)
-    if not u or u.role != 'admin': return jsonify(error="Admin only"), 403
-    
-    # Calcul sécurisé du revenu total
-    try:
-        total_rev = db.session.query(func.sum(Service.price_chf)).join(Booking).filter(Booking.status=='confirmed').scalar() or 0
-    except:
-        total_rev = 0
-    
-    return jsonify({
-        "members": User.query.filter_by(role='member').count(),
-        "partners": Partner.query.count(),
-        "bookings_month": Booking.query.filter(Booking.start_at >= datetime(datetime.utcnow().year, datetime.utcnow().month, 1)).count(),
-        "total_revenue": int(total_rev)
-    })
-
-@app.route('/api/admin/booking-stats')
-@jwt_required()
-def a_charts():
-    data = []
-    for i in range(30):
-        d = date.today() - timedelta(days=i)
-        cnt = Booking.query.filter(func.date(Booking.start_at)==d).count()
-        data.append({"date": d.strftime("%d/%m"), "val": cnt})
-    return jsonify(list(reversed(data)))
-
-@app.route('/api/admin/bookings')
-@jwt_required()
-def a_bookings():
-    bookings = Booking.query.order_by(Booking.start_at.desc()).limit(100).all()
-    return jsonify([{
-        "id": b.id, "date": b.start_at.strftime("%d/%m %H:%M"), "partner": b.partner_ref.name,
-        "service": b.service.name, "client": b.user_ref.email, "status": b.status, "amount": b.service.price_chf
-    } for b in bookings])
-
-# SPA routing: Fallback vers index.html pour toutes les routes non-API
+# --- CATCH-ALL (DOIT ÊTRE LA DERNIÈRE) ---
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve_spa(path):
-    # Si le path existe comme fichier statique, WhiteNoise le sert déjà
-    # Sinon, on renvoie index.html pour le routing React
-    if path and not path.startswith('api/'):
-        file_path = os.path.join(STATIC_DIR, path)
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            return send_from_directory(STATIC_DIR, path)
-    return send_from_directory(STATIC_DIR, 'index.html')
+def serve(path):
+    if path and os.path.exists(os.path.join(app.static_folder, path)): 
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
