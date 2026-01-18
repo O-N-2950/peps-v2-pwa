@@ -3,16 +3,18 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-# Table Followers (Many-to-Many)
+# Table d'association Followers (Many-to-Many)
 followers = db.Table('followers',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
+    db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True),
+    db.Column('timestamp', db.DateTime, default=datetime.utcnow)
 )
 
 class Pack(db.Model):
     __tablename__ = 'packs'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
+    category = db.Column(db.String(50)) # B2C, PME, CORP
     access_count = db.Column(db.Integer)
     price_chf = db.Column(db.Float)
     price_eur = db.Column(db.Float)
@@ -32,8 +34,7 @@ class User(db.Model):
     
     # Rôles: 'member', 'partner', 'company_admin', 'admin'
     role = db.Column(db.String(20), default='member')
-    
-    # ✅ NOUVEAU CHAMP V10 : Statut Hybride
+    # Statut Hybride V10
     is_both = db.Column(db.Boolean, default=False)
     
     access_expires_at = db.Column(db.DateTime, nullable=True)
@@ -41,12 +42,12 @@ class User(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
     
     partner_profile = db.relationship('Partner', backref='owner', uselist=False)
+    # Relation Followers avec chargement dynamique pour .count()
     followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers_list', lazy='dynamic'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     @property
     def is_active_member(self):
-        # Un partenaire hybride a automatiquement les avantages membre
         if self.is_both: return True
         return self.access_expires_at and self.access_expires_at > datetime.utcnow()
 
@@ -76,6 +77,7 @@ class Offer(db.Model):
     active = db.Column(db.Boolean, default=True)
     discount_val = db.Column(db.String(20))
     stock = db.Column(db.Integer, nullable=True)
+    price = db.Column(db.String(20))
 
 class Service(db.Model):
     __tablename__ = 'services'
