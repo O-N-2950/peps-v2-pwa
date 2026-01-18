@@ -50,7 +50,7 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
-        {!window.location.pathname.includes('/login') && <Navigation />}
+        {!window.location.pathname.includes('/login') && !window.location.pathname.includes('/admin') && <Navigation />}
       </div>
     </BrowserRouter>
   );
