@@ -1,34 +1,38 @@
-# ÉTAPE 1 : Construction du Frontend (Node.js)
-FROM node:18-alpine as frontend-build
+# --- ÉTAPE 1 : CONSTRUCTION DU FRONTEND (Node.js) ---
+FROM node:20-alpine as frontend-build
 WORKDIR /app/frontend
-# On copie les fichiers de config npm
+
+# Installation des dépendances
 COPY frontend/package*.json ./
-# On installe et on build
 RUN npm install
+
+# Copie du code et Build
 COPY frontend/ ./
 RUN npm run build
 
-# ÉTAPE 2 : Construction du Backend (Python)
+# --- ÉTAPE 2 : PRÉPARATION DU BACKEND (Python) ---
 FROM python:3.11-slim
-WORKDIR /app
+WORKDIR /app/backend
+
+# Installation des dépendances système (PostgreSQL)
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 
 # Installation des dépendances Python
 COPY backend/requirements.txt ./
-# Installation propre sans cache
+# On installe les libs (Assurez-vous que requirements.txt est la version V11 sans eventlet)
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copie du code Backend
-COPY backend/ ./backend
+COPY backend/ ./
 
-# ÉTAPE 3 : Fusion (On récupère le build React de l'étape 1)
-# On place le build React exactement là où Flask l'attend (../frontend/dist)
-COPY --from=frontend-build /app/frontend/dist ./frontend/dist
+# ⚠️ RÉCUPÉRATION DU FRONTEND CONSTRUIT (Depuis l'étape 1)
+# On le place exactement où Flask l'attend : ../frontend/dist par rapport au dossier backend
+COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
 
-# Configuration finale
+# Variables d'environnement
+ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
-# Variable DB (Railway l'écrasera avec la vraie URL)
-ENV DATABASE_URL=sqlite:///peps_dev.db
 
-# Démarrage forcé de Gunicorn (Pas de Caddy ici !)
-# On force le dossier de travail 'backend' et on lance l'app
-CMD gunicorn --chdir backend -k eventlet -w 1 --bind 0.0.0.0:$PORT app:app
+# --- DÉMARRAGE (MODE SYNCHRONE STABLE V11) ---
+# Utilisation de threads pour gérer la charge sans eventlet
+CMD gunicorn -w 1 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT app:app
