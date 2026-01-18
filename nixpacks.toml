@@ -1,4 +1,4 @@
-# V13.0 NUCLEAR CACHE CLEAR
+# V14 PRODUCTION READY - JWT FIX
 providers = ["python", "node"]
 
 [phases.setup]
@@ -12,12 +12,11 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '☢️ NUCLEAR BUILD V13 - CLEARING CACHE...'",
+  "echo '☢️ V14 NUCLEAR BUILD - CLEARING CACHE...'",
   "cd frontend && rm -rf dist node_modules/.cache",
-  "cd frontend && npm run build",
-  "echo '✅ BUILD V13 COMPLETE'"
+  "cd frontend && npm run build"
 ]
 
 [start]
-# Mode Synchrone Pur (Gunicorn standard)
+
 cmd = "cd backend && gunicorn -w 4 -b 0.0.0.0:$PORT app:app"

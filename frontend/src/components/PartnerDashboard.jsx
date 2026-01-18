@@ -1,163 +1,109 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Zap, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { LayoutDashboard, Gift, Calendar, Settings, Save, Plus, LogOut } from 'lucide-react';
 
 export default function PartnerDashboard() {
-  const [profile, setProfile] = useState(null);
+  const [tab, setTab] = useState('profil');
+  const [profile, setProfile] = useState({});
   const [offers, setOffers] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [debugLog, setDebugLog] = useState([]); // Log visible à l'écran
-
-  const addLog = (msg) => {
-    const line = `${new Date().toLocaleTimeString()} > ${msg}`;
-    console.log(line);
-    setDebugLog(prev => [...prev, line]);
-  };
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
-    addLog("🚀 MOUNT V13.0 - Starting Fetch...");
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        addLog("❌ No Token Found");
-        setError("Non connecté");
-        setLoading(false);
-        return;
-    }
-
     const headers = { 'Authorization': `Bearer ${token}` };
-
-    const loadData = async () => {
-        try {
-            // 1. Profil
-            addLog("📡 Fetching Profile...");
-            const resProfile = await fetch('/api/partner/profile', { headers });
-            addLog(`📥 Profile Status: ${resProfile.status}`);
-            
-            if (resProfile.status === 401 || resProfile.status === 403) {
-                throw new Error("Session expirée (401/403). Reconnectez-vous.");
-            }
-            
-            const txtProfile = await resProfile.text();
-            if (!resProfile.ok) throw new Error(`Erreur API Profil: ${txtProfile}`);
-            
-            const dataProfile = JSON.parse(txtProfile);
-            setProfile(dataProfile);
-            addLog(`✅ Profile Loaded: ${dataProfile.name}`);
-
-            // 2. Offres
-            addLog("📡 Fetching Offers...");
-            const resOffers = await fetch('/api/partner/offers', { headers });
-            if (resOffers.ok) {
-                const dataOffers = await resOffers.json();
-                setOffers(dataOffers || []);
-                addLog(`✅ Offers Loaded (${dataOffers.length})`);
-            } else {
-                addLog(`⚠️ Offers Failed: ${resOffers.status}`);
-            }
-
-        } catch (err) {
-            addLog(`🔥 CRASH: ${err.message}`);
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    loadData();
+    Promise.all([
+      fetch('/api/partner/profile', { headers }).then(r => r.json()),
+      fetch('/api/partner/offers', { headers }).then(r => r.json()),
+      fetch('/api/partner/bookings', { headers }).then(r => r.json())
+    ]).then(([p, o, b]) => {
+      if(p.error) throw new Error(p.error);
+      setProfile(p); setOffers(o||[]); setBookings(b||[]); setLoading(false);
+    }).catch(e => { console.error(e); setLoading(false); });
   }, []);
 
-  // --- RENDU ---
+  const saveProfile = async () => {
+    await fetch('/api/partner/profile', {
+      method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile)
+    });
+    alert("Profil mis à jour");
+  };
 
-  if (loading) return (
-    <div className="p-10 text-center">
-        <div className="animate-spin text-4xl mb-4">⏳</div>
-        <p>Chargement V13...</p>
-        <div className="mt-4 text-left bg-black text-green-400 p-4 rounded font-mono text-xs">
-            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
-        </div>
-    </div>
-  );
+  const createOffer = async (e) => {
+    e.preventDefault();
+    const d = new FormData(e.target);
+    await fetch('/api/partner/offers', {
+      method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.fromEntries(d))
+    });
+    alert("Offre créée"); window.location.reload();
+  };
 
-  if (error) return (
-    <div className="p-6 text-center">
-        <div className="text-red-500 text-5xl mb-4">⚠️</div>
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Erreur V13</h2>
-        <p className="text-red-600 mb-6">{error}</p>
-        <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }} className="bg-black text-white px-6 py-3 rounded-xl font-bold">
-            Se reconnecter
-        </button>
-        <div className="mt-8 text-left bg-black text-red-400 p-4 rounded-xl font-mono text-xs overflow-auto max-h-60 border-2 border-red-500">
-            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
-        </div>
-    </div>
-  );
+  if (loading) return <div className="p-10 text-center">Chargement V14...</div>;
 
   return (
-    <div className="p-6 pb-24 min-h-screen bg-gray-50">
-      {/* TRACEUR VISUEL V13 */}
-      <div className="fixed top-0 right-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 z-50">V13 LIVE</div>
-
-      <header className="flex justify-between items-center mb-8">
-        <div>
-            <h1 className="text-2xl font-black text-[#3D9A9A]">Bonjour {profile?.name}</h1>
-            <p className="text-gray-400 text-sm">{profile?.category || 'Partenaire'}</p>
-        </div>
-        <div className="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center border border-gray-100">
-            <LayoutDashboard size={20} className="text-[#3D9A9A]" />
-        </div>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <header className="bg-[#3D9A9A] text-white p-6 flex justify-between items-center">
+        <h1 className="font-black text-xl">{profile.name}</h1>
+        <button onClick={()=>{localStorage.clear(); window.location.href='/login'}}><LogOut size={20}/></button>
       </header>
 
-      {/* STATS */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold uppercase mb-1"><Users size={14}/> Followers</div>
-            <div className="text-3xl font-black text-gray-900">{profile?.stats?.followers || 0}</div>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold uppercase mb-1"><Zap size={14}/> Offres</div>
-            <div className="text-3xl font-black text-gray-900">{offers.length}</div>
-        </div>
+      <div className="flex bg-white border-b p-2 gap-4 overflow-x-auto">
+        {[{id:'profil', icon:Settings}, {id:'offers', icon:Gift}, {id:'agenda', icon:Calendar}].map(t => (
+          <button key={t.id} onClick={()=>setTab(t.id)} className={`p-2 ${tab===t.id?'text-[#3D9A9A] font-bold':'text-gray-400'}`}>
+             <t.icon size={24} className="mx-auto"/> <span className="text-[10px] uppercase">{t.id}</span>
+          </button>
+        ))}
       </div>
 
-      {/* OFFRES */}
-      <div className="mb-8">
-        <div className="flex justify-between items-end mb-4">
-            <h2 className="text-lg font-bold text-gray-800">Vos Offres Actives</h2>
-            <Link to="/partner/create-offer" className="text-xs font-bold text-[#3D9A9A] bg-[#3D9A9A]/10 px-3 py-1 rounded-full">+ Créer</Link>
-        </div>
-        
-        {offers.length === 0 ? (
-            <div className="bg-white p-6 rounded-2xl text-center border border-dashed border-gray-300">
-                <p className="text-gray-400 text-sm mb-3">Aucune offre en ligne</p>
+      <div className="p-4">
+        {tab === 'profil' && (
+            <div className="space-y-4 bg-white p-6 rounded-xl shadow-sm">
+                <input className="w-full p-3 border rounded" value={profile.name||''} onChange={e=>setProfile({...profile, name:e.target.value})} placeholder="Nom"/>
+                <input className="w-full p-3 border rounded" value={profile.phone||''} onChange={e=>setProfile({...profile, phone:e.target.value})} placeholder="Téléphone"/>
+                <button onClick={saveProfile} className="w-full bg-black text-white p-3 rounded font-bold">SAUVEGARDER</button>
             </div>
-        ) : (
-            <div className="space-y-3">
-                {offers.map(offer => (
-                    <div key={offer.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-                        <div>
-                            <h3 className="font-bold text-gray-900">{offer.title}</h3>
-                            <div className="flex gap-2 mt-1">
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${offer.type === 'flash' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
-                                    {offer.type === 'flash' ? 'FLASH' : 'CLUB'}
-                                </span>
-                            </div>
-                        </div>
-                        <ArrowRight size={18} className="text-gray-300"/>
+        )}
+
+        {tab === 'offers' && (
+            <div className="space-y-6">
+                <div className="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 className="font-bold mb-4">Nouvelle Offre</h3>
+                    <form onSubmit={createOffer} className="space-y-3">
+                        <input name="title" className="w-full p-3 border rounded" placeholder="Titre" required/>
+                        <select name="type" className="w-full p-3 border rounded">
+                            <option value="permanent">Privilège Permanent</option>
+                            <option value="flash">Offre Flash</option>
+                            <option value="daily">Menu du Jour</option>
+                        </select>
+                        <input name="value" className="w-full p-3 border rounded" placeholder="Valeur (-20%)" required/>
+                        <button className="w-full bg-[#3D9A9A] text-white p-3 rounded font-bold">AJOUTER</button>
+                    </form>
+                </div>
+                {offers.map(o => (
+                    <div key={o.id} className="bg-white p-4 rounded border-l-4 border-[#3D9A9A] shadow-sm">
+                        <div className="font-bold">{o.title}</div>
+                        <div className="text-xs text-gray-500 uppercase">{o.type} • {o.value}</div>
+                    </div>
+                ))}
+            </div>
+        )}
+
+        {tab === 'agenda' && (
+            <div className="space-y-4">
+                <div className="bg-white p-4 rounded shadow-sm text-center">
+                    <Calendar className="mx-auto text-[#3D9A9A] mb-2"/>
+                    <h3 className="font-bold">Réservations</h3>
+                </div>
+                {bookings.map(b => (
+                    <div key={b.id} className="bg-white p-4 rounded border shadow-sm flex justify-between">
+                        <div><div className="font-bold">{b.client}</div><div className="text-xs text-gray-500">{b.date} à {b.time}</div></div>
+                        <span className="text-green-600 font-bold text-xs">{b.status}</span>
                     </div>
                 ))}
             </div>
         )}
       </div>
-      
-      {/* LOGS DE SUCCÈS DISCRETS */}
-      <details className="mt-8 opacity-50">
-        <summary className="text-xs">Logs Techniques V13</summary>
-        <div className="bg-white p-2 text-[10px] font-mono mt-2">
-            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
-        </div>
-      </details>
     </div>
   );
 }
