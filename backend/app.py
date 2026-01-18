@@ -14,7 +14,7 @@ from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Av
 sys.stdout.reconfigure(line_buffering=True)
 print("🚀 DÉMARRAGE V12 PHASE 1...", file=sys.stdout)
 
-app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
+app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
 
 app.config['SECRET_KEY'] = 'peps_v12_phase1_final_key'
