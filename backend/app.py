@@ -7,17 +7,18 @@ import random
 from datetime import datetime, timedelta, date
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
-# ✅ Import SocketIO correct pour mode Threading (pas Eventlet)
-from flask_socketio import SocketIO
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+# ❌ PLUS DE SOCKETIO
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, func, desc
-# Import des modèles depuis le fichier models.py ci-dessus
-from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers, UserDevice
+from apscheduler.schedulers.background import BackgroundScheduler
+
+# Import des modèles
+from models import db, User, Partner, Offer, Pack, Company, Service, Booking, Availability, followers, UserDevice, Activation, PartnerFeedback
 
 # 1. CONFIGURATION STABLE (Force Logs)
 sys.stdout.reconfigure(line_buffering=True)
-print("🚀 DÉMARRAGE DU SERVEUR V11 (FULL SYNC)...", file=sys.stdout)
+print("🚀 DÉMARRAGE DU SERVEUR V11 (PURE SYNC - NO SOCKETIO)...", file=sys.stdout)
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app)
@@ -32,7 +33,7 @@ if database_url.startswith("postgres://"):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# Options critiques pour Railway
+# Options critiques pour la stabilité PostgreSQL sur Railway
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_pre_ping": True,
     "pool_recycle": 300,
@@ -45,8 +46,23 @@ PERPLEXITY_KEY = os.getenv('PERPLEXITY_API_KEY')
 # Initialisation
 db.init_app(app)
 jwt = JWTManager(app)
-# ✅ SocketIO en mode Threading (Compatible Gunicorn --threads)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+# ❌ PAS DE SOCKETIO INIT
+
+# 3. MAINTENANCE (Scheduler Threadé Standard - Compatible Gunicorn Threads)
+def maintenance():
+    with app.app_context():
+        try:
+            Offer.query.filter(Offer.offer_type=='flash', Offer.stock<=0).update({Offer.active: False})
+            db.session.commit()
+            print("🧹 Maintenance auto effectuée", file=sys.stdout)
+        except Exception as e:
+            print(f"⚠️ Erreur Maintenance: {e}", file=sys.stdout)
+
+# On lance le scheduler uniquement si ce n'est pas un reload (pour éviter les doublons)
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(maintenance, 'interval', minutes=30)
+    scheduler.start()
 
 # ==========================================
 # 🛡️ ROUTES ADMIN (STATS & MONITORING)
@@ -54,7 +70,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 @app.route('/api/admin/test-no-jwt')
 def admin_test_no_jwt():
-    return jsonify({"status": "ok", "mode": "V11 Sync"})
+    return jsonify({"status": "ok", "mode": "V11 Pure Sync"})
 
 @app.route('/api/admin/global-stats')
 @jwt_required()
@@ -84,7 +100,7 @@ def admin_partners_overview():
         for p in partners:
             res.append({
                 "id": p.id, "name": p.name, "category": p.category,
-                "followers_count": p.followers_list.count(), # Utilise le dynamic loader
+                "followers_count": p.followers_list.count(), 
                 "active_offers": Offer.query.filter_by(partner_id=p.id, active=True).count(),
                 "status": "active"
             })
@@ -110,7 +126,7 @@ def admin_bookings():
 
 @app.route('/api/health')
 def health():
-    return jsonify({"status": "ONLINE", "version": "V11"})
+    return jsonify({"status": "ONLINE", "version": "V11 Sync"})
 
 @app.route('/api/nuke_db')
 def nuke_db():
@@ -174,8 +190,8 @@ def register():
     if User.query.filter_by(email=d.get('email')).first(): return jsonify(error="Email pris"), 400
     
     role_req = d.get('role', 'member')
-    final_role = 'member'
     is_both = False
+    final_role = 'member'
     
     if role_req == 'partner': final_role = 'partner'
     elif role_req == 'both': final_role = 'partner'; is_both = True
@@ -200,7 +216,7 @@ def login():
     d = request.json
     u = User.query.filter_by(email=d.get('email')).first()
     
-    # Device Check pour Membres (Anti-partage)
+    # Device Check (Simple)
     dev_id = d.get('device_id')
     if u and u.role == 'member' and not u.is_both and dev_id:
         known = UserDevice.query.filter_by(user_id=u.id, device_fingerprint=dev_id).first()
@@ -246,7 +262,7 @@ def growth_ai():
     return jsonify({"suggestions": [{"action": "Offre Flash", "desc": "Boostez votre visibilité", "priority": 1, "icon": "⚡"}], "level": "basic"})
 
 # ==========================================
-# 📅 RÉSERVATION
+# 📅 RÉSERVATION (SYNC)
 # ==========================================
 
 @app.route('/api/partner/<int:pid>/services')
@@ -256,7 +272,6 @@ def get_services(pid):
 
 @app.route('/api/partner/<int:pid>/slots')
 def get_slots(pid):
-    # Mock slots (Algo complet dans V8 si besoin)
     return jsonify(["09:00", "10:00", "11:30", "14:00", "16:00"])
 
 @app.route('/api/booking/create', methods=['POST'])
@@ -275,6 +290,7 @@ def create_booking():
         )
         db.session.add(b)
         db.session.commit()
+        # ❌ PLUS DE SOCKETIO EMIT ICI
         return jsonify(success=True, msg="Rendez-vous confirmé !", privilege=True, details="Avantage Membre")
     except Exception as e: return jsonify(error=str(e)), 500
 
@@ -290,5 +306,5 @@ def serve(path):
     return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
-    # Le mode threaded=True simule le comportement Gunicorn localement
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)), threaded=True)
+    # Mode standard Flask
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))

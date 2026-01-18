@@ -8,3 +8,5 @@ werkzeug==3.0.1
 requests==2.31.0
 stripe==7.6.0
 google-genai==0.3.0
+apscheduler==3.10.4
+# Pas de socketio, pas d'eventlet, pas de gevent -> STABILITÉ MAXIMALE
