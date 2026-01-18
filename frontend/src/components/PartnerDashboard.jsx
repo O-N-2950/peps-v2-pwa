@@ -1,105 +1,163 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Settings, Gift, Bell, BarChart, Calendar, Save, Plus, Trash, Send, LogOut } from 'lucide-react';
-import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
-import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, Zap, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function PartnerDashboard() {
-  const [tab, setTab] = useState('stats');
-  const [profile, setProfile] = useState({ name: 'Chargement...' });
-  const [privileges, setPrivileges] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [stats, setStats] = useState({ followers: 0, views: 0, history_7d: [] });
+  const [profile, setProfile] = useState(null);
+  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const [newOffer, setNewOffer] = useState({title: '', type: 'permanent', value: ''});
-  const [notif, setNotif] = useState({title: '', message: ''});
-  const navigate = useNavigate();
+  const [debugLog, setDebugLog] = useState([]); // Log visible à l'écran
+
+  const addLog = (msg) => {
+    const line = `${new Date().toLocaleTimeString()} > ${msg}`;
+    console.log(line);
+    setDebugLog(prev => [...prev, line]);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) { navigate('/login'); return; }
-        const h = { 'Authorization': `Bearer ${token}` };
-        
-        const fetchSafe = (url) => fetch(url, {headers: h}).then(r => r.ok ? r.json() : null).catch(()=>null);
+    addLog("🚀 MOUNT V13.0 - Starting Fetch...");
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        addLog("❌ No Token Found");
+        setError("Non connecté");
+        setLoading(false);
+        return;
+    }
 
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    const loadData = async () => {
         try {
-            const pRes = await fetch('/api/partner/profile', {headers: h});
-            if (pRes.status === 401) throw new Error("Session expirée");
-            if (!pRes.ok) throw new Error("Erreur Profil");
-            setProfile(await pRes.json());
-
-            const [pr, s, b] = await Promise.all([
-                fetchSafe('/api/partner/privileges'),
-                fetchSafe('/api/partner/stats_advanced'),
-                fetchSafe('/api/partner/bookings')
-            ]);
+            // 1. Profil
+            addLog("📡 Fetching Profile...");
+            const resProfile = await fetch('/api/partner/profile', { headers });
+            addLog(`📥 Profile Status: ${resProfile.status}`);
             
-            setPrivileges(pr || []);
-            setStats(s || { followers: 0, views: 0, history_7d: [] });
-            setBookings(b || []);
-        } catch (e) {
-            setError(e.message);
-            if (e.message === "Session expirée") { localStorage.clear(); navigate('/login'); }
+            if (resProfile.status === 401 || resProfile.status === 403) {
+                throw new Error("Session expirée (401/403). Reconnectez-vous.");
+            }
+            
+            const txtProfile = await resProfile.text();
+            if (!resProfile.ok) throw new Error(`Erreur API Profil: ${txtProfile}`);
+            
+            const dataProfile = JSON.parse(txtProfile);
+            setProfile(dataProfile);
+            addLog(`✅ Profile Loaded: ${dataProfile.name}`);
+
+            // 2. Offres
+            addLog("📡 Fetching Offers...");
+            const resOffers = await fetch('/api/partner/offers', { headers });
+            if (resOffers.ok) {
+                const dataOffers = await resOffers.json();
+                setOffers(dataOffers || []);
+                addLog(`✅ Offers Loaded (${dataOffers.length})`);
+            } else {
+                addLog(`⚠️ Offers Failed: ${resOffers.status}`);
+            }
+
+        } catch (err) {
+            addLog(`🔥 CRASH: ${err.message}`);
+            setError(err.message);
         } finally {
             setLoading(false);
         }
     };
-    fetchData();
-  }, [navigate]);
 
-  const updateProfile = async () => {
-      const h = { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' };
-      await fetch('/api/partner/profile', {method:'PUT', headers:h, body: JSON.stringify(profile)});
-      alert("Enregistré !");
-  };
+    loadData();
+  }, []);
 
-  const addOffer = async () => {
-      const h = { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' };
-      await fetch('/api/partner/privileges', {method:'POST', headers:h, body: JSON.stringify(newOffer)});
-      window.location.reload();
-  };
+  // --- RENDU ---
 
-  const deleteOffer = async (id) => {
-      if(confirm("Supprimer ?")) { await fetch(`/api/partner/privileges?id=${id}`, {method:'DELETE', headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}}); window.location.reload(); }
-  };
+  if (loading) return (
+    <div className="p-10 text-center">
+        <div className="animate-spin text-4xl mb-4">⏳</div>
+        <p>Chargement V13...</p>
+        <div className="mt-4 text-left bg-black text-green-400 p-4 rounded font-mono text-xs">
+            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+        </div>
+    </div>
+  );
 
-  const sendPush = async () => {
-      const h = { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' };
-      await fetch('/api/partner/notifications', {method:'POST', headers:h, body: JSON.stringify(notif)});
-      alert("Envoyé !"); setNotif({title:'', message:''});
-  };
-
-  const updateBooking = async (id, status) => {
-      const h = { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' };
-      await fetch('/api/partner/bookings', {method:'PUT', headers:h, body: JSON.stringify({id, status})});
-      window.location.reload();
-  };
-
-  if(loading) return <div className="p-10 text-center text-[#3D9A9A]">Chargement...</div>;
-  if(error) return <div className="p-10 text-center text-red-500">Erreur: {error}</div>;
+  if (error) return (
+    <div className="p-6 text-center">
+        <div className="text-red-500 text-5xl mb-4">⚠️</div>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">Erreur V13</h2>
+        <p className="text-red-600 mb-6">{error}</p>
+        <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }} className="bg-black text-white px-6 py-3 rounded-xl font-bold">
+            Se reconnecter
+        </button>
+        <div className="mt-8 text-left bg-black text-red-400 p-4 rounded-xl font-mono text-xs overflow-auto max-h-60 border-2 border-red-500">
+            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+        </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-        <div className="bg-white p-6 shadow-sm flex justify-between items-center sticky top-0 z-10">
-            <h1 className="font-black text-xl text-[#3D9A9A] uppercase">{profile.name}</h1>
-            <button onClick={()=>{localStorage.clear(); navigate('/login')}}><LogOut size={20} className="text-red-400"/></button>
+    <div className="p-6 pb-24 min-h-screen bg-gray-50">
+      {/* TRACEUR VISUEL V13 */}
+      <div className="fixed top-0 right-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 z-50">V13 LIVE</div>
+
+      <header className="flex justify-between items-center mb-8">
+        <div>
+            <h1 className="text-2xl font-black text-[#3D9A9A]">Bonjour {profile?.name}</h1>
+            <p className="text-gray-400 text-sm">{profile?.category || 'Partenaire'}</p>
+        </div>
+        <div className="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center border border-gray-100">
+            <LayoutDashboard size={20} className="text-[#3D9A9A]" />
+        </div>
+      </header>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold uppercase mb-1"><Users size={14}/> Followers</div>
+            <div className="text-3xl font-black text-gray-900">{profile?.stats?.followers || 0}</div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold uppercase mb-1"><Zap size={14}/> Offres</div>
+            <div className="text-3xl font-black text-gray-900">{offers.length}</div>
+        </div>
+      </div>
+
+      {/* OFFRES */}
+      <div className="mb-8">
+        <div className="flex justify-between items-end mb-4">
+            <h2 className="text-lg font-bold text-gray-800">Vos Offres Actives</h2>
+            <Link to="/partner/create-offer" className="text-xs font-bold text-[#3D9A9A] bg-[#3D9A9A]/10 px-3 py-1 rounded-full">+ Créer</Link>
         </div>
         
-        <div className="flex overflow-x-auto bg-white border-b no-scrollbar">
-            {[{id:'stats', icon:BarChart}, {id:'profile', icon:Settings}, {id:'privileges', icon:Gift}, {id:'notif', icon:Bell}, {id:'bookings', icon:Calendar}].map(t => 
-                <button key={t.id} onClick={()=>setTab(t.id)} className={`flex-1 py-3 min-w-[70px] flex flex-col items-center gap-1 text-xs font-bold ${tab===t.id ? 'text-[#3D9A9A] border-b-2 border-[#3D9A9A]' : 'text-gray-400'}`}><t.icon size={20}/>{t.id}</button>
-            )}
+        {offers.length === 0 ? (
+            <div className="bg-white p-6 rounded-2xl text-center border border-dashed border-gray-300">
+                <p className="text-gray-400 text-sm mb-3">Aucune offre en ligne</p>
+            </div>
+        ) : (
+            <div className="space-y-3">
+                {offers.map(offer => (
+                    <div key={offer.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <h3 className="font-bold text-gray-900">{offer.title}</h3>
+                            <div className="flex gap-2 mt-1">
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${offer.type === 'flash' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                                    {offer.type === 'flash' ? 'FLASH' : 'CLUB'}
+                                </span>
+                            </div>
+                        </div>
+                        <ArrowRight size={18} className="text-gray-300"/>
+                    </div>
+                ))}
+            </div>
+        )}
+      </div>
+      
+      {/* LOGS DE SUCCÈS DISCRETS */}
+      <details className="mt-8 opacity-50">
+        <summary className="text-xs">Logs Techniques V13</summary>
+        <div className="bg-white p-2 text-[10px] font-mono mt-2">
+            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
         </div>
-
-        <div className="p-4">
-            {tab==='stats' && <div className="space-y-4"><div className="grid grid-cols-2 gap-4"><div className="bg-white p-4 rounded shadow text-center"><div className="text-gray-400 text-xs">FOLLOWERS</div><div className="text-3xl font-black">{stats.followers}</div></div><div className="bg-white p-4 rounded shadow text-center"><div className="text-gray-400 text-xs">VUES</div><div className="text-3xl font-black">{stats.views}</div></div></div><div className="bg-white p-4 rounded shadow h-48"><ResponsiveContainer><LineChart data={(stats.history_7d||[]).map((v,i)=>({i,v}))}><Line type="monotone" dataKey="v" stroke="#3D9A9A"/></LineChart></ResponsiveContainer></div></div>}
-            {tab==='profile' && <div className="space-y-4 bg-white p-6 rounded shadow"><input className="w-full p-3 border rounded" value={profile.name||''} onChange={e=>setProfile({...profile, name:e.target.value})}/><textarea className="w-full p-3 border rounded h-24" value={profile.description||''} onChange={e=>setProfile({...profile, description:e.target.value})}/><button onClick={updateProfile} className="w-full bg-black text-white p-3 rounded font-bold">ENREGISTRER</button></div>}
-            {tab==='privileges' && <div className="space-y-4"><div className="bg-white p-4 rounded border"><input className="w-full p-2 border rounded mb-2" placeholder="Titre" value={newOffer.title} onChange={e=>setNewOffer({...newOffer, title:e.target.value})}/><button onClick={addOffer} className="w-full bg-[#3D9A9A] text-white p-2 rounded font-bold">Ajouter</button></div>{privileges.map(p=><div key={p.id} className="bg-white p-4 rounded shadow flex justify-between"><b>{p.title}</b><button onClick={()=>deleteOffer(p.id)}><Trash size={16} className="text-red-400"/></button></div>)}</div>}
-            {tab==='notif' && <div className="space-y-4 bg-white p-4 rounded shadow"><input className="w-full p-2 border rounded" placeholder="Titre" onChange={e=>setNotif({...notif, title:e.target.value})}/><textarea className="w-full p-2 border rounded h-20" placeholder="Message" onChange={e=>setNotif({...notif, message:e.target.value})}/><button onClick={sendPush} className="w-full bg-pink-500 text-white p-2 rounded font-bold">ENVOYER</button></div>}
-            {tab==='bookings' && <div className="space-y-2">{bookings.map(b=><div key={b.id} className="bg-white p-4 rounded shadow flex justify-between"><div><b>{b.date}</b><br/>{b.member}</div><span className="bg-gray-100 px-2 py-1 rounded text-xs">{b.status}</span></div>)}</div>}
-        </div>
+      </details>
     </div>
   );
 }
