@@ -3,7 +3,7 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-# Table d'association Followers (Many-to-Many)
+# Table Followers (Many-to-Many)
 followers = db.Table('followers',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True),
@@ -14,7 +14,7 @@ class Pack(db.Model):
     __tablename__ = 'packs'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    category = db.Column(db.String(50)) # B2C, PME, CORP
+    category = db.Column(db.String(50))
     access_count = db.Column(db.Integer)
     price_chf = db.Column(db.Float)
     price_eur = db.Column(db.Float)
@@ -31,18 +31,11 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    
-    # Rôles: 'member', 'partner', 'company_admin', 'admin'
     role = db.Column(db.String(20), default='member')
-    # Statut Hybride V10
-    is_both = db.Column(db.Boolean, default=False)
-    
+    is_both = db.Column(db.Boolean, default=False) # Statut Hybride
     access_expires_at = db.Column(db.DateTime, nullable=True)
-    referral_code = db.Column(db.String(50), unique=True)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
-    
     partner_profile = db.relationship('Partner', backref='owner', uselist=False)
-    # Relation Followers avec chargement dynamique pour .count()
     followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers_list', lazy='dynamic'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -62,7 +55,6 @@ class Partner(db.Model):
     longitude = db.Column(db.Float)
     image_url = db.Column(db.String(500))
     booking_enabled = db.Column(db.Boolean, default=False)
-    
     offers = db.relationship('Offer', backref='partner', lazy=True)
     services = db.relationship('Service', backref='partner', lazy=True)
     availabilities = db.relationship('Availability', backref='partner', lazy=True)
