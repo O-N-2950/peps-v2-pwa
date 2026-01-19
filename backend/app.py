@@ -2,6 +2,7 @@
 import os
 import random
 import string
+import math
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -34,6 +35,16 @@ def generate_validation_code(pid, mid):
     timestamp = int(datetime.utcnow().timestamp())
     suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
     return f"PRIV-{pid}-{mid}-{timestamp}-{suffix}"
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    """Formule Haversine pour calculer la distance GPS en km"""
+    if not lat1 or not lat2: return 9999
+    R = 6371  # Rayon de la Terre en km
+    dLat = math.radians(lat2 - lat1)
+    dLon = math.radians(lon2 - lon1)
+    a = math.sin(dLat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    return R * c
 
 # --- ROUTES PARTNER V16 ---
 
@@ -187,6 +198,43 @@ def member_history():
             "date": p.used_at.strftime("%d/%m/%Y %H:%M"), "code": p.validation_code
         } for p in privileges])
 
+@app.route('/api/partners/nearby')
+def nearby_partners():
+    """Retourne les partenaires à proximité (géolocalisation)"""
+    try:
+        user_lat = float(request.args.get('lat'))
+        user_lng = float(request.args.get('lng'))
+        radius = float(request.args.get('radius', 20))  # Rayon en km
+        category = request.args.get('category', 'all')
+    except:
+        return jsonify(error="Coordonnées invalides"), 400
+
+    # Récupérer tous les partenaires avec GPS
+    partners = Partner.query.filter(Partner.latitude != None).all()
+    results = []
+
+    for p in partners:
+        dist = calculate_distance(user_lat, user_lng, p.latitude, p.longitude)
+        
+        if dist <= radius:
+            if category == 'all' or p.category == category:
+                # Compter les offres actives
+                offer_count = Offer.query.filter_by(partner_id=p.id, active=True).count()
+                results.append({
+                    "id": p.id,
+                    "name": p.name,
+                    "category": p.category,
+                    "lat": p.latitude,
+                    "lng": p.longitude,
+                    "img": p.image_url,
+                    "distance": round(dist, 1),
+                    "offers_count": offer_count
+                })
+    
+    # Tri du plus proche au plus loin
+    results.sort(key=lambda x: x['distance'])
+    return jsonify(results)
+
 # --- AUTH & SYSTEM ---
 
 @app.route('/api/login', methods=['POST'])
@@ -198,8 +246,8 @@ def login():
         return jsonify(token=token, role=u.role)
     return jsonify(error="Incorrect"), 401
 
-@app.route('/api/setup_v16')
-def setup_v16():
+@app.route('/api/setup_v17')
+def setup_v17():
     with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
     db.create_all()
     
@@ -228,13 +276,13 @@ def setup_v16():
         db.session.add(Member(user_id=u.id, first_name="Jean"))
         db.session.commit()
 
-    return jsonify(success=True, msg="V16 Installed")
+    return jsonify(success=True, msg="V17 Installed")
 
 @app.route('/api/nuke_db')
 def nuke():
     with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
     db.create_all()
-    return "Clean V16"
+    return "Clean V17"
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

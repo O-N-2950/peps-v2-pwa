@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import Login from './components/Login';
 import PartnerDashboard from './components/PartnerDashboard';
 import MemberDashboard from './components/MemberDashboard';
+import MapView from './components/MapView';
 
 const Protected = ({ role }) => {
   const token = localStorage.getItem('token');
@@ -19,7 +20,10 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route element={<Protected role="partner" />}><Route path="/partner" element={<PartnerDashboard />} /></Route>
-        <Route element={<Protected role="member" />}><Route path="/" element={<MemberDashboard />} /></Route>
+        <Route element={<Protected role="member" />}>
+          <Route path="/" element={<MemberDashboard />} />
+          <Route path="/map" element={<MapView />} />
+        </Route>
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
