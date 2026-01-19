@@ -1,73 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, MapPin, Zap } from 'lucide-react';
-import Countdown from 'react-countdown';
-import confetti from 'canvas-confetti';
 
-const urlBase64ToUint8Array = (base64String) => {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-}
+import React, { useState, useEffect } from 'react';
+import { Gift, Clock, Zap, CheckCircle, MapPin } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function MemberDashboard() {
+  const [tab, setTab] = useState('privileges');
   const [offers, setOffers] = useState([]);
-  const [geo, setGeo] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [validation, setValidation] = useState(null);
+  
   const token = localStorage.getItem('token');
+  const headers = { 'Authorization': `Bearer ${token}` };
 
-  const initPush = async () => {
-    const reg = await navigator.serviceWorker.ready;
-    const { key } = await fetch('/api/push/vapid-key').then(r=>r.json());
-    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(key) });
-    await fetch('/api/member/push/subscribe', {
-        method: 'POST', headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${token}`},
-        body: JSON.stringify(sub)
-    });
-    alert("🔔 Notifications activées !");
+  const load = () => {
+      fetch('/api/member/privileges/available').then(r=>r.json()).then(setOffers);
+      if(token) fetch('/api/member/history', { headers }).then(r=>r.json()).then(setHistory);
   };
 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(pos => {
-        setGeo(pos.coords);
-        fetch('/api/member/flash-offers/nearby', {
-            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
-            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-        }).then(r=>r.json()).then(setOffers);
-    });
-  }, []);
+  useEffect(() => { load(); }, [tab]);
 
-  const claim = async (id) => {
-    const res = await fetch(`/api/member/flash-offers/${id}/claim`, { method: 'POST', headers: {'Authorization': `Bearer ${token}`} });
-    const d = await res.json();
-    if(d.success) { confetti(); alert(`✅ RÉSERVÉ ! Code: ${d.qr}`); window.location.reload(); }
-    else alert("❌ " + d.error);
+  const usePrivilege = async (id) => {
+    if(!token) return toast.error("Connectez-vous !");
+    const res = await fetch(`/api/member/privileges/${id}/use`, { method: 'POST', headers });
+    const data = await res.json();
+    
+    if(data.success) {
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#FFD700', '#FFA500', '#FF69B4'] });
+        setValidation(data);
+        load();
+    } else {
+        toast.error(data.error);
+    }
   };
 
   return (
-    <div className="p-4 bg-gray-50 min-h-screen pb-24">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-black text-[#3D9A9A]">Offres Flash</h1>
-        <button onClick={initPush} className="bg-white p-2 rounded-full shadow"><Bell/></button>
-      </div>
-      {!geo && <div className="text-center text-gray-400">📍 Recherche GPS...</div>}
-      <div className="space-y-4">
-        {offers.map(o => (
-            <div key={o.id} className="bg-white rounded-2xl shadow-lg border-2 border-red-100 overflow-hidden relative">
-                <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 absolute top-0 right-0 rounded-bl-xl">FLASH</div>
-                <div className="p-5">
-                    <h3 className="font-black text-xl">{o.partner}</h3>
-                    <h4 className="text-lg font-bold mt-1">{o.title}</h4>
-                    <div className="flex justify-between text-xs text-gray-500 mt-2 mb-4">
-                        <span className="flex gap-1"><MapPin size={12}/> {o.dist} km</span>
-                        <span className="text-red-500 font-bold"><Countdown date={o.end}/></span>
+    <div className="bg-gray-50 min-h-screen pb-24">
+      <Toaster position="top-center" />
+      <div className="bg-white p-4 shadow-sm sticky top-0 z-10"><h1 className="font-black text-xl text-[#3D9A9A]">PEP's World</h1></div>
+
+      <div className="p-4 space-y-4">
+        {tab === 'privileges' && offers.map(o => (
+            <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+                <div className="h-32 bg-gray-200 relative">
+                    <img src={o.partner.img} className="w-full h-full object-cover"/>
+                    <div className="absolute bottom-2 left-2 text-white font-bold shadow-black">{o.partner.name}</div>
+                </div>
+                <div className="p-4 flex justify-between items-center">
+                    <div>
+                        <div className="font-bold text-gray-800">{o.title}</div>
+                        <div className="text-xs text-[#3D9A9A] font-bold">{o.type}</div>
                     </div>
-                    <div className="flex justify-between items-center">
-                        <div className="text-3xl font-black text-[#3D9A9A]">{o.discount}</div>
-                        <button onClick={()=>claim(o.id)} className="bg-black text-white px-6 py-2 rounded-xl font-bold shadow-lg active:scale-95 transition">JE PRENDS ({o.left})</button>
-                    </div>
+                    <button onClick={()=>usePrivilege(o.id)} className="bg-black text-white px-4 py-2 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition">
+                        PROFITER
+                    </button>
                 </div>
             </div>
         ))}
+
+        {tab === 'history' && history.map((h, i) => (
+            <div key={i} className="bg-white p-4 rounded-xl border border-gray-200 flex justify-between items-center">
+                <div>
+                    <div className="font-bold text-sm">{h.partner}</div>
+                    <div className="text-xs text-gray-500">{h.title}</div>
+                </div>
+                <div className="text-right">
+                    <div className="text-[10px] bg-gray-100 px-2 py-1 rounded font-mono mb-1">{h.code.split('-').pop()}</div>
+                    <div className="text-[10px] text-gray-400">{h.date}</div>
+                </div>
+            </div>
+        ))}
+      </div>
+
+      {validation && (
+        <div className="fixed inset-0 bg-[#3D9A9A]/95 z-50 flex flex-col items-center justify-center p-6 text-white text-center animate-in zoom-in">
+            <CheckCircle size={80} className="mb-6 animate-bounce"/>
+            <h2 className="text-3xl font-black mb-2">ACTIVÉ !</h2>
+            <div className="bg-white text-black p-6 rounded-2xl w-full max-w-xs shadow-2xl mb-8">
+                <div className="text-sm text-gray-500 uppercase tracking-widest mb-1">{validation.partner_name}</div>
+                <div className="font-black text-xl mb-4">{validation.privilege_title}</div>
+                <div className="bg-gray-100 p-3 rounded-xl font-mono text-lg font-bold tracking-widest">{validation.code}</div>
+                <div className="text-xs text-gray-400 mt-2">{validation.timestamp}</div>
+            </div>
+            <button onClick={()=>setValidation(null)} className="bg-white text-[#3D9A9A] px-8 py-3 rounded-full font-bold shadow-xl">FERMER</button>
+        </div>
+      )}
+
+      <div className="fixed bottom-0 w-full bg-white border-t flex justify-around p-2 pb-6 z-40">
+         <button onClick={()=>setTab('privileges')} className={`p-2 flex flex-col items-center ${tab==='privileges'?'text-[#3D9A9A]':'text-gray-400'}`}><Gift size={24}/><span className="text-[10px]">Offres</span></button>
+         <button onClick={()=>setTab('history')} className={`p-2 flex flex-col items-center ${tab==='history'?'text-[#3D9A9A]':'text-gray-400'}`}><Clock size={24}/><span className="text-[10px]">Historique</span></button>
       </div>
     </div>
   );

@@ -11,10 +11,10 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '☢️ V16 NUCLEAR BUILD - INSTALLING CONFETTI & RECHARTS...'",
+  "echo '☢️ V15 FLASH BUILD - CLEARING CACHE...'",
   "cd frontend && rm -rf dist node_modules/.cache",
   "cd frontend && npm run build"
 ]
 
 [start]
-cmd = "cd backend && gunicorn -w 4 -b 0.0.0.0:$PORT app:app"
+cmd = "cd backend && gunicorn -w 1 -k gthread --threads 4 -b 0.0.0.0:$PORT app:app"

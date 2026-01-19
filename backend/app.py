@@ -1,173 +1,195 @@
+Python
+
 import os
-import json
-import math
-import uuid
 import random
+import string
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import text
-from apscheduler.schedulers.background import BackgroundScheduler
-from pywebpush import webpush, WebPushException
-from models import db, User, Partner, Member, FlashOffer, FlashClaim, Offer, Company, Booking, Pack
+from sqlalchemy import text, func, desc, Date, cast
+from models import db, User, Partner, Offer, Member, PrivilegeUsage, followers, Company
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
 
-app.config['SECRET_KEY'] = 'peps_v15_secure'
-app.config['JWT_SECRET_KEY'] = 'peps_v15_jwt'
+# SÉCURITÉ V16
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'peps_v16_secure_dev')
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'peps_v16_jwt_dev')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///peps.db').replace("postgres://", "postgresql://")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 jwt = JWTManager(app)
 
-# --- 🔔 SERVICE PUSH INTÉGRÉ ---
-def send_web_push(subscription_json, title, body, data=None):
-    VAPID_PRIVATE = os.getenv('VAPID_PRIVATE_KEY')
-    VAPID_CLAIMS = {"sub": os.getenv('VAPID_CLAIM_EMAIL', "mailto:admin@peps.world")}
-    if not VAPID_PRIVATE or not subscription_json: return
+def get_auth_user():
     try:
-        sub_info = json.loads(subscription_json) if isinstance(subscription_json, str) else subscription_json
-        webpush(
-            subscription_info=sub_info,
-            data=json.dumps({"title": title, "body": body, "icon": "/logo.jpg", "data": data or {"url": "/"}}),
-            vapid_private_key=VAPID_PRIVATE,
-            vapid_claims=VAPID_CLAIMS
-        )
-    except Exception as e: print(f"Push Error: {e}")
+        identity = get_jwt_identity()
+        uid = int(identity) if isinstance(identity, str) else identity.get('id')
+        return User.query.get(uid)
+    except: return None
 
-# --- 🧮 GÉOLOCALISATION ---
-def calculate_distance(lat1, lon1, lat2, lon2):
-    if not all([lat1, lon1, lat2, lon2]): return 9999
-    R = 6371 # Rayon Terre
-    dLat = math.radians(lat2 - lat1)
-    dLon = math.radians(lon2 - lon1)
-    a = math.sin(dLat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon/2)**2
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+def generate_validation_code(pid, mid):
+    """Génère un code unique avec hash court"""
+    timestamp = int(datetime.utcnow().timestamp())
+    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    return f"PRIV-{pid}-{mid}-{timestamp}-{suffix}"
 
-# --- 🤖 AUTOMATISATION ---
-def expire_flash_offers():
-    with app.app_context():
-        now = datetime.utcnow()
-        FlashOffer.query.filter(FlashOffer.active==True, FlashOffer.expires_at < now).update({FlashOffer.active: False})
-        db.session.commit()
+# --- ROUTES PARTNER V16 ---
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(expire_flash_offers, 'interval', minutes=5)
-scheduler.start()
-
-# --- ⚡ PARTNER FLASH ROUTES ---
 @app.route('/api/partner/flash-offers', methods=['GET', 'POST'])
 @jwt_required()
-def manage_flash():
-    uid = int(get_jwt_identity()['id']) if isinstance(get_jwt_identity(), dict) else int(get_jwt_identity())
-    u = User.query.get(uid)
+def partner_flash():
+    u = get_auth_user()
+    if not u or u.role != 'partner': return jsonify(error="Unauthorized"), 403
     p = u.partner_profile
-    if not p: return jsonify(error="Not partner"), 403
-
+    
     if request.method == 'POST':
         d = request.json
-        expires = datetime.utcnow() + timedelta(hours=int(d.get('duration_hours', 24)))
-        
-        offer = FlashOffer(
-            partner_id=p.id, title=d['title'], discount=d['discount'],
-            slots_total=int(d['slots']), radius_km=int(d['radius']),
-            expires_at=expires, active=True
-        )
-        db.session.add(offer)
-        db.session.commit()
-        
-        # 🔔 PUSH
-        users = User.query.filter(User.role=='member', User.push_subscription.isnot(None)).all()
-        count = 0
-        for member in users:
-            dist = calculate_distance(p.latitude, p.longitude, member.latitude, member.longitude)
-            if dist <= offer.radius_km:
-                send_web_push(member.push_subscription, f"⚡ Flash: {d['title']}", f"{d['discount']} chez {p.name} ({dist:.1f}km)", {"url": "/"})
-                count += 1
-        
-        return jsonify(success=True, pushed_to=count)
+        # Création Offre Flash
+        o = Offer(partner_id=p.id, title=d['title'], discount_val=d['discount'], 
+                  offer_type='flash', is_permanent=False, stock=int(d.get('slots', 5)), active=True)
+        db.session.add(o); db.session.commit()
+        return jsonify(success=True)
 
-    offers = FlashOffer.query.filter_by(partner_id=p.id).order_by(FlashOffer.created_at.desc()).all()
+    # Liste Offres Flash
+    offers = Offer.query.filter_by(partner_id=p.id, offer_type='flash').all()
     return jsonify([{
-        "id": o.id, "title": o.title, "discount": o.discount, 
-        "taken": o.slots_taken, "total": o.slots_total, 
-        "active": o.active and o.expires_at > datetime.utcnow(),
-        "end": o.expires_at.isoformat()
+        "id": o.id, "title": o.title, "discount": o.discount_val, 
+        "taken": 0, "total": o.stock, "active": o.active, "end": (o.created_at + timedelta(hours=24)).isoformat()
     } for o in offers])
 
-# --- 🏃 MEMBER ROUTES ---
-@app.route('/api/member/flash-offers/nearby', methods=['POST'])
+@app.route('/api/partner/privileges', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @jwt_required()
-def nearby_flash():
-    d = request.json
-    lat, lng = d.get('lat'), d.get('lng')
+def partner_privileges():
+    u = get_auth_user()
+    p = u.partner_profile
     
-    uid = int(get_jwt_identity()['id']) if isinstance(get_jwt_identity(), dict) else int(get_jwt_identity())
-    u = User.query.get(uid)
-    if lat and lng:
-        u.latitude = lat; u.longitude = lng; db.session.commit()
+    if request.method == 'POST':
+        d = request.json
+        o = Offer(partner_id=p.id, title=d['title'], description=d.get('description'),
+                  offer_type='permanent', is_permanent=True, discount_val=d.get('type'), active=True)
+        db.session.add(o); db.session.commit()
+        return jsonify(success=True)
 
-    offers = FlashOffer.query.filter(FlashOffer.active==True, FlashOffer.expires_at > datetime.utcnow()).all()
+    if request.method == 'PUT': # Toggle Active
+        oid = request.args.get('id')
+        o = Offer.query.get(oid)
+        if o and o.partner_id == p.id:
+            o.active = not o.active
+            db.session.commit()
+        return jsonify(success=True)
+
+    if request.method == 'DELETE':
+        oid = request.args.get('id')
+        o = Offer.query.get(oid)
+        if o and o.partner_id == p.id:
+            db.session.delete(o)
+            db.session.commit()
+        return jsonify(success=True)
+
+    # GET List
+    offers = Offer.query.filter_by(partner_id=p.id, offer_type='permanent').all()
+    today = datetime.utcnow().date()
     res = []
     for o in offers:
-        if o.slots_taken >= o.slots_total: continue
-        dist = calculate_distance(lat, lng, o.partner.latitude, o.partner.longitude)
-        if dist <= o.radius_km * 1.5:
-            res.append({
-                "id": o.id, "title": o.title, "discount": o.discount,
-                "partner": o.partner.name, "dist": round(dist, 1),
-                "left": o.slots_total - o.slots_taken, "end": o.expires_at.isoformat()
-            })
-            
-    return jsonify(sorted(res, key=lambda x: x['dist']))
+        total_uses = PrivilegeUsage.query.filter_by(offer_id=o.id).count()
+        # Utilisation de cast(Date) pour compatibilité PostgreSQL
+        today_uses = PrivilegeUsage.query.filter(PrivilegeUsage.offer_id==o.id, cast(PrivilegeUsage.used_at, Date)==today).count()
+        res.append({
+            "id": o.id, "title": o.title, "description": o.description, "type": o.discount_val,
+            "active": o.active, "total_uses": total_uses, "today_uses": today_uses
+        })
+    return jsonify(res)
 
-@app.route('/api/member/flash-offers/<int:fid>/claim', methods=['POST'])
+@app.route('/api/partner/statistics')
 @jwt_required()
-def claim_flash(fid):
-    uid = int(get_jwt_identity()['id']) if isinstance(get_jwt_identity(), dict) else int(get_jwt_identity())
+def partner_stats():
+    u = get_auth_user()
+    p = u.partner_profile
     
-    try:
-        # Verrouillage Pessimiste (Postgres)
-        if 'postgres' in app.config['SQLALCHEMY_DATABASE_URI']:
-            f = db.session.query(FlashOffer).with_for_update().get(fid)
-        else:
-            f = FlashOffer.query.get(fid)
+    # 1. Top Privilèges
+    top_offers = db.session.query(PrivilegeUsage.offer_title, func.count(PrivilegeUsage.id).label('count'))\
+        .filter(PrivilegeUsage.partner_id == p.id)\
+        .group_by(PrivilegeUsage.offer_title).order_by(desc('count')).limit(3).all()
+    
+    # 2. Graphique 7 jours
+    graph_data = []
+    for i in range(6, -1, -1):
+        d = datetime.utcnow().date() - timedelta(days=i)
+        c = PrivilegeUsage.query.filter(PrivilegeUsage.partner_id==p.id, cast(PrivilegeUsage.used_at, Date)==d).count()
+        graph_data.append({"name": d.strftime("%d/%m"), "uses": c})
 
-        if not f.active or f.expires_at < datetime.utcnow() or f.slots_taken >= f.slots_total:
-            return jsonify(error="Trop tard !"), 400
+    # 3. Stats Globales
+    today = datetime.utcnow().date()
+    total_today = PrivilegeUsage.query.filter(PrivilegeUsage.partner_id==p.id, cast(PrivilegeUsage.used_at, Date)==today).count()
+    total_month = PrivilegeUsage.query.filter(PrivilegeUsage.partner_id==p.id).count()
 
-        if FlashClaim.query.filter_by(flash_offer_id=fid, user_id=uid).first():
-            return jsonify(error="Déjà pris !"), 400
+    return jsonify({
+        "total_month": total_month,
+        "today": total_today,
+        "top_offers": [{"title": t[0], "count": t[1]} for t in top_offers],
+        "graph_data": graph_data
+    })
 
-        f.slots_taken += 1
-        code = f"FLASH-{fid}-{uid}-{random.randint(1000,9999)}"
-        db.session.add(FlashClaim(flash_offer_id=fid, user_id=uid, qr_code=code))
-        db.session.commit()
-        
-        return jsonify(success=True, qr=code, partner=f.partner.name)
-    except:
-        db.session.rollback()
-        return jsonify(error="Erreur technique"), 500
+# --- ROUTES MEMBER V16 ---
 
-# --- 🔔 PUSH SUB ---
-@app.route('/api/member/push/subscribe', methods=['POST'])
+@app.route('/api/member/privileges/available')
+def available_privileges():
+    # Tous les privilèges permanents actifs
+    offers = Offer.query.filter_by(offer_type='permanent', active=True).all()
+    return jsonify([{
+        "id": o.id, "title": o.title, "type": o.discount_val, "desc": o.description,
+        "partner": {"id": o.partner.id, "name": o.partner.name, "img": o.partner.image_url, "lat": o.partner.latitude, "lng": o.partner.longitude}
+    } for o in offers])
+
+@app.route('/api/member/privileges/<int:oid>/use', methods=['POST'])
 @jwt_required()
-def subscribe_push():
-    uid = int(get_jwt_identity()['id']) if isinstance(get_jwt_identity(), dict) else int(get_jwt_identity())
-    u = User.query.get(uid)
-    u.push_subscription = json.dumps(request.json)
+def use_privilege(oid):
+    u = get_auth_user()
+    if not u or not u.member_profile: return jsonify(error="Profil membre requis"), 400
+    
+    offer = Offer.query.get_or_404(oid)
+    if not offer.active: return jsonify(error="Privilège inactif"), 400
+    
+    # Génération Code Unique (ILLIMITÉ)
+    code = generate_validation_code(offer.partner_id, u.member_profile.id)
+    
+    usage = PrivilegeUsage(
+        member_id=u.member_profile.id,
+        partner_id=offer.partner_id,
+        offer_id=offer.id,
+        offer_title=offer.title,
+        validation_code=code
+    )
+    db.session.add(usage)
     db.session.commit()
-    return jsonify(success=True)
+    
+    return jsonify({
+        "success": True,
+        "code": code,
+        "timestamp": usage.used_at.isoformat(),
+        "partner_name": offer.partner.name,
+        "privilege_title": offer.title
+    })
 
-@app.route('/api/push/vapid-key', methods=['GET'])
-def vapid_key():
-    return jsonify(key=os.getenv('VAPID_PUBLIC_KEY'))
+@app.route('/api/member/history')
+@jwt_required()
+def member_history():
+    u = get_auth_user()
+    if not u or not u.member_profile: return jsonify([])
+    
+    # Historique Privilèges
+    privileges = PrivilegeUsage.query.filter_by(member_id=u.member_profile.id).order_by(desc(PrivilegeUsage.used_at)).all()
+    return jsonify([{
+            "partner": Partner.query.get(p.partner_id).name, 
+            "title": p.offer_title, 
+            "date": p.used_at.strftime("%d/%m/%Y %H:%M"), "code": p.validation_code
+        } for p in privileges])
 
-# --- AUTH & SETUP ---
+# --- AUTH & SYSTEM ---
+
 @app.route('/api/login', methods=['POST'])
 def login():
     d = request.json
@@ -175,29 +197,45 @@ def login():
     if u and check_password_hash(u.password_hash, d.get('password')):
         token = create_access_token(identity=str(u.id), additional_claims={'role': u.role})
         return jsonify(token=token, role=u.role)
-    return jsonify(error="Erreur"), 401
+    return jsonify(error="Incorrect"), 401
 
-@app.route('/api/setup_v15')
-def setup_v15():
+@app.route('/api/setup_v16')
+def setup_v16():
+    with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
     db.create_all()
-    if not User.query.filter_by(email='partner@peps.swiss').first():
-        u = User(email='partner@peps.swiss', password_hash=generate_password_hash('123456'), role='partner')
+    
+    # Partenaires Test
+    partners = [
+        ("Mario Pizza", "Restaurant", 46.5197, 6.6323),
+        ("Coiffure Bella", "Beauté", 46.2044, 6.1432),
+        ("Fitness Pro", "Sport", 46.4312, 6.9107)
+    ]
+    
+    for name, cat, lat, lng in partners:
+        email = f"partner.{name.split()[0].lower()}@peps.swiss"
+        u = User(email=email, password_hash=generate_password_hash('123456'), role='partner')
         db.session.add(u); db.session.commit()
-        p = Partner(user_id=u.id, name="Mario Pizza", latitude=47.1368, longitude=7.2468)
+        p = Partner(user_id=u.id, name=name, category=cat, latitude=lat, longitude=lng, image_url="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=500")
         db.session.add(p); db.session.commit()
-        db.session.add(FlashOffer(partner_id=p.id, title="-50% Pizza", discount="-50%", slots_total=5, radius_km=50, expires_at=datetime.utcnow()+timedelta(hours=2)))
         
-        m = User(email='member@peps.swiss', password_hash=generate_password_hash('123456'), role='member')
-        db.session.add(m); db.session.commit()
-        db.session.add(Member(user_id=m.id))
+        # Offres Permanentes
+        db.session.add(Offer(partner_id=p.id, title=f"Bienvenue chez {name}", offer_type='permanent', is_permanent=True, discount_val="-10%", active=True))
+        db.session.add(Offer(partner_id=p.id, title="Cadeau Fidélité", offer_type='permanent', is_permanent=True, discount_val="Offert", active=True))
+
+    # Membres Test
+    if not User.query.filter_by(email='member@peps.swiss').first():
+        u = User(email='member@peps.swiss', password_hash=generate_password_hash('123456'), role='member')
+        db.session.add(u); db.session.commit()
+        db.session.add(Member(user_id=u.id, first_name="Jean"))
         db.session.commit()
-    return jsonify(success=True)
+
+    return jsonify(success=True, msg="V16 Installed")
 
 @app.route('/api/nuke_db')
 def nuke():
     with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
     db.create_all()
-    return "Clean V15"
+    return "Clean V16"
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

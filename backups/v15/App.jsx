@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Login from './components/Login';
@@ -9,7 +8,7 @@ const Protected = ({ role }) => {
   const token = localStorage.getItem('token');
   const userRole = localStorage.getItem('role');
   if (!token) return <Navigate to="/login" />;
-  if (role && userRole !== role && userRole !== 'admin') return <Navigate to="/" />;
+  if (role && userRole !== role) return <Navigate to="/" />;
   return <Outlet />;
 };
 
