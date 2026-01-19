@@ -315,6 +315,27 @@ def setup_v17():
         db.session.add(u); db.session.commit()
         db.session.add(Member(user_id=u.id, first_name="Jean"))
         db.session.commit()
+    
+    # Admin Test
+    if not User.query.filter_by(email='admin@peps.swiss').first():
+        u = User(email='admin@peps.swiss', password_hash=generate_password_hash('123456'), role='admin')
+        db.session.add(u); db.session.commit()
+    
+    # Company Test
+    if not User.query.filter_by(email='company@peps.swiss').first():
+        u = User(email='company@peps.swiss', password_hash=generate_password_hash('123456'), role='company_admin')
+        db.session.add(u); db.session.commit()
+    
+    # Both Test (Partner + Member)
+    if not User.query.filter_by(email='both@peps.swiss').first():
+        u = User(email='both@peps.swiss', password_hash=generate_password_hash('123456'), role='partner')
+        db.session.add(u); db.session.commit()
+        # Créer le partenaire
+        p = Partner(user_id=u.id, name="Both Commerce", category="Commerce", latitude=46.5197, longitude=6.6323, image_url="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=500")
+        db.session.add(p); db.session.commit()
+        # Créer le membre
+        db.session.add(Member(user_id=u.id, first_name="Both"))
+        db.session.commit()
 
     return jsonify(success=True, msg="V17 Installed")
 
