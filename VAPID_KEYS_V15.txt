@@ -1,0 +1,28 @@
+======================================================================
+🔑 CLÉS VAPID POUR V15 - À AJOUTER DANS RAILWAY
+======================================================================
+
+VAPID_PUBLIC_KEY=BFZKNqo_E_8oGZPKQHNA0CbAYc-AjqFLxxCktr1AZrZSVF3rIHZ-h4VprAIk8cickDZIoPNu1_lrnbdesA6ONZk
+
+VAPID_PRIVATE_KEY=2RvLwOmbBnwdQ4Q5ayYKIr4ukD2aF3T4SIS4AXY9Y5s
+
+VAPID_CLAIM_EMAIL=mailto:admin@peps.swiss
+
+======================================================================
+⚠️  INSTRUCTIONS RAILWAY
+======================================================================
+
+1. Allez sur Railway > Projet PEP's > Variables
+2. Ajoutez ces 3 variables d'environnement
+3. Redémarrez le service après le déploiement V15
+
+======================================================================
+📝 NOTES TECHNIQUES
+======================================================================
+
+- Format : Base64 URL-safe (standard Web Push API)
+- Algorithme : ECDSA P-256 (SECP256R1)
+- Ces clés sont nécessaires pour signer les notifications push
+- Ne partagez JAMAIS la clé privée publiquement
+
+Date de génération : 2026-01-19

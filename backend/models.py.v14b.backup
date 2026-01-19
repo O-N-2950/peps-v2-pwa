@@ -3,6 +3,7 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+# Relation Followers
 followers = db.Table('followers',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
@@ -13,18 +14,15 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='member')
+    role = db.Column(db.String(20), default='member') # admin, partner, member, company_admin
     is_both = db.Column(db.Boolean, default=False)
     
-    # V15: GPS & PUSH
-    latitude = db.Column(db.Float, nullable=True)
-    longitude = db.Column(db.Float, nullable=True)
-    push_subscription = db.Column(db.Text, nullable=True) # JSON
-    
+    # Profils
     partner_profile = db.relationship('Partner', backref='owner', uselist=False)
     member_profile = db.relationship('Member', backref='owner', uselist=False)
     company_profile = db.relationship('Company', backref='admin', uselist=False)
     
+    # Relations
     followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers_list', lazy='dynamic'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -32,72 +30,74 @@ class Partner(db.Model):
     __tablename__ = 'partners'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
     name = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50))
+    description = db.Column(db.Text)
+    address = db.Column(db.String(200))
+    phone = db.Column(db.String(20))
+    
+    # JSON Data (Stocké en Texte pour compatibilité)
+    hours_json = db.Column(db.Text, default='{}') 
+    photos_json = db.Column(db.Text, default='[]')
+    
+    # GPS
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
-    image_url = db.Column(db.String(500))
+    image_url = db.Column(db.String(500)) 
     
-    flash_offers = db.relationship('FlashOffer', backref='partner', lazy=True)
     offers = db.relationship('Offer', backref='partner', lazy=True)
     bookings = db.relationship('Booking', backref='partner', lazy=True)
+    slots = db.relationship('AvailabilitySlot', backref='partner', lazy=True)
 
-class FlashOffer(db.Model):
-    __tablename__ = 'flash_offers'
-    id = db.Column(db.Integer, primary_key=True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False)
-    
-    title = db.Column(db.String(100), nullable=False)
-    discount = db.Column(db.String(20)) 
-    
-    slots_total = db.Column(db.Integer, default=1)
-    slots_taken = db.Column(db.Integer, default=0)
-    
-    radius_km = db.Column(db.Integer, default=10)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    claims = db.relationship('FlashClaim', backref='offer', lazy=True)
-
-class FlashClaim(db.Model):
-    __tablename__ = 'flash_claims'
-    id = db.Column(db.Integer, primary_key=True)
-    flash_offer_id = db.Column(db.Integer, db.ForeignKey('flash_offers.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    qr_code = db.Column(db.String(100))
-    claimed_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-# --- Modèles V14 conservés ---
 class Member(db.Model):
     __tablename__ = 'members'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     first_name = db.Column(db.String(50))
-
-class Offer(db.Model):
-    __tablename__ = 'offers'
-    id = db.Column(db.Integer, primary_key=True)
-    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
-    title = db.Column(db.String(100))
-    offer_type = db.Column(db.String(20))
-    active = db.Column(db.Boolean, default=True)
+    last_name = db.Column(db.String(50))
+    phone = db.Column(db.String(20))
+    bookings = db.relationship('Booking', backref='member', lazy=True)
 
 class Company(db.Model):
     __tablename__ = 'companies'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), nullable=False)
+    slots_total = db.Column(db.Integer, default=0)
+    slots_used = db.Column(db.Integer, default=0)
+    employees = db.relationship('User', backref='company_ref', lazy=True)
+
+class Offer(db.Model): # Alias 'Privilege'
+    __tablename__ = 'offers'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    offer_type = db.Column(db.String(20)) # flash, permanent, daily
+    value = db.Column(db.String(20)) 
+    is_active = db.Column(db.Boolean, default=True)
+    stock = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Booking(db.Model):
     __tablename__ = 'bookings'
     id = db.Column(db.Integer, primary_key=True)
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
     member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
-    status = db.Column(db.String(20))
+    
+    booking_date = db.Column(db.String(20)) # YYYY-MM-DD
+    booking_time = db.Column(db.String(10)) # HH:MM
+    service_name = db.Column(db.String(100))
+    status = db.Column(db.String(20), default='confirmed') 
+    sms_sent = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Pack(db.Model):
-    __tablename__ = 'packs'
+class AvailabilitySlot(db.Model):
+    __tablename__ = 'availability_slots'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    price_chf = db.Column(db.Float)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    day_of_week = db.Column(db.Integer) # 0=Lundi
+    start_time = db.Column(db.String(5)) 
+    end_time = db.Column(db.String(5)) 
+    is_active = db.Column(db.Boolean, default=True)

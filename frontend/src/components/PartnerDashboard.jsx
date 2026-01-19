@@ -1,109 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Gift, Calendar, Settings, Save, Plus, LogOut } from 'lucide-react';
+import { Zap, Send, Clock, Users, Plus, X } from 'lucide-react';
+import Countdown from 'react-countdown';
 
 export default function PartnerDashboard() {
-  const [tab, setTab] = useState('profil');
-  const [profile, setProfile] = useState({});
   const [offers, setOffers] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ title: '', discount: '-30%', slots: 5, duration_hours: 2, radius: 10 });
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const headers = { 'Authorization': `Bearer ${token}` };
-    Promise.all([
-      fetch('/api/partner/profile', { headers }).then(r => r.json()),
-      fetch('/api/partner/offers', { headers }).then(r => r.json()),
-      fetch('/api/partner/bookings', { headers }).then(r => r.json())
-    ]).then(([p, o, b]) => {
-      if(p.error) throw new Error(p.error);
-      setProfile(p); setOffers(o||[]); setBookings(b||[]); setLoading(false);
-    }).catch(e => { console.error(e); setLoading(false); });
-  }, []);
+  const refresh = () => fetch('/api/partner/flash-offers', { headers: {'Authorization': `Bearer ${token}`} })
+    .then(r=>r.json()).then(setOffers);
 
-  const saveProfile = async () => {
-    await fetch('/api/partner/profile', {
-      method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(profile)
+  useEffect(() => { refresh(); }, []);
+
+  const create = async () => {
+    await fetch('/api/partner/flash-offers', {
+        method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(form)
     });
-    alert("Profil mis à jour");
+    alert("🚀 Push Envoyé !"); setShowModal(false); refresh();
   };
-
-  const createOffer = async (e) => {
-    e.preventDefault();
-    const d = new FormData(e.target);
-    await fetch('/api/partner/offers', {
-      method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.fromEntries(d))
-    });
-    alert("Offre créée"); window.location.reload();
-  };
-
-  if (loading) return <div className="p-10 text-center">Chargement V14...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <header className="bg-[#3D9A9A] text-white p-6 flex justify-between items-center">
-        <h1 className="font-black text-xl">{profile.name}</h1>
-        <button onClick={()=>{localStorage.clear(); window.location.href='/login'}}><LogOut size={20}/></button>
-      </header>
+    <div className="p-4 pb-24 bg-gray-50 min-h-screen">
+      <h1 className="text-xl font-black text-[#3D9A9A] mb-4 flex gap-2"><Zap/> Push Opportunités</h1>
+      
+      <button onClick={()=>setShowModal(true)} className="w-full bg-black text-white p-4 rounded-xl font-bold flex justify-center gap-2 shadow-lg mb-6">
+        <Plus/> CRÉER PUSH
+      </button>
 
-      <div className="flex bg-white border-b p-2 gap-4 overflow-x-auto">
-        {[{id:'profil', icon:Settings}, {id:'offers', icon:Gift}, {id:'agenda', icon:Calendar}].map(t => (
-          <button key={t.id} onClick={()=>setTab(t.id)} className={`p-2 ${tab===t.id?'text-[#3D9A9A] font-bold':'text-gray-400'}`}>
-             <t.icon size={24} className="mx-auto"/> <span className="text-[10px] uppercase">{t.id}</span>
-          </button>
+      <div className="space-y-3">
+        {offers.map(o => (
+            <div key={o.id} className={`bg-white p-4 rounded-xl shadow-sm border-l-4 ${o.active?'border-green-500':'border-gray-300'}`}>
+                <div className="flex justify-between font-bold"><span>{o.title}</span><span className="text-red-500">{o.discount}</span></div>
+                <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                    <span><Users size={10} className="inline"/> {o.taken}/{o.total}</span>
+                    <span><Clock size={10} className="inline"/> {o.active ? <Countdown date={o.end}/> : 'Terminé'}</span>
+                </div>
+            </div>
         ))}
       </div>
 
-      <div className="p-4">
-        {tab === 'profil' && (
-            <div className="space-y-4 bg-white p-6 rounded-xl shadow-sm">
-                <input className="w-full p-3 border rounded" value={profile.name||''} onChange={e=>setProfile({...profile, name:e.target.value})} placeholder="Nom"/>
-                <input className="w-full p-3 border rounded" value={profile.phone||''} onChange={e=>setProfile({...profile, phone:e.target.value})} placeholder="Téléphone"/>
-                <button onClick={saveProfile} className="w-full bg-black text-white p-3 rounded font-bold">SAUVEGARDER</button>
-            </div>
-        )}
-
-        {tab === 'offers' && (
-            <div className="space-y-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 className="font-bold mb-4">Nouvelle Offre</h3>
-                    <form onSubmit={createOffer} className="space-y-3">
-                        <input name="title" className="w-full p-3 border rounded" placeholder="Titre" required/>
-                        <select name="type" className="w-full p-3 border rounded">
-                            <option value="permanent">Privilège Permanent</option>
-                            <option value="flash">Offre Flash</option>
-                            <option value="daily">Menu du Jour</option>
-                        </select>
-                        <input name="value" className="w-full p-3 border rounded" placeholder="Valeur (-20%)" required/>
-                        <button className="w-full bg-[#3D9A9A] text-white p-3 rounded font-bold">AJOUTER</button>
-                    </form>
+      {showModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div className="bg-white w-full max-w-sm p-6 rounded-2xl space-y-4">
+                <div className="flex justify-between"><h2 className="font-bold text-lg">Nouveau Push</h2><button onClick={()=>setShowModal(false)}><X/></button></div>
+                <input className="w-full p-3 border rounded" placeholder="Titre" onChange={e=>setForm({...form, title:e.target.value})}/>
+                <div className="flex gap-2">
+                    <input className="w-1/2 p-3 border rounded" placeholder="-30%" onChange={e=>setForm({...form, discount:e.target.value})}/>
+                    <input className="w-1/2 p-3 border rounded" type="number" placeholder="Qté" onChange={e=>setForm({...form, slots:e.target.value})}/>
                 </div>
-                {offers.map(o => (
-                    <div key={o.id} className="bg-white p-4 rounded border-l-4 border-[#3D9A9A] shadow-sm">
-                        <div className="font-bold">{o.title}</div>
-                        <div className="text-xs text-gray-500 uppercase">{o.type} • {o.value}</div>
-                    </div>
-                ))}
+                <select className="w-full p-3 border rounded" onChange={e=>setForm({...form, radius:e.target.value})}>
+                    <option value="5">Rayon 5 km</option><option value="10">Rayon 10 km</option><option value="50">Région (50 km)</option>
+                </select>
+                <button onClick={create} className="w-full bg-red-600 text-white p-3 rounded font-bold">ENVOYER 🚀</button>
             </div>
-        )}
-
-        {tab === 'agenda' && (
-            <div className="space-y-4">
-                <div className="bg-white p-4 rounded shadow-sm text-center">
-                    <Calendar className="mx-auto text-[#3D9A9A] mb-2"/>
-                    <h3 className="font-bold">Réservations</h3>
-                </div>
-                {bookings.map(b => (
-                    <div key={b.id} className="bg-white p-4 rounded border shadow-sm flex justify-between">
-                        <div><div className="font-bold">{b.client}</div><div className="text-xs text-gray-500">{b.date} à {b.time}</div></div>
-                        <span className="text-green-600 font-bold text-xs">{b.status}</span>
-                    </div>
-                ))}
-            </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
