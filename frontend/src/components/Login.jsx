@@ -43,7 +43,7 @@ export default function Login() {
       <div className="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-100 w-full max-w-sm mx-auto">
         <p className="font-bold text-gray-900 text-xs uppercase mb-2 text-center">Comptes de Test V10 :</p>
         <div className="space-y-2 text-xs text-gray-600 font-mono">
-            <div onClick={()=>fill('admin@peps.swiss','admin123')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>👑 Admin</span><span>admin@peps.swiss</span></div>
+            <div onClick={()=>fill('admin@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>👑 Admin</span><span>admin@peps.swiss</span></div>
             <div onClick={()=>fill('partner@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>🏪 Partner</span><span>partner@peps.swiss</span></div>
             <div onClick={()=>fill('company@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>🏢 Company</span><span>company@peps.swiss</span></div>
             <div onClick={()=>fill('both@peps.swiss','123456')} className="flex justify-between cursor-pointer text-[#3D9A9A] font-bold bg-[#3D9A9A]/10 p-1 rounded"><span>🔄 Hybride</span><span>both@peps.swiss</span></div>
