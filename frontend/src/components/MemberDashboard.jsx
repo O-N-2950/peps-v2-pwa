@@ -1,10 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Gift, Clock, Zap, CheckCircle, MapPin, LogOut, User, Star, Loader2, Search, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import MapViewCompact from './MapViewCompact';
+
+// Fonction Haversine pour calculer la distance
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lat2 || !lon1 || !lon2) return null;
+  const R = 6371; // Rayon de la Terre en km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 
 export default function MemberDashboard() {
   const [tab, setTab] = useState('privileges');
@@ -16,15 +30,30 @@ export default function MemberDashboard() {
   const [error, setError] = useState(null);
   
   // V18.1 Search
-  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // V18.3 Géolocalisation
+  const [userPos, setUserPos] = useState(null);
+  const offerRefs = useRef({});
   
   const token = localStorage.getItem('token');
 
   // Log de cycle de vie pour le débogage
   useEffect(() => { console.log("🚀 MemberDashboard Mounted"); }, []);
+
+  // Géolocalisation au chargement
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        },
+        (error) => {
+          console.log('Géolocalisation refusée ou indisponible');
+        }
+      );
+    }
+  }, []);
 
   const loadData = async () => {
       setLoading(true);
@@ -57,42 +86,6 @@ export default function MemberDashboard() {
   };
 
   useEffect(() => { loadData(); }, [token]); // Recharger si le token change
-  
-  // V18.1 Search avec debounce
-  useEffect(() => {
-    if (searchQuery.length > 0 || selectedCategory !== 'all') {
-      const timer = setTimeout(() => {
-        performSearch();
-      }, 300);
-      return () => clearTimeout(timer);
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchQuery, selectedCategory]);
-  
-  const performSearch = async () => {
-    setSearching(true);
-    try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('q', searchQuery);
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
-      
-      const res = await fetch(`/api/partners/search?${params}`);
-      const data = await res.json();
-      setSearchResults(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Erreur recherche:', err);
-      toast.error('Erreur de recherche');
-    } finally {
-      setSearching(false);
-    }
-  };
-  
-  const clearSearch = () => {
-    setSearchQuery('');
-    setSelectedCategory('all');
-    setSearchResults([]);
-  };
 
   const usePrivilege = async (id) => {
     if(!token) return toast.error("Connectez-vous pour profiter des privilèges !");
@@ -122,6 +115,36 @@ export default function MemberDashboard() {
     }
   };
 
+  // Calculer les distances et trier les offres
+  const getOffersWithDistance = (offersList) => {
+    if (!userPos) return offersList;
+    
+    return offersList.map(o => {
+      if (o.partner?.lat && o.partner?.lng) {
+        const dist = calculateDistance(userPos.lat, userPos.lng, o.partner.lat, o.partner.lng);
+        return { ...o, distance: dist ? Math.round(dist * 10) / 10 : null };
+      }
+      return { ...o, distance: null };
+    }).sort((a, b) => {
+      if (a.distance === null) return 1;
+      if (b.distance === null) return -1;
+      return a.distance - b.distance;
+    });
+  };
+
+  // Scroll vers une offre spécifique
+  const scrollToOffer = (offerId) => {
+    const element = offerRefs.current[offerId];
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Highlight temporaire
+      element.classList.add('ring-4', 'ring-[#3D9A9A]', 'ring-opacity-50');
+      setTimeout(() => {
+        element.classList.remove('ring-4', 'ring-[#3D9A9A]', 'ring-opacity-50');
+      }, 2000);
+    }
+  };
+
   // --- RENDU SÉCURISÉ ---
 
   if (loading) return (
@@ -141,6 +164,10 @@ export default function MemberDashboard() {
       </button>
     </div>
   );
+
+  // Offres à afficher (avec recherche ou toutes)
+  const displayedOffers = searchResults.length > 0 ? searchResults : offers;
+  const offersWithDistance = getOffersWithDistance(displayedOffers);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 font-sans">
@@ -172,20 +199,34 @@ export default function MemberDashboard() {
         {/* LISTE DES OFFRES */}
         {tab === 'privileges' && (
             <div className="space-y-4">
+                {/* V18.3 CARTE INTERACTIVE */}
+                {offersWithDistance.length > 0 && (
+                  <div className="mb-6">
+                    <h2 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                      <MapPin size={20} className="text-[#3D9A9A]"/>
+                      Partenaires à proximité
+                    </h2>
+                    <MapViewCompact 
+                      partners={offersWithDistance} 
+                      onPartnerClick={scrollToOffer}
+                    />
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center">
                     <h2 className="font-bold text-gray-700">Offres disponibles</h2>
-                    <span className="text-xs bg-[#3D9A9A]/10 text-[#3D9A9A] font-bold px-2 py-1 rounded-full">{offers.length}</span>
+                    <span className="text-xs bg-[#3D9A9A]/10 text-[#3D9A9A] font-bold px-2 py-1 rounded-full">{offersWithDistance.length}</span>
                 </div>
 
-                {offers.length === 0 && <div className="text-center py-10 text-gray-400">Aucune offre pour le moment.</div>}
+                {offersWithDistance.length === 0 && <div className="text-center py-10 text-gray-400">Aucune offre pour le moment.</div>}
 
-                {/* V18.1 : Afficher searchResults si recherche active, sinon offers */}
-                {(searchResults.length > 0 ? searchResults : offers).map(o => (
+                {offersWithDistance.map(o => (
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }} 
                         animate={{ opacity: 1, y: 0 }} 
-                        key={o.id} 
-                        className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 group"
+                        key={o.id}
+                        ref={el => offerRefs.current[o.id] = el}
+                        className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 group transition-all duration-300"
                     >
                         <div className="h-32 bg-gray-200 relative">
                             {/* Protection contre les images manquantes */}
@@ -198,6 +239,14 @@ export default function MemberDashboard() {
                             {/* Protection contre les noms manquants */}
                             <div className="absolute bottom-2 left-3 text-white font-bold text-lg shadow-black">{o.partner?.name || 'Partenaire Inconnu'}</div>
                             {o.type && <div className={`absolute top-2 right-2 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase shadow-sm ${o.type === 'flash' ? 'bg-red-500 animate-pulse' : 'bg-[#3D9A9A]'}`}>{o.type}</div>}
+                            
+                            {/* V18.3 Distance Badge */}
+                            {o.distance !== null && (
+                              <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[#3D9A9A] text-xs font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                                <MapPin size={12} />
+                                {o.distance} km
+                              </div>
+                            )}
                         </div>
                         <div className="p-4 flex justify-between items-center">
                             <div className="flex-1 pr-2">
