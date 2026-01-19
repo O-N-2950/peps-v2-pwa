@@ -11,7 +11,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🗺️ V17 GEO BUILD - INSTALLING LEAFLET & MAPS...'",
+  "echo '💰 V18 BUSINESS BUILD...'",
   "cd frontend && rm -rf dist node_modules/.cache",
   "cd frontend && npm run build"
 ]

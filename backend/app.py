@@ -198,6 +198,35 @@ def member_history():
             "date": p.used_at.strftime("%d/%m/%Y %H:%M"), "code": p.validation_code
         } for p in privileges])
 
+# --- ROUTES SEARCH V18.1 ---
+@app.route('/api/partners/search')
+def search_partners():
+    """Recherche de partenaires par nom, ville ou catégorie"""
+    from sqlalchemy import or_
+    q = request.args.get('q', '').lower()
+    cat = request.args.get('category', 'all')
+    
+    query = Partner.query
+    if cat != 'all': 
+        query = query.filter(Partner.category == cat)
+    if q: 
+        query = query.filter(or_(
+            Partner.name.ilike(f"%{q}%"), 
+            Partner.city.ilike(f"%{q}%")
+        ))
+    
+    partners = query.limit(50).all()
+    return jsonify([{
+        "id": p.id, 
+        "name": p.name, 
+        "category": p.category or 'Commerce', 
+        "city": p.city or 'Suisse',
+        "img": p.image_url or '/default-partner.jpg', 
+        "lat": p.latitude, 
+        "lng": p.longitude,
+        "offer_count": len([o for o in p.offers if o.active])
+    } for p in partners])
+
 @app.route('/api/partners/nearby')
 def nearby_partners():
     """Retourne les partenaires à proximité (géolocalisation)"""

@@ -27,6 +27,7 @@ class Partner(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50))
+    city = db.Column(db.String(100))  # V18.1 Search
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     image_url = db.Column(db.String(500))

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Gift, Clock, Zap, CheckCircle, MapPin, LogOut, User, Star, Loader2 } from 'lucide-react';
+import { Gift, Clock, Zap, CheckCircle, MapPin, LogOut, User, Star, Loader2, Search, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SearchBar from './SearchBar';
 
 export default function MemberDashboard() {
   const [tab, setTab] = useState('privileges');
@@ -13,6 +14,12 @@ export default function MemberDashboard() {
   const [validation, setValidation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // V18.1 Search
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   
   const token = localStorage.getItem('token');
 
@@ -50,6 +57,42 @@ export default function MemberDashboard() {
   };
 
   useEffect(() => { loadData(); }, [token]); // Recharger si le token change
+  
+  // V18.1 Search avec debounce
+  useEffect(() => {
+    if (searchQuery.length > 0 || selectedCategory !== 'all') {
+      const timer = setTimeout(() => {
+        performSearch();
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery, selectedCategory]);
+  
+  const performSearch = async () => {
+    setSearching(true);
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('q', searchQuery);
+      if (selectedCategory !== 'all') params.append('category', selectedCategory);
+      
+      const res = await fetch(`/api/partners/search?${params}`);
+      const data = await res.json();
+      setSearchResults(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Erreur recherche:', err);
+      toast.error('Erreur de recherche');
+    } finally {
+      setSearching(false);
+    }
+  };
+  
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setSearchResults([]);
+  };
 
   const usePrivilege = async (id) => {
     if(!token) return toast.error("Connectez-vous pour profiter des privilèges !");
@@ -104,8 +147,9 @@ export default function MemberDashboard() {
       <Toaster position="top-center" />
       
       {/* HEADER */}
-      <div className="bg-white p-4 shadow-sm sticky top-0 z-10 flex justify-between items-center">
-         <h1 className="font-black text-xl text-[#3D9A9A] tracking-tight">PEP's World</h1>
+      <div className="bg-[#3D9A9A] p-4 shadow-sm sticky top-0 z-10 space-y-3">
+         <div className="flex justify-between items-center">
+         <h1 className="font-black text-xl text-white tracking-tight">PEP's World</h1>
          <div className="flex gap-2">
             <Link to="/map" className="p-2 bg-gray-100 rounded-full"><MapPin size={20} className="text-gray-600"/></Link>
             {token ? (
@@ -116,6 +160,10 @@ export default function MemberDashboard() {
                 <Link to="/login" className="bg-black text-white px-3 py-2 rounded-full text-xs font-bold">Connexion</Link>
             )}
          </div>
+         </div>
+         
+         {/* V18.1 SearchBar */}
+         <SearchBar onResults={setSearchResults} />
       </div>
 
       {/* CONTENU */}
@@ -131,7 +179,8 @@ export default function MemberDashboard() {
 
                 {offers.length === 0 && <div className="text-center py-10 text-gray-400">Aucune offre pour le moment.</div>}
 
-                {offers.map(o => (
+                {/* V18.1 : Afficher searchResults si recherche active, sinon offers */}
+                {(searchResults.length > 0 ? searchResults : offers).map(o => (
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }} 
                         animate={{ opacity: 1, y: 0 }} 
