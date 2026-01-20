@@ -32,12 +32,14 @@ class Member(db.Model):
     # STRIPE & ABONNEMENT
     stripe_customer_id = db.Column(db.String(100))
     subscription_status = db.Column(db.String(20), default='inactive') # active, past_due, canceled
-    current_period_end = db.Column(db.DateTime) # Date fin accès
+    current_period_end = db.Column(db.DateTime)
     
+    # PARRAINAGE
     referral_code = db.Column(db.String(20), unique=True)
     referred_by = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=True)
     
     privilege_usages = db.relationship('PrivilegeUsage', backref='member', lazy=True)
+    subscriptions = db.relationship('Subscription', backref='member', lazy=True)
 
 class Subscription(db.Model):
     __tablename__ = 'subscriptions'
@@ -89,7 +91,7 @@ class Pack(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     price_chf = db.Column(db.Float)
-    stripe_price_id = db.Column(db.String(100)) # ID du prix Stripe
+    stripe_price_id = db.Column(db.String(100))
     access_count = db.Column(db.Integer)
 
 # Compatibilité
@@ -99,6 +101,14 @@ class Company(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(100))
     access_total = db.Column(db.Integer, default=0)
+
+class Referral(db.Model):
+    __tablename__ = 'referrals'
+    id = db.Column(db.Integer, primary_key=True)
+    referrer_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    referred_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Booking(db.Model):
     __tablename__ = 'bookings'
@@ -123,3 +133,17 @@ class Availability(db.Model):
     day_of_week = db.Column(db.Integer)
     start_time = db.Column(db.String(5))
     end_time = db.Column(db.String(5))
+
+class UserDevice(db.Model):
+    __tablename__ = 'user_devices'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    device_fingerprint = db.Column(db.String(100))
+
+class Activation(db.Model):
+    __tablename__ = 'activations'
+    id = db.Column(db.Integer, primary_key=True)
+
+class PartnerFeedback(db.Model):
+    __tablename__ = 'partner_feedbacks'
+    id = db.Column(db.Integer, primary_key=True)

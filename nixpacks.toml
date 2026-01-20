@@ -11,10 +11,11 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '💰 V18.2 BUSINESS BUILD...'",
+  "echo '🚑 V18.3 STABLE BUILD...'",
   "cd frontend && rm -rf dist node_modules/.cache",
   "cd frontend && npm run build"
 ]
 
 [start]
-cmd = "cd backend && gunicorn -w 4 -b 0.0.0.0:$PORT app:app"
+# Mode Synchrone (4 workers, timeout 120s)
+cmd = "cd backend && gunicorn -w 4 -b 0.0.0.0:$PORT --timeout 120 app:app"

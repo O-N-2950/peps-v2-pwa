@@ -1,18 +1,17 @@
 import os
 import stripe
 from datetime import datetime, timedelta
-from models import db, Member, Pack
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 FRONTEND_URL = os.getenv('DOMAIN_URL', "https://www.peps.swiss")
 
 def sync_stripe_products():
     """Crée le produit d'abonnement dans Stripe si inexistant"""
+    from models import db, Pack # Lazy Import
     if not stripe.api_key: return
     try:
         pack = Pack.query.filter_by(name="Abonnement Annuel").first()
         if pack and not pack.stripe_price_id:
-            # Création Product + Price
             prod = stripe.Product.create(name="Abonnement PEP's Digital")
             price = stripe.Price.create(
                 product=prod.id,
@@ -27,16 +26,20 @@ def sync_stripe_products():
         print(f"⚠️ Stripe Sync Error: {e}")
 
 def create_checkout_session(member_id):
+    from models import db, Member, Pack # Lazy Import
     member = Member.query.get(member_id)
     pack = Pack.query.filter_by(name="Abonnement Annuel").first()
     
     if not pack or not pack.stripe_price_id:
-        return {"error": "Configuration Stripe incomplète (Pack manquant)"}
+        sync_stripe_products()
+        pack = Pack.query.filter_by(name="Abonnement Annuel").first()
+        if not pack or not pack.stripe_price_id:
+            return {"error": "Configuration Stripe incomplète (Pack manquant)"}
 
     try:
-        # Création Client Stripe si besoin
         if not member.stripe_customer_id:
-            cust = stripe.Customer.create(email=member.owner.email, name=f"{member.first_name}")
+            email = member.owner.email if member.owner else f"member_{member.id}@peps.swiss"
+            cust = stripe.Customer.create(email=email, name=f"{member.first_name}")
             member.stripe_customer_id = cust.id
             db.session.commit()
 
@@ -54,20 +57,35 @@ def create_checkout_session(member_id):
         return {"error": str(e)}
 
 def create_portal_session(member_id):
+    from models import Member # Lazy Import
     member = Member.query.get(member_id)
-    if not member or not member.stripe_customer_id: return None
+    if not member or not member.stripe_customer_id: return {"error": "Pas de client Stripe"}
     try:
         session = stripe.billing_portal.Session.create(
             customer=member.stripe_customer_id,
             return_url=FRONTEND_URL
         )
-        return session.url
-    except: return None
+        return {"url": session.url}
+    except Exception as e:
+        return {"error": str(e)}
 
 def handle_subscription_success(member_id, end_timestamp):
+    from models import db, Member # Lazy Import
     member = Member.query.get(member_id)
     if member:
         member.subscription_status = 'active'
         member.current_period_end = datetime.fromtimestamp(end_timestamp)
         db.session.commit()
         print(f"🎉 Abonnement activé pour Membre {member_id}")
+
+def extend_subscription(member_id, months=1):
+    from models import db, Member # Lazy Import
+    member = Member.query.get(member_id)
+    if not member: return
+    
+    current_end = member.current_period_end or datetime.utcnow()
+    if current_end < datetime.utcnow(): current_end = datetime.utcnow()
+    
+    member.current_period_end = current_end + timedelta(days=30 * months)
+    member.subscription_status = 'active'
+    db.session.commit()
