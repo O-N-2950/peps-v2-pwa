@@ -95,57 +95,62 @@ def stripe_webhook():
 # --- SETUP V18.3 ---
 @app.route('/api/setup_v18')
 def setup_v18():
-    db.create_all()
-    
-    # 1. Pack - Force création
-    pack = Pack.query.filter_by(name="Abonnement Annuel").first()
-    if not pack:
-        pack = Pack(name="Abonnement Annuel", price_chf=49.0, access_count=1)
-        db.session.add(pack)
-        db.session.commit()
-        print("✅ Pack créé")
-    else:
-        print("✅ Pack existe déjà")
-    
-    # 2. Sync Stripe
-    try:
-        sync_stripe_products()
-        print("✅ Stripe sync OK")
-    except Exception as e:
-        print(f"⚠️ Stripe sync error: {e}")
-    
-    # 2. Comptes Génériques
-    accounts = [
-        ('admin@peps.swiss', 'admin'),
-        ('partner@peps.swiss', 'partner'),
-        ('company@peps.swiss', 'company_admin'),
-        ('member@peps.swiss', 'member'),
-        ('active@peps.swiss', 'member')
-    ]
-    created = []
-    pwd = generate_password_hash('123456')
-    
-    for email, role in accounts:
-        if not User.query.filter_by(email=email).first():
-            u = User(email=email, password_hash=pwd, role=role)
-            db.session.add(u); db.session.commit()
-            
-            if role == 'partner':
-                p = Partner(user_id=u.id, name="Mario Pizza", category="Restaurant", city="Lausanne", latitude=46.5197, longitude=6.6323, image_url="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500")
-                db.session.add(p); db.session.commit()
-                db.session.add(Offer(partner_id=p.id, title="Pizza Offerte", offer_type="flash", active=True))
-                db.session.add(Offer(partner_id=p.id, title="-20% Carte", offer_type="permanent", active=True))
-            
-            if role == 'member':
-                status = 'active' if email.startswith('active') else 'inactive'
-                end = datetime(2030,1,1) if status == 'active' else None
-                ref = generate_referral_code(email.split('@')[0])
-                db.session.add(Member(user_id=u.id, first_name="Test", subscription_status=status, current_period_end=end, referral_code=ref))
+    with app.app_context():
+        db.create_all()
+        
+        # 1. Pack - Force création
+        pack = Pack.query.filter_by(name="Abonnement Annuel").first()
+        if not pack:
+            pack = Pack(name="Abonnement Annuel", price_chf=49.0, access_count=1)
+            db.session.add(pack)
+            db.session.flush()  # Force l'écriture immédiate
+            db.session.commit()
+            print("✅ Pack créé")
+        else:
+            print("✅ Pack existe déjà")
+        
+        # 2. Sync Stripe
+        try:
+            sync_stripe_products()
+            db.session.commit()  # Commit après sync Stripe
+            print("✅ Stripe sync OK")
+        except Exception as e:
+            print(f"⚠️ Stripe sync error: {e}")
+        
+        # 3. Comptes Génériques
+        accounts = [
+            ('admin@peps.swiss', 'admin'),
+            ('partner@peps.swiss', 'partner'),
+            ('company@peps.swiss', 'company_admin'),
+            ('member@peps.swiss', 'member'),
+            ('active@peps.swiss', 'member')
+        ]
+        created = []
+        pwd = generate_password_hash('123456')
+        
+        for email, role in accounts:
+            if not User.query.filter_by(email=email).first():
+                u = User(email=email, password_hash=pwd, role=role)
+                db.session.add(u)
+                db.session.flush()
                 
-            created.append(email)
-            
-    db.session.commit()
-    return jsonify(success=True, created=created)
+                if role == 'partner':
+                    p = Partner(user_id=u.id, name="Mario Pizza", category="Restaurant", city="Lausanne", latitude=46.5197, longitude=6.6323, image_url="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500")
+                    db.session.add(p)
+                    db.session.flush()
+                    db.session.add(Offer(partner_id=p.id, title="Pizza Offerte", offer_type="flash", active=True))
+                    db.session.add(Offer(partner_id=p.id, title="-20% Carte", offer_type="permanent", active=True))
+                
+                if role == 'member':
+                    status = 'active' if email.startswith('active') else 'inactive'
+                    end = datetime(2030,1,1) if status == 'active' else None
+                    ref = generate_referral_code(email.split('@')[0])
+                    db.session.add(Member(user_id=u.id, first_name="Test", subscription_status=status, current_period_end=end, referral_code=ref))
+                    
+                created.append(email)
+        
+        db.session.commit()
+        return jsonify(success=True, created=created)
 
 @app.route('/api/nuke_db')
 def nuke():
