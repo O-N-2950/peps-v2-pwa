@@ -11,7 +11,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '💰 V18 BUSINESS BUILD...'",
+  "echo '💰 V18.2 BUSINESS BUILD...'",
   "cd frontend && rm -rf dist node_modules/.cache",
   "cd frontend && npm run build"
 ]

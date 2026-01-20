@@ -1,10 +1,8 @@
-
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 db = SQLAlchemy()
 
-# Table Followers
 followers = db.Table('followers',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
@@ -16,9 +14,37 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='member')
+    is_both = db.Column(db.Boolean, default=False)
+    
     partner_profile = db.relationship('Partner', backref='owner', uselist=False)
     member_profile = db.relationship('Member', backref='owner', uselist=False)
+    company_profile = db.relationship('Company', backref='admin', uselist=False)
+    
     followed_partners = db.relationship('Partner', secondary=followers, backref=db.backref('followers_list', lazy='dynamic'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Member(db.Model):
+    __tablename__ = 'members'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    first_name = db.Column(db.String(50))
+    
+    # STRIPE & ABONNEMENT
+    stripe_customer_id = db.Column(db.String(100))
+    subscription_status = db.Column(db.String(20), default='inactive') # active, past_due, canceled
+    current_period_end = db.Column(db.DateTime) # Date fin accès
+    
+    referral_code = db.Column(db.String(20), unique=True)
+    referred_by = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=True)
+    
+    privilege_usages = db.relationship('PrivilegeUsage', backref='member', lazy=True)
+
+class Subscription(db.Model):
+    __tablename__ = 'subscriptions'
+    id = db.Column(db.Integer, primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    stripe_subscription_id = db.Column(db.String(100), unique=True)
+    status = db.Column(db.String(20))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Partner(db.Model):
@@ -27,19 +53,13 @@ class Partner(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50))
-    city = db.Column(db.String(100))  # V18.1 Search
+    city = db.Column(db.String(100))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     image_url = db.Column(db.String(500))
+    
     offers = db.relationship('Offer', backref='partner', lazy=True)
     privilege_usages = db.relationship('PrivilegeUsage', backref='partner', lazy=True)
-
-class Member(db.Model):
-    __tablename__ = 'members'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    first_name = db.Column(db.String(50))
-    privilege_usages = db.relationship('PrivilegeUsage', backref='member', lazy=True)
 
 class Offer(db.Model):
     __tablename__ = 'offers'
@@ -47,25 +67,59 @@ class Offer(db.Model):
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    offer_type = db.Column(db.String(20)) # flash, permanent
-    is_permanent = db.Column(db.Boolean, default=False) # NEW V16
+    offer_type = db.Column(db.String(20))
+    is_permanent = db.Column(db.Boolean, default=False)
     discount_val = db.Column(db.String(20))
     active = db.Column(db.Boolean, default=True)
     stock = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# NEW V16 : Historique Illimité
 class PrivilegeUsage(db.Model):
     __tablename__ = 'privilege_usages'
     id = db.Column(db.Integer, primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
     offer_id = db.Column(db.Integer, db.ForeignKey('offers.id'))
-    validation_code = db.Column(db.String(50), unique=True)
-    offer_title = db.Column(db.String(100)) # Snapshot du titre
+    validation_code = db.Column(db.String(100), unique=True)
+    offer_title = db.Column(db.String(100))
     used_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Compatibilité
-class Company(db.Model):
+
+class Pack(db.Model):
+    __tablename__ = 'packs'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
+    price_chf = db.Column(db.Float)
+    stripe_price_id = db.Column(db.String(100)) # ID du prix Stripe
+    access_count = db.Column(db.Integer)
+
+# Compatibilité
+class Company(db.Model):
+    __tablename__ = 'companies'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    name = db.Column(db.String(100))
+    access_total = db.Column(db.Integer, default=0)
+
+class Booking(db.Model):
+    __tablename__ = 'bookings'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    member_id = db.Column(db.Integer, db.ForeignKey('members.id'))
+    start_at = db.Column(db.DateTime)
+    status = db.Column(db.String(20))
+
+class Service(db.Model):
+    __tablename__ = 'services'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    name = db.Column(db.String(100))
+    duration_minutes = db.Column(db.Integer)
+    price_chf = db.Column(db.Float)
+
+class Availability(db.Model):
+    __tablename__ = 'availabilities'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'))
+    day_of_week = db.Column(db.Integer)
+    start_time = db.Column(db.String(5))
+    end_time = db.Column(db.String(5))
