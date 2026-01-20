@@ -10,8 +10,10 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, func, cast, Date
 from apscheduler.schedulers.background import BackgroundScheduler
-from models import db, User, Member, Pack, Subscription, AccessSlot, Partner, Offer, PrivilegeUsage, ViewLog, ClickLog
+from flask_caching import Cache
+from models import db, User, Member, Pack, Subscription, AccessSlot, Partner, Offer, PrivilegeUsage, ViewLog, ClickLog, ActivitySector
 from stripe_service import sync_v19_products, create_checkout_session, handle_subscription_success
+from migrate_v20 import run_migration_logic
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -26,6 +28,15 @@ STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
 db.init_app(app)
 jwt = JWTManager(app)
+
+# CACHE REDIS V20
+redis_url = os.getenv('REDIS_URL')
+cache_config = {
+    'CACHE_TYPE': 'RedisCache' if redis_url else 'SimpleCache',
+    'CACHE_REDIS_URL': redis_url,
+    'CACHE_DEFAULT_TIMEOUT': 300
+}
+cache = Cache(app, config=cache_config)
 
 # Maintenance (Synchrone)
 def maintenance():
@@ -304,6 +315,57 @@ def use_priv(oid):
     db.session.add(PrivilegeUsage(member_id=m.id, partner_id=o.partner_id, offer_id=o.id, offer_title=o.title, validation_code=code))
     db.session.commit()
     return jsonify(success=True, code=code, partner_name=o.partner.name, privilege_title=o.title)
+
+# --- 🔧 ADMIN V20 ROUTES ---
+@app.route('/api/admin/stats_v20')
+@jwt_required()
+@cache.cached(timeout=60)
+def admin_stats_v20():
+    u = get_auth_user()
+    if not u or u.role != 'admin': return jsonify(error="Forbidden"), 403
+    return jsonify({
+        "mrr": Subscription.query.filter_by(status='active').count() * 49,
+        "members": Member.query.count(),
+        "partners": Partner.query.count(),
+        "active_partners": Partner.query.join(Offer).filter(Offer.active==True).distinct().count(),
+        "usage": PrivilegeUsage.query.count()
+    })
+
+@app.route('/api/admin/partners')
+@jwt_required()
+def admin_partners_list():
+    u = get_auth_user()
+    if not u or u.role != 'admin': return jsonify(error="Forbidden"), 403
+    page = request.args.get('page', 1, type=int)
+    partners = Partner.query.order_by(Partner.id.desc()).paginate(page=page, per_page=20, error_out=False)
+    return jsonify({
+        "items": [{"id": p.id, "name": p.name, "category": p.category, "email": p.owner.email if p.owner else None, "offers": len(p.offers), "city": p.city} for p in partners.items],
+        "total": partners.total, "pages": partners.pages
+    })
+
+@app.route('/api/admin/run_migration')
+@jwt_required()
+def trigger_migration():
+    u = get_auth_user()
+    if not u or u.role != 'admin': return jsonify(error="Forbidden"), 403
+    res = run_migration_logic()
+    return jsonify(res)
+
+# --- 🚀 OPTIMIZED PUBLIC ROUTES ---
+@app.route('/api/partners/search_v2')
+@cache.cached(timeout=120, query_string=True)
+def search_v2():
+    q = request.args.get('q', '').lower()
+    cat = request.args.get('category', 'all')
+    query = Partner.query
+    if cat != 'all': query = query.filter(Partner.category == cat)
+    if q: query = query.filter(db.or_(Partner.name.ilike(f"%{q}%"), Partner.city.ilike(f"%{q}%")))
+    
+    return jsonify([{
+        "id": p.id, "name": p.name, "category": p.category, "city": p.city,
+        "img": p.image_url, "lat": p.latitude, "lng": p.longitude,
+        "offer_count": len([o for o in p.offers if o.active])
+    } for p in query.limit(100).all()])
 
 @app.route('/api/offers')
 def get_offers():
