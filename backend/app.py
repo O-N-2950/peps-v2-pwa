@@ -207,6 +207,59 @@ def debug_pack():
     
     return jsonify(results)
 
+@app.route('/api/debug/sync-stripe')
+def debug_sync_stripe():
+    """Force la synchronisation Stripe avec logs détaillés"""
+    results = {}
+    
+    # 1. Vérifier la clé Stripe
+    results['stripe_key_configured'] = bool(stripe.api_key)
+    if stripe.api_key:
+        results['stripe_key_prefix'] = stripe.api_key[:10] + "..."
+    
+    # 2. Vérifier le Pack
+    pack = Pack.query.filter_by(name="Abonnement Annuel").first()
+    results['pack_exists'] = pack is not None
+    
+    if not pack:
+        results['error'] = "Pack not found"
+        return jsonify(results)
+    
+    results['pack_id'] = pack.id
+    results['pack_stripe_price_id_before'] = pack.stripe_price_id
+    
+    # 3. Tenter de créer le produit Stripe
+    try:
+        if not pack.stripe_price_id and stripe.api_key:
+            # Créer le produit
+            prod = stripe.Product.create(name="Abonnement PEP's Digital")
+            results['stripe_product_id'] = prod.id
+            
+            # Créer le prix
+            price = stripe.Price.create(
+                product=prod.id,
+                unit_amount=4900,  # 49.00 CHF
+                currency='chf',
+                recurring={'interval': 'year'},
+            )
+            results['stripe_price_id'] = price.id
+            
+            # Mettre à jour le Pack
+            pack.stripe_price_id = price.id
+            db.session.commit()
+            results['pack_stripe_price_id_after'] = pack.stripe_price_id
+            results['success'] = True
+        else:
+            results['success'] = False
+            results['reason'] = "Price already exists or Stripe key missing"
+    except Exception as e:
+        results['success'] = False
+        results['error'] = str(e)
+        import traceback
+        results['traceback'] = traceback.format_exc()
+    
+    return jsonify(results)
+
 # --- AUTH & API ---
 @app.route('/api/login', methods=['POST'])
 def login():
