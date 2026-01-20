@@ -11,7 +11,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🚀 V20 SCALE-UP BUILD...'",
+  "echo '🌍 V20 GLOBAL BUILD - INSTALLING CLUSTERS...'",
   "cd frontend && rm -rf dist node_modules/.cache",
   "cd frontend && npm run build"
 ]

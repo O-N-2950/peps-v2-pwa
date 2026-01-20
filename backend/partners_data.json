@@ -1,0 +1,1297 @@
+[
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "www.paradoxe-culinaire.com",
+    "companyPhoneNumber": "076 822 03 13",
+    "activitySector": "giCQahUojFlhQF1cVPHY",
+    "companyContactFullName": "Claire Girardin",
+    "companyName": "Paradoxe Culinaire",
+    "privateEmail": "info@paradoxe-culinaire.com",
+    "privatePhoneNumber": "076 822 03 13",
+    "isAccepted": true,
+    "fcmToken": null,
+    "ownerDeviceId": "27E44ECD-2B48-401A-9C47-519C989A3946",
+    "companyEmail": "info@paradoxe-culinaire.com",
+    "devicesIds": [
+      "F00C1FB9-6401-4509-A078-0B43D0C33492",
+      "27E44ECD-2B48-401A-9C47-519C989A3946"
+    ],
+    "_id": "1wY8SgqeCOMZAPQm3pk2aOg5RtB3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324671319",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Pierre-Alain Eray",
+    "companyName": "Le 23.6",
+    "privateEmail": "p-a.eray@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "52990D83-0132-474C-8D38-554175FAE612",
+    "companyEmail": "p-a.eray@bluewin.ch",
+    "devicesIds": [
+      "52990D83-0132-474C-8D38-554175FAE612"
+    ],
+    "_id": "2JW16Y83rNdmX5tUtKLfCBqXA1C3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyContactFullName": "Stério Popovski ",
+    "activitySector": "Cug4Gwf38iS2AvrYpMQ2",
+    "ownerDeviceId": "A7A54603-8C10-4B23-A4C2-B82AB73D0C52",
+    "companyEmail": "taxi-telly@bluewin.ch",
+    "favoritesUid": [
+      "QYYQGzjLjD9Ucfl9zGcB"
+    ],
+    "companyPhoneNumber": "0800800311",
+    "companyWebsite": "www.taxi-telly.ch ",
+    "companyName": "Taxi Telly Sarl ",
+    "privateEmail": "taxi-telly@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "e_VEdCDoJUIBu6UGa79Z7R:APA91bFIQd4j5FG6krmKvTsowjWzWh29xvYi4l83CbOwz0oR3y6SBFi9c6I37UHZidxoW906mD2wmdIoRJoDvdh9BNLNPYy6TmN-OmpE3EqMGCaXXB5JZdEGa0jUz1mjrR0ADJW7h-CU",
+    "devicesIds": [
+      "A7A54603-8C10-4B23-A4C2-B82AB73D0C52"
+    ],
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2F4etmZtgrY2N1GdY6sgHOYtuFgNy1?alt=media&token=3ac79c43-99d5-4807-b5b6-a611c18f3949",
+    "_id": "4etmZtgrY2N1GdY6sgHOYtuFgNy1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0799589229",
+    "activitySector": "khV1hn0pMUb6EwrAg1vf",
+    "companyContactFullName": "Orianne Girardin",
+    "companyName": "Girardin ",
+    "privateEmail": "orianne.92@hotmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "fD8AIBgIQkqOv_xkiAH8YE:APA91bFeq02PinzcSiNTE846H-KGNrGpfBFm9zt_TgthV-IFGMovOMGaC7pmawKMxnClGBpXUyrYd4vGPBzxKmYEBeKZiu3ZrpZqGpKBonUqX8z6DGbho5I",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "orianne.92@hotmail.com",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "4zA7hF4NVeTS3Cwzvyr53R8So2j2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 15,
+    "companyWebsite": "www.hotelgareporrentruy.ch",
+    "companyPhoneNumber": "+41324662030",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Stéphane  Dick",
+    "favoritesUid": [
+      "Az0Cds8euZjaebfNOr5z",
+      "BCpqp6d4Bw7Jfx5iDFUa",
+      "GV5xyD6Tv6JfRir1cXPE",
+      "NfMA1XmMDir791rxj8RA",
+      "imVTlDC40OhYQs9iSUaC",
+      "OCVPSq90rWN8pYUvJ77F",
+      "LreQ4PRY5v8NS8DyH63l"
+    ],
+    "companyName": "Hôtel De La Gare",
+    "privateEmail": "contact@hotelgareporrentruy.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "c4xof8TsykdtoW9d21ewWR:APA91bHZI8rAWyKODuNubncmm4VfFGw5IvS1EpIEr_XMkVYZqCIJtAPM18cp58aVV7dFrBzcrA7SPBNEZnfoblwZ8ygJJO-k5diD2u2DiHPCkNI24QTlvJaYwvjdPZf4zDCq8gQRpg74",
+    "ownerDeviceId": "E4CD9298-5F81-4993-87F1-3077240ADD3C",
+    "companyEmail": "contact@hotelgareporrentruy.ch",
+    "devicesIds": [
+      "E4CD9298-5F81-4993-87F1-3077240ADD3C",
+      "CB69E80A-FA76-4613-9E86-7472491970FF",
+      "3E175CEA-A5A4-4303-B6ED-BF4F3A213D9D"
+    ],
+    "_id": "8EANdOak3sd16l73Yrn0wW8Hv8N2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "www.sicilejura.ch",
+    "companyPhoneNumber": "079 318 84 38",
+    "activitySector": "2dblYBJZ76DgAGjEG74V",
+    "companyContactFullName": "Ciccio",
+    "companyName": "SicileJura ",
+    "privateEmail": "sicilejura@gmail.com",
+    "privatePhoneNumber": "079 318 84 38",
+    "isAccepted": false,
+    "fcmToken": null,
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "companyEmail": "sicilejura@gmail.com",
+    "_id": "8KyBQCnBoLY274HLEaejY7IUZGi1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324464849",
+    "activitySector": "khV1hn0pMUb6EwrAg1vf",
+    "companyContactFullName": "Arnaud",
+    "companyName": "Maximilien coiffure",
+    "privateEmail": "africk@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "cISiKu4Cf0-fqIFvex7JrC:APA91bGamugDwC64Vd4gWpaI8qJ5rp4ZqXSZivrE4PTdrcBa2g8rcSrzArnP3qRzxAtBuCpEdFCxUeENQUE73lOI6y0IpfnP4YFnNTSIfbjVhntg_h2G7GBvnHWRplwnZWxuQpuf03vS",
+    "ownerDeviceId": "FA0A73D6-9E15-4557-9794-11F3B96BA95C",
+    "companyEmail": "africk@bluewin.ch",
+    "devicesIds": [
+      "FA0A73D6-9E15-4557-9794-11F3B96BA95C"
+    ],
+    "_id": "8aPgHRMCS1MDMbe55S9JhzrVMiG3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 4,
+    "companyContactFullName": "Christelle Reymond",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "ownerDeviceId": "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+    "companyEmail": "christellereymond458@gmail.com",
+    "favoritesUid": [],
+    "companyPhoneNumber": "0324671936",
+    "companyWebsite": "",
+    "companyName": "La cigogne",
+    "privateEmail": "christellereymond458@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "eRSSHqGXT1yVKXr7sQmNp_:APA91bHf8a8J_jyef2gNAkv2IHqVGlDaN9zgMEjuF342_c_jJcyrfIEU8pum5LlrR1wDA4Qm4gVYsDTGhGC-OvB5On9Lor8-FMtF7xe8q92CLdwQCFTy_8Q",
+    "devicesIds": [
+      "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+      "UP1A.231005.007"
+    ],
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2F9xdBd11x6mV81aVTtwd4O6NZKPy1?alt=media&token=46a19a50-09b6-4464-84cd-74e037b4179a",
+    "_id": "9xdBd11x6mV81aVTtwd4O6NZKPy1"
+  },
+  {
+    "companyContactFullName": "Bohm",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "www.protech-echafaudages.ch",
+    "companyPhoneNumber": "0585013001",
+    "activitySector": "pRZSd4W0mhuymKvcy2kz",
+    "role": "PARTNER",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FAC86hk8ChLSw4ttccGvcMJA03QC3?alt=media&token=b12b176c-5dc7-43d4-aa87-4a8a2b620a4c",
+    "companyName": "ProTech Echafaudage",
+    "privateEmail": "contact@protech-echafaudages.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "D1E93E82-ED81-4001-8577-189ABF831082",
+    "companyEmail": "contact@protech-echafaudages.ch",
+    "devicesIds": [
+      "D1E93E82-ED81-4001-8577-189ABF831082"
+    ],
+    "_id": "AC86hk8ChLSw4ttccGvcMJA03QC3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "titaniumpiercing.ch",
+    "companyPhoneNumber": "079 824 01 30",
+    "activitySector": "JVOxWw89ZLaXThoWsVi4",
+    "companyContactFullName": "Léa Hennemann",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FBmlvIZ4k7KffWX0aIcin4PaHZh82?alt=media&token=ba8a8d91-3921-4be0-b3a4-7474260df87b",
+    "companyName": "Titanium Piercing",
+    "privateEmail": "lea.hennemann@icloud.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "f5nu8q6-XUQTjfui_EAIC0:APA91bFQzEobOBBUBCHi7BWi_SLe1_a9VXga2M0j5UBY3_Gyei5bRdlH1WZSTTcwZsjX-gII8g9F-ATxQq7Z1T8rBTqTjDwpCC4ybH1ajjIRUfCpp9nZ0jfK986rNIqwziwNeojI1DgD",
+    "ownerDeviceId": "4146336E-05DF-4875-B57C-718B6042DE03",
+    "companyEmail": "contact@titaniumpiercing.ch",
+    "devicesIds": [
+      "4146336E-05DF-4875-B57C-718B6042DE03"
+    ],
+    "_id": "BmlvIZ4k7KffWX0aIcin4PaHZh82"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "https://www.bar-le-pepin.ch/",
+    "companyPhoneNumber": "+41324666661",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Virginie Galvin",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FEfP5qjDtxoaezYTpcrCHE2dmKcc2?alt=media&token=e6af8bb7-3849-4fcc-80b5-eec05d690bcc",
+    "companyName": "Le pépin",
+    "privateEmail": "vi.galvin@outlook.com",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+    "companyEmail": "vi.galvin@outlook.com",
+    "devicesIds": [
+      "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3"
+    ],
+    "_id": "EfP5qjDtxoaezYTpcrCHE2dmKcc2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "www.distilleriedeporrentruy.ch",
+    "companyPhoneNumber": "0324661401",
+    "activitySector": "f6yudmQNUlxHRcWqumAz",
+    "companyContactFullName": "Hervé Blanchard",
+    "companyName": "Distillerie de Porrentruy",
+    "privateEmail": "info@distilleriedeporrentruy.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "52990D83-0132-474C-8D38-554175FAE612",
+    "companyEmail": "info@distilleriedeporrentruy.ch",
+    "devicesIds": [
+      "52990D83-0132-474C-8D38-554175FAE612"
+    ],
+    "_id": "G0uwKotjpGNqqJZcpGzdRW9Nx4p1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0787334096",
+    "activitySector": "889QZiGYylVmuZTplcSG",
+    "companyContactFullName": "Cindy ",
+    "devicesIds": [
+      "UP1A.231005.007",
+      "AP3A.240905.015.A2",
+      "BP2A.250605.031.A3"
+    ],
+    "companyName": "Dreamy Beauty ",
+    "privateEmail": "Dreamy_beauty@outlook.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "cMEEduRASP-7WhZdFgLz1O:APA91bEVJEZJf65n9GqT0JFQaHa7jUf_cc6lI-f2PFR0xq-mIzGBMdSM15afpvObPH4XQmlic57QEbJ5-c98cEVys8u7NusLQV7fO4VAzBpzO3_TWnElJ44",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "Dreamy_beauty@outlook.com",
+    "favoritesUid": [
+      "58y6XCnOlSYjFvTaANDG"
+    ],
+    "_id": "HIapki48Qyfx9VntaUveUWyNKKe2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0786101009",
+    "activitySector": "2F5eW0rQPQFLXAgAO989",
+    "companyContactFullName": "Gabriel Mamie",
+    "companyName": "Au P'tit joyau",
+    "privateEmail": "gabriel.mamie@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "eA5Fsw8-QkyWE8w8lpcDPx:APA91bGTJPeUrB0kVUnTd3gN-cDUkzL7X-rYyPQ9IwaXuwbu3galLRL2zeZ7n5zKpoXL7OZPRIpLCu75Quor32C5N2BjuxTrpqbyJggkeEmE_tb5BE5ec2VVzC4_DWFCyBUlwsrOfvH3",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "gabriel.mamie@gmail.com",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "HMizXujNzYapJzRyg32VrMj0rjO2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0798572855",
+    "activitySector": "1RUAEckcWRq3jsbraS6G",
+    "companyContactFullName": "Karine Cordella",
+    "companyName": "Sublim’Dog",
+    "privateEmail": "karine.breuilles@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "fc_iHklW7kxqsOaGtOMBiN:APA91bG68idfLP5PDzMOwFUnPMnEeEMdqGfD0DsvG-ILgxq0tBWMZH6DgvTIGR2ai-nsLTsT_EzS0HfXa982YzDdJfqraNSGBvyede04gBLcb8WlkSpVw-JxzYP20ic3Njec4jrOpY0E",
+    "ownerDeviceId": "F6964ECA-A8B0-4574-A057-6B1BC52C12F7",
+    "companyEmail": "karine.cordella@gmail.com",
+    "devicesIds": [
+      "F6964ECA-A8B0-4574-A057-6B1BC52C12F7"
+    ],
+    "_id": "IUufnNoKxCTHrbzGIm8h7OnQ0ms2"
+  },
+  {
+    "companyContactFullName": "Yara B. van der Weg",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "www.jimjimco.com",
+    "companyPhoneNumber": "0787668547",
+    "activitySector": "pKS600xi2mu6isozfiAd",
+    "role": "PARTNER",
+    "companyName": "JimJim&Co.",
+    "privateEmail": "vanderweg.yara@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "cqks7jAWs0OUslknMXcubs:APA91bFiagG_34tXyCDqv0tctxK1vRUhdLiuDLelonKjDnGnKew830Ow2QIi1l38w7qaNhohzv7BzgthGY5TPD_kvhDf-48QmTtbC4c29BMT0QLdFi0ikgI",
+    "ownerDeviceId": "81434AFD-ECC0-4A75-B46F-3823584D1058",
+    "companyEmail": "j.jimandco@gmail.com",
+    "devicesIds": [
+      "81434AFD-ECC0-4A75-B46F-3823584D1058"
+    ],
+    "_id": "IZ9TWgdakVUSD3yoVt8GEX9dn6U2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "https://moury.ch/fr/",
+    "companyPhoneNumber": "0795376412",
+    "activitySector": "FyAeIbqN3wvTjfA5qWHg",
+    "companyContactFullName": "Sarah Aquilar ",
+    "companyName": "Cave Du Moury ",
+    "privateEmail": "sarah@moury.ch",
+    "privatePhoneNumber": "0795376412",
+    "fcmToken": "d-_qgj37QAy9SIdrGhK1Pj:APA91bGmItpJRpvs9sPHwfgnuLc-K5SxrNC0ASIXZmuCSKT76GvrWUPCuakogvE8dVtRh2F_D7dm-CO8Pk3rWJtVC4RTIkLd2EMXNG2Pie8yk7h8CsRyZWo",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "sarah@moury.ch",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "JpVlAjTx6kVYdYybZ4Jp1MPNOtd2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "Lesalonbymeg.ch",
+    "companyPhoneNumber": "0767332328",
+    "activitySector": "khV1hn0pMUb6EwrAg1vf",
+    "companyContactFullName": "Megane Saucy",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FLtrjptebS5NkxAWjMQvY8LwPqed2?alt=media&token=f793c233-a018-49a8-8d98-4511f633dd21",
+    "companyName": "Le Salon By Meg",
+    "privateEmail": "Lesalonbymeg@gmail.com",
+    "privatePhoneNumber": "0799294137",
+    "fcmToken": "dtAIy2lZRp2syjDIPQrWQP:APA91bGinDEA1vxnGBG97slswXwYLG8lk1a_jjs1Qfu5KqlXz3c2o_A12QUzdyer-tqBWJ5ZNcOFcYFCpo5kGXbHIs_oQuFbX8O-WM6eRTmzpr8KTKX849HFOsfF-JyHEBXrDSTGymDf",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "Lesalonbymeg@gmail.com",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "LtrjptebS5NkxAWjMQvY8LwPqed2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324661317",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Rita ",
+    "favoritesUid": [
+      "BCpqp6d4Bw7Jfx5iDFUa",
+      "JAqT9cyR1GM9Bdgjfp13",
+      "LlYhDSzYTgsFd4tSEhkU",
+      "bqo8Z1oL5OSEUf767hQ6",
+      "TlUyoO8cSeqsuJo0tVsT",
+      "3FPjErRi5YwHgWRPuR2C",
+      "jxall7jIrA7OM4nHfaPl",
+      "58y6XCnOlSYjFvTaANDG",
+      "uo63wPX6z7RFFViTeoRi",
+      "1bvEHedXLRcsjGFvR8Wg"
+    ],
+    "companyName": "Les Trois-Tonneaux ",
+    "privateEmail": "3futs@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "eNIyP3uURlOM0V66tqijiY:APA91bH1-Ocnzo2bKWT4_CUw-m0M8cjO3SUoWEeNmVBYUu0kzKIWqDWO62ysGe_bnWhKci-TJxAd1mgrLAN_W-pMh8P6uODGGD1U5Yecm3-HPOdiEq-Ykyk",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "3futs@bluewin.ch",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "MWHzhreCdHNOjlvxIR1n8tiGX7h2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "https://www.la-jungle.ch/",
+    "companyPhoneNumber": "079 854 50 17",
+    "activitySector": "mLOK0IRERqOdnGdOa8Xl",
+    "companyContactFullName": "Mirielle Menetrier",
+    "companyName": "La Jungle",
+    "privateEmail": "m.vonkaenel@hotmail.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "fiYBSbVzk0z1hZDokSKsbB:APA91bFKBAhx5vSIn4wTlefALk1RC4e9VsQYnFa3VS4miWW0bQZ4RdHJhkktWjBJ3HZYkxUrUUNboKuOxUCrEdjWIIhmNTcv1OL7VPRyOXEIkYMextAMwYfj3MjLqXRxWHdsRYFQ8IOy",
+    "ownerDeviceId": "864C1C53-BCE0-4CBA-81F4-249B9F0D4B16",
+    "companyEmail": "lajunglevk@hotmail.com",
+    "devicesIds": [
+      "864C1C53-BCE0-4CBA-81F4-249B9F0D4B16"
+    ],
+    "_id": "MZ4r0WyFpcbI35b1mTwJH8m3cr52"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0794647817",
+    "activitySector": "V1EBqpiwPVgwN7uJoiR0",
+    "companyContactFullName": "Karine ",
+    "companyName": "Ferme de LA TENIER",
+    "privateEmail": "contact@chevalnature.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "karine_fred@bluewin.ch",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "McEO8gFhseYj9a50F4DVMoT8eNk1"
+  },
+  {
+    "companyContactFullName": "Fabienne Plumey",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "https://www.ecurieplumey.ch",
+    "companyPhoneNumber": "0794351231",
+    "activitySector": "QZv4BbKJLls3adx6linO",
+    "favoritesUid": [
+      "ZMKYt908kEEKoczuYNFW"
+    ],
+    "role": "PARTNER",
+    "companyName": "Écurie Plumey",
+    "privateEmail": "ecurieplumey@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "c2oMS-k0ukcWkll9aUF7rX:APA91bEQ3VJYdoccSdZpWiC4phJOGvcSDDWBVMJXS2sb3tJh9A74B_TP6L7rUiG9GlDurKsw1b534vP4RU0CzGOpPR7sD4dMsF5e4LHJ2fmVHnuco-Jn9oo",
+    "ownerDeviceId": "3F096F09-C82D-4B60-BFC6-6972A80EB80E",
+    "companyEmail": "ecurieplumey@gmail.com",
+    "devicesIds": [
+      "3F096F09-C82D-4B60-BFC6-6972A80EB80E"
+    ],
+    "_id": "NrI80oIVUTOvmS5Xw68tPhWUotp2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324714747",
+    "activitySector": "khV1hn0pMUb6EwrAg1vf",
+    "companyContactFullName": "Cathy ",
+    "companyName": "Cathy Coiffure",
+    "privateEmail": "lagares.cathy@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "52990D83-0132-474C-8D38-554175FAE612",
+    "companyEmail": "lagares.cathy@gmail.com",
+    "devicesIds": [
+      "52990D83-0132-474C-8D38-554175FAE612"
+    ],
+    "_id": "O75ncOn4UjRxeTLL1g3IzL8ge1l1"
+  },
+  {
+    "companyContactFullName": "Vincent VUILLEMIN Et Maxime PERNIN",
+    "companyNumberOfEmployees": 60,
+    "companyWebsite": "https://stg-energy.ch/",
+    "companyPhoneNumber": "0782090669+0782240051",
+    "activitySector": "LbXObxQDgIHwoCrLfWjN",
+    "role": "PARTNER",
+    "companyName": "Stg Energy",
+    "privateEmail": "v.vuillemin@stg-energy.ch",
+    "privatePhoneNumber": "0782090669;0782240051",
+    "fcmToken": "fLFN_Vj8_UwHg7mPY2rhVN:APA91bHqiucEsOJ5NAm9ZPzZPtURUi0Ep-KWRn1ZL7kNoYLSNl8LcvlsTXoXfiPqs9-oLz143DrpEVB8HwNU5POBFqYdMtMSB6bwhCl5ipnC902-0gOxdBU",
+    "ownerDeviceId": "FF8A2951-8EEF-4544-BEB5-ACE160F05D3C",
+    "companyEmail": "v.vuillemin@stg-energy.ch",
+    "devicesIds": [
+      "FF8A2951-8EEF-4544-BEB5-ACE160F05D3C",
+      "E520F35E-1A4D-4C6D-B874-A99C6E1CC237"
+    ],
+    "_id": "OhiOqc6dyIbTxHgQjD61j6POlbE3"
+  },
+  {
+    "companyContactFullName": "Elodie Miesch",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "https://www.local.ch/fr/d/lugnez/2933/coiffeur/changer-d-hair-2gK09-ivUZJkbANeSeQhnw",
+    "companyPhoneNumber": "0324744480",
+    "activitySector": "khV1hn0pMUb6EwrAg1vf",
+    "role": "PARTNER",
+    "companyName": "Changer D’Hair",
+    "privateEmail": "elomiesch@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "eI37oYHRzE9XlMMSTVu6nX:APA91bEs-h6wGnVl8G9AWaXglydD-w_cJ4jIW98UjzyTeJmGhTU59BLAUU70_KCRz4jUWzGhaDMRu3wLCtrDYMzVgfgJf1HDKtUTa5AdrhJ0pmsQfi4-Vwpvd0nOOK-D8TUr3cBXCU5X",
+    "ownerDeviceId": "E6371D4D-7B2A-49DB-8D00-82FBA8B2F7AF",
+    "companyEmail": "elomiesch@gmail.com",
+    "devicesIds": [
+      "E6371D4D-7B2A-49DB-8D00-82FBA8B2F7AF"
+    ],
+    "_id": "P5riczCnm7T3YbgLBXFDS7EVNCq1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "www.traininglavouivre.ch",
+    "companyPhoneNumber": "0798611122",
+    "activitySector": "8EOPRrCo29l7ABQIaNlS",
+    "companyContactFullName": "Nicolas Prêtre ",
+    "companyName": "Functional Training ",
+    "privateEmail": "lavouivre.functionaltraining@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "d978CjMxRfGFMNhYA_aiJ1:APA91bFBO4x052YPxAuGkrpI7GERU7nWzCL5yFuPPlrsG1wGpFs3n3Yud0A-gVJPommk5m3HnGK1KRhvl4V8jf_amIKU1GxUVfDBvDGB06_JmuvK7ty260o",
+    "ownerDeviceId": "UKQ1.230924.001",
+    "companyEmail": "lavouivre.functionaltraining@gmail.com",
+    "devicesIds": [
+      "UKQ1.230924.001"
+    ],
+    "_id": "QM0PMELeFQSqjxl6YLpby64q46E3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 4,
+    "companyWebsite": "www.myko-concept.ch",
+    "companyPhoneNumber": "0041223002122",
+    "activitySector": "Nl8fUXEL84yC94ujSwJx",
+    "companyContactFullName": "Valérie SOUKHEREPOFF",
+    "companyName": "Mykoconcept GMBH",
+    "fcmToken": "d3X7_EGzxU-dixMUf0hUbX:APA91bHdko4VrZ4_aruWtLzkojP8Tnh_tyt_cICwDHy8Y191JFJDrXVukuFf0geuxTaG77tgE1dHkQfNps6z7dnhkGpvcAn64Ha9jQW_SG3px-EmI-D15CMJAWdgkic3nYVf11fayuHU",
+    "privatePhoneNumber": "",
+    "privateEmail": "mykoconcept@gmail.com",
+    "ownerDeviceId": "BD1319F9-4286-45D4-9FE2-BD3A47FF2A11",
+    "companyEmail": "mykoconcept@gmail.com",
+    "devicesIds": [
+      "BD1319F9-4286-45D4-9FE2-BD3A47FF2A11"
+    ],
+    "_id": "RWG0p2JsBwaIaNdndv9flfvkzN73"
+  },
+  {
+    "companyContactFullName": "Megane Laupin",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0328689864",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "role": "PARTNER",
+    "companyName": "Yumi Restaurant",
+    "privateEmail": "restaurant@yumi-cafe.ch",
+    "privatePhoneNumber": "0795346587",
+    "fcmToken": "eEgtFZwj_0OagGr4pAPlYL:APA91bF4qkjTWdecrxUg7sZ_IrPLK_Ol70OYjUfR63O5o9xFhuHKxLF_9mf7ekh6lWed-Zt28-MSUNwNkm5R7r1nVnfOZ0VQ--uWIjTbaM68lOoU9uwV93zYkbL37KK_pNbhgQ7GNz6k",
+    "ownerDeviceId": "CF04152A-A1E2-4B12-8EDF-41E284980597",
+    "companyEmail": "restaurant@yumi-cafe.ch",
+    "devicesIds": [
+      "CF04152A-A1E2-4B12-8EDF-41E284980597"
+    ],
+    "_id": "SZjnwIiqaoRvT7efWRZRKLYzy453"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "juragourmand.ch",
+    "companyPhoneNumber": "0324667577",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Azad ",
+    "companyName": "Buffet de la Gare ",
+    "privateEmail": "azad.25200@hormail.fr",
+    "privatePhoneNumber": "+33762239494",
+    "fcmToken": "c8BoQFW6t0DWtqou3zRk5_:APA91bGnSiYeAnWmgeChbYN7iuDJjbKrqeZDcEriX04hwW7VSb2KyKbXjfbMuFMnGX-hEKC7qMRpzVmATwnZcc7cQl23j1O2AeHGJFED0oSUmQhs0q-BXngaJ4LoUEq5WAWA_DgR8I5k",
+    "ownerDeviceId": "5222221E-989D-4BD8-B2AB-B9ABA6FB92C7",
+    "companyEmail": "azad.25200@hotmail.fr",
+    "devicesIds": [
+      "5222221E-989D-4BD8-B2AB-B9ABA6FB92C7"
+    ],
+    "_id": "UVhHbcvDBqXqkBMB2VjssZ3k4Pk1"
+  },
+  {
+    "companyContactFullName": "Martial Pouillard",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "iphoneglass.net",
+    "companyPhoneNumber": "+41796168348",
+    "activitySector": "dPv4gafvwLIDa96rFwcD",
+    "role": "PARTNER",
+    "companyName": "iPhoneglass-Martial Pouillard",
+    "privateEmail": "contact@iphoneglass.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "fPJ2sBzeo0HqiOtFTkvvlX:APA91bFsKDC81T42qkar8S7SZQF-r1ot6u_mcUsu5MNYfudz89zUOBKBSWXHWoHuTAhYhWsFarhJKGhYWjfz5VEd-zcbXf6RiIKB_MVSdoElL6o523IErao",
+    "ownerDeviceId": "2C746917-1D38-4095-A1FA-77EE378B3F81",
+    "companyEmail": "contact@iphoneglass.ch",
+    "devicesIds": [
+      "2C746917-1D38-4095-A1FA-77EE378B3F81"
+    ],
+    "_id": "UdAPIfupZrcVGSSxcJHhPSu1PjZ2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "BinakClean",
+    "companyPhoneNumber": "0791208515",
+    "activitySector": "KvEXOBroiLxCH2GG5NlJ",
+    "companyContactFullName": "Noah Binaku ",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FUtJLCDR2xRUp66Xp0YIxGa08MQA3?alt=media&token=d74be97b-978e-401d-b7c6-1aebb3918c72",
+    "companyName": "Binakclean Car Wash Deluxe ",
+    "privateEmail": "binakunoah29@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "cT9CqZz8RuuPdXJ0VkNTat:APA91bEzoBkSuBW5TguQ7BfxkxH5ai-OLiuCQHFl6Y7iQxEFjoPgSRHvcrLfYI-LwrXm8tP0-Vyo-iKtP2o8qNJY8FZ1pA4n4Ref-oKyuzI6LbdwrlTSdH4",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "info@binakclean.ch",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "UtJLCDR2xRUp66Xp0YIxGa08MQA3"
+  },
+  {
+    "companyContactFullName": "Massimo Pellegrini",
+    "companyNumberOfEmployees": 2,
+    "role": "PARTNER",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "ownerDeviceId": "FA11A625-35BC-4DFB-A6B2-B27A0260534F",
+    "companyEmail": "contact@lacuisinedelapothicaire.ch",
+    "favoritesUid": [
+      "40Cep8Jawk1a9IbGejDd"
+    ],
+    "companyPhoneNumber": "0324745174",
+    "companyWebsite": "www.lacuisinedelapothicaire.ch",
+    "companyName": "La Cuisine De L’Apothicaire",
+    "privateEmail": "contact@lacuisinedelapothicaire.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "f17KENwG00GZoz7LOTPY3d:APA91bGwObGopbOigyts4UCvX3miFI_Oyj8orTgEnagT0n7mHoYgrli4toCmgjoCeTs1jtZZkYLGr62qLDT_B4o-MbUEFTM0WyAREkhlije_PsA_IoGLdar0l1Y1Teo63lmfRZq8HBE6",
+    "devicesIds": [
+      "FA11A625-35BC-4DFB-A6B2-B27A0260534F"
+    ],
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FWK0EWO2NtmTUdITiZOT3V2W0Zuo1?alt=media&token=4e8f5d1d-8aa4-4430-930a-c3242f2b8f4b",
+    "_id": "WK0EWO2NtmTUdITiZOT3V2W0Zuo1"
+  },
+  {
+    "companyContactFullName": "Sonia",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324671502",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "role": "PARTNER",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FX0zClTTvhsh5k6BerHaxxgUAzOi2?alt=media&token=8ab7326d-f29a-4a62-a2f5-ce8819fcbf0e",
+    "companyName": "Restaurant du Moulin",
+    "privateEmail": "dumoulinrestaurant@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "dpqDUvMA20vCkx1KiFSA9u:APA91bHYz7hA4Zdeqck4e-SAhVlRyAlt0ivWsJa7_h40Kg3BUUmOSpUuclpwncS1mWk_yKIxwNP5AtvjbkBXb7WPfniU9THLz-oVKfsrWMc4ZnLYe4l5WQI",
+    "ownerDeviceId": "A946B860-5FA2-42A3-BEE6-EB9094B7CD02",
+    "companyEmail": "dumoulinrestaurant@gmail.com",
+    "devicesIds": [
+      "A946B860-5FA2-42A3-BEE6-EB9094B7CD02"
+    ],
+    "_id": "X0zClTTvhsh5k6BerHaxxgUAzOi2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324712202",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Schwartz Sylvia ",
+    "favoritesUid": [
+      "58y6XCnOlSYjFvTaANDG"
+    ],
+    "companyName": "Au Béa Ba",
+    "privateEmail": "syl.schwartz@laposte.net",
+    "privatePhoneNumber": "",
+    "fcmToken": "c4htNoWDQAWSIxK2EA4ind:APA91bEw-Y7np6gJG40Bl4qUplLjnzLWFqSPHLqSLOwG6diHGEmxVDEVu_YfNv4w_jEGgr0CP504plPwy4SFbrLua87Dqz5Lf0ysnSdyK0vOlIC2z1Cfi0WhzQdZ6LSN1YzY9aLZg5ec",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "syl.schwartz@laposte.net",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "X3hgD96Tgaah0JWgD0dtczVoTEw1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "www.atelierculotté.ch",
+    "companyPhoneNumber": "0797642627",
+    "activitySector": "bz3RLVRgoCSGVzN4kY8z",
+    "companyContactFullName": "Baptistine Salomon ",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FXR9P0iAaWcPQyBzW5h4LrN0xuQt1?alt=media&token=af2a86a1-6c68-487a-9748-6974e20d422b",
+    "companyName": "Atelier Culotté ",
+    "privateEmail": "info@atelierculotte.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "dtUl-AtnSYKcHCxtBNGMyn:APA91bHC2PdUGaEq3IhsZ_N3mRP9p_WnRJvQFKosUx_sd-e9j-bj9gMbcyGSTDkt86Av50y0wDjqsD90ID3ljWXg3PD0ZI_WQbaig-lbGcGGbOnXRX45MsZBodoPXc-JnzNzooyYbeiq",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "info@atelierculotte.ch",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "XR9P0iAaWcPQyBzW5h4LrN0xuQt1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324757141",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Chantal Sommer",
+    "devicesIds": [
+      "UP1A.231005.007",
+      "AP3A.240905.015.A2",
+      "BP2A.250605.031.A3"
+    ],
+    "companyName": "Restaurant L'Helvétia",
+    "privateEmail": "chantal.sommer13@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "dB51NIXRQ5ic2RGIArZf0l:APA91bFXXD2Zmp1l3Ue2oAL5LgjLHfgltZ9FTGOl37liWgl_vCyUBzdJtWsTR0ZkxUprBiybosTQQg7jT5EKgQLLLA2pstEsEOiNPTPosz8UGwKggobAgho",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "rcsommer@bluewin.ch",
+    "favoritesUid": [
+      "1bvEHedXLRcsjGFvR8Wg",
+      "BCpqp6d4Bw7Jfx5iDFUa"
+    ],
+    "_id": "ahCWFk6qU4Z4xLva2zQOyMm2vPE2"
+  },
+  {
+    "companyContactFullName": "Lyane CML",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0788265274",
+    "activitySector": "pKS600xi2mu6isozfiAd",
+    "role": "PARTNER",
+    "companyName": "Lyss Frip",
+    "privateEmail": "lyss.frip@hotmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "ejWzLxFN2EUlpazuR47U2_:APA91bF3J5SLrxwShVPw3o9XXWOHfk7MrqSJF1ELTrtZS8j-WMpTyFVIjj2XSIWm4lKH6D_KYLOO22VmHeJil-Y9YJrMLUDZ7WljuCXFqcxTkP61ITe-jg0",
+    "ownerDeviceId": "41CBB284-06AD-49E9-B2C4-BBCE7AFF0908",
+    "companyEmail": "lyss.frip@hotmail.com",
+    "devicesIds": [
+      "41CBB284-06AD-49E9-B2C4-BBCE7AFF0908"
+    ],
+    "_id": "b4cpXhXKYDTKuhVdsuvgbAGSYI63"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 8,
+    "companyWebsite": "auxaffames-babeurre.ch",
+    "companyPhoneNumber": "+41324668210",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Franck",
+    "companyName": "Aux Affamés De Babeurre",
+    "privateEmail": "franck.salemi@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "cQNtjeuaJ04Xi9NIGdQt85:APA91bFvK2Y4yb5jxAIWR6aLkRQg9B0l_wYGwrDWPkL92sJlJjRLA6d9XhaEx2rCYxWJcomzSjfvCryY986g-WMC5RZFEqKVeRcYfrRTf-WbAXVE-ZlUV8BedOJPZa_uqEiYoBoxq5KY",
+    "ownerDeviceId": "7FFE6885-305B-4909-8762-03425C4A5B61",
+    "companyEmail": "auxaffamesdebabeurre@gmail.com",
+    "devicesIds": [
+      "7FFE6885-305B-4909-8762-03425C4A5B61"
+    ],
+    "_id": "dHIPxaegdQSsgVpT1OQWtTFQ9r32"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0783008710",
+    "activitySector": "riMWhOlYAYunpTSktMX2",
+    "companyContactFullName": "Sabrina Dousse",
+    "companyName": "Ô5sens de Sana ",
+    "privateEmail": "doussesab@outlook.com",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "o5sensdesana92@gmail.com",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "dZhimMGMmcgJeMlfOadEoIxwlrs1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "www.leliondorporrentruy.ch",
+    "companyPhoneNumber": "+41324671377",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Natalia",
+    "companyName": "Le Lion d’Or",
+    "privateEmail": "reservationsliondor@gmail.com",
+    "privatePhoneNumber": "0794290629",
+    "fcmToken": null,
+    "ownerDeviceId": "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+    "companyEmail": "reservationsliondor@gmail.com",
+    "devicesIds": [
+      "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3"
+    ],
+    "_id": "ddeKqOkoubZA65JUJDEZWc7re5m2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 4,
+    "companyWebsite": "",
+    "companyPhoneNumber": "032 466 63 06",
+    "activitySector": "mLOK0IRERqOdnGdOa8Xl",
+    "companyContactFullName": "Isabelle Parietti",
+    "companyName": "La Gueule du Loup ",
+    "privateEmail": "info@lagueuleduloup.ch",
+    "privatePhoneNumber": "032 466 63 06",
+    "fcmToken": "fVepVJVCQHy5n6g1w4xyGV:APA91bGfUbHezNBUdqRejmvzmU3FQXMIrYY0rKzqUN7G6SmdW6GWix3WmUxJVEKq0yOQCXZItkOvy6j7wIb4dHZPx-KnIVPokr2-TJ0D8DyDJFyD8XLRsy-ZHkTnpE7B0AUyMLYNItpw",
+    "isAccepted": true,
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "companyEmail": "info@lagueuleduloup.ch",
+    "ownerDeviceId": "UP1A.231005.007",
+    "_id": "efTpfe8j9IRyeisnyYpuvfgqztY2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0796760241",
+    "activitySector": "ieXWySW7nmq1vnyvVesd",
+    "companyContactFullName": "Stephane Chappuis",
+    "companyName": "Boucherie Stephane Chappuis",
+    "privateEmail": "st.chappuis@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "etFKxMsYwEqVravYHuH7wU:APA91bFR1Xqtkk2Ap-Gr4vQExVA4HcZCzjdzjhklMoXt1q-xn1Ly3sl_UP3jo3WqNtw7brUvVYpe9ynMuf5K6VBHAI7hpUc1q8eOA5GjH-Ij08q9d3gs2s7Lb1xIS8RY0rzwdJFZhcjo",
+    "ownerDeviceId": "DC59A878-E85D-4E1F-A359-9CFDA9DE5D43",
+    "companyEmail": "st.chappuis@bluewin.ch",
+    "devicesIds": [
+      "DC59A878-E85D-4E1F-A359-9CFDA9DE5D43"
+    ],
+    "_id": "evIplfE5ZtfukYCdyQvER0qeour1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "https://auxmainsdevelours.ch",
+    "companyPhoneNumber": "0798248925",
+    "activitySector": "BG4ALCR3V4xLrxXd9Ivl",
+    "companyContactFullName": "Alessia Natarelli",
+    "companyName": "Aux Mains de Velours Sàrl",
+    "privateEmail": "info@auxmainsdevelours.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "fpcMfulGVkW4moS_IFyvvw:APA91bHUYxlVSKl2pblsT1FB-mh8N615sizGXJQMZZkg4JYanmiuaFuTP2fMmjsICrT3YaSFu18k8-BkXSOOpU7q0GUHyIEpgOIruDJV3lSqjUsp3tetO4vSDpgqsK18t0VQBbSYPhza",
+    "ownerDeviceId": "71B6ABE5-5DDE-4EB9-BF1E-8A3640551DE2",
+    "companyEmail": "info@auxmainsdevelours.ch",
+    "devicesIds": [
+      "71B6ABE5-5DDE-4EB9-BF1E-8A3640551DE2"
+    ],
+    "_id": "hG4wbBcTHBT3t4iYkWWQZT975II3"
+  },
+  {
+    "companyContactFullName": "Francesco",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "www.emporioazzinnari.ch",
+    "companyPhoneNumber": "0041795723259",
+    "activitySector": "2dblYBJZ76DgAGjEG74V",
+    "role": "PARTNER",
+    "companyName": "Azzinnari Huile D’olive",
+    "privateEmail": "francesco@emporioazzinnari.com",
+    "privatePhoneNumber": "0041795723259",
+    "fcmToken": "ekN9r0MWTUzEpoUzKKZhmI:APA91bGGToS5WSk5uMFxSrGOLo5ahvsKVXVfN2j_NbhTdcdxm5nNuQO7uJzv-dsacQJXnmxMKq-3GYl_dzQoyycXFSCzFDSL9a1iEiFTeuLh_JPcjwPjDNQT98eFcf-pFFTsl8BKMurC",
+    "ownerDeviceId": "4B32E3B6-C161-4BCC-883B-5CEE5772EE79",
+    "companyEmail": "francesco@emporioazzinnari.com",
+    "devicesIds": [
+      "4B32E3B6-C161-4BCC-883B-5CEE5772EE79"
+    ],
+    "_id": "iHNhvhNmfyaeVb179nxaxeFCAu12"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0799298423",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Nicola",
+    "companyName": "Maurizio Nicola",
+    "privateEmail": "minimaxnicola3@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "crErXgiZRYS2EgW0gMMsjW:APA91bEOewRKO7ewgXMthoPMCgcT1J-C1IwmJYsxBJ4Hvd20BoXq2HwEeSJ792XIikR1tIi4pYcs3jEEyiea9X7RrlKZxo0KAMvMQseCcFH9I0sZMb3JvdG084S3ZrtFZKsbrTaFw66g",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "minimaxnicola3@gmail.com",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "iLNeJuV76FTUIa7qGtBGUGvRSQN2"
+  },
+  {
+    "companyContactFullName": "Maurane Boillat",
+    "companyNumberOfEmployees": 9,
+    "companyWebsite": "www.wsport.ch",
+    "role": "PARTNER",
+    "activitySector": "tCtGUE9qLWEz1rbifeBB",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FiUeAojNyjyW0AXzITZMH2h8Lt8B3?alt=media&token=a0274086-ab94-43cf-b9fc-adf1bdcfd4cf",
+    "companyPhoneNumber": "0324671160",
+    "companyName": "Wsport",
+    "privateEmail": "mboillat97@hotmail.ch",
+    "privatePhoneNumber": "0796522624",
+    "fcmToken": "fyfca9xiq0r3urDua37ThU:APA91bHmWMwFrSojb641wxn1yKVV0rO-2CLF4ELPRGJ5-_viQICpLczfNcyPoCSRS1L_yaS-O00_JCoVIZ4x1GgHjsNdxAoejDo8djQl7c7xvpjiqNcu4cg",
+    "ownerDeviceId": "7B748CC5-33AE-4774-8264-74A4DCF736C8",
+    "companyEmail": "patrick@wsport.ch",
+    "devicesIds": [
+      "7B748CC5-33AE-4774-8264-74A4DCF736C8"
+    ],
+    "_id": "iUeAojNyjyW0AXzITZMH2h8Lt8B3"
+  },
+  {
+    "companyContactFullName": "Lena Maillat ",
+    "companyNumberOfEmployees": 3,
+    "role": "PARTNER",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "ownerDeviceId": "9052A121-3011-40AB-A242-6BBBC6C570CE",
+    "companyEmail": "lena.maillat@gmail.com",
+    "favoritesUid": [
+      "1bvEHedXLRcsjGFvR8Wg"
+    ],
+    "companyPhoneNumber": "0325012332",
+    "companyWebsite": "",
+    "companyName": "Restaurant La Rauracienne     ",
+    "privateEmail": "lena.maillat@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "c8j0XjnuBU9xjOsZh2IwpG:APA91bER4TI3GA1np7oytN4c6crEFkcYu0z5iHlr0uTrvLwFo8--IgVXjrqCkBjwNIFkZM-cjh4tRSQ87OgfPF9ehXhQeABJD4UKNqjzzXH_jhge_FVU0E_KLtdSZ9ep1XqlzlHgIjow",
+    "devicesIds": [
+      "9052A121-3011-40AB-A242-6BBBC6C570CE"
+    ],
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FjLEcoAKdMvfnE9fUhLttXst51GO2?alt=media&token=5561e3a6-948a-4fa2-833a-c55f62831f60",
+    "_id": "jLEcoAKdMvfnE9fUhLttXst51GO2"
+  },
+  {
+    "companyContactFullName": "Solpac",
+    "companyNumberOfEmployees": 40,
+    "companyWebsite": "www.solpac.ch",
+    "companyPhoneNumber": "0218024782",
+    "activitySector": "LbXObxQDgIHwoCrLfWjN",
+    "role": "PARTNER",
+    "companyName": "Solpac SA",
+    "privateEmail": "contact@solpac.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "ccslx1JW7ERQir1jwmISn8:APA91bGUeR6gVHSUSeic6kD-kajBs47V21u3YEHoiM1dFknYQLRR3LT8poZo6jItiA89TjS2VhNMlvdzpaMvpBRoosvjewDnpaePKdEsy6tekWeguy3EvWs",
+    "ownerDeviceId": "D1E93E82-ED81-4001-8577-189ABF831082",
+    "companyEmail": "contact@solpac.ch",
+    "devicesIds": [
+      "D1E93E82-ED81-4001-8577-189ABF831082"
+    ],
+    "_id": "jZ5PNuvipgc44hXlu621M1TNzrG3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0766711338",
+    "activitySector": "RVjBbF4X7djO8Cwsq9an",
+    "companyContactFullName": "Stéphane Brosset ",
+    "companyName": "Le Bien Fait N Est Jamais Perdu ",
+    "privateEmail": "stephanebrosset7@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "ePJonxV3q0JfvkbkdZK97i:APA91bFDgraMTSJaF60TM9yuM6E-MmrnJTrmj8XaGKdmpvO3zMp6_ESivDwvULH163P1k1e5pFvZiHM-EW3tJ7ieEAjlsSL2K8n9khX38wi9P1knhIpOdD13VuaMDBPIaXrTIDbPstQ7",
+    "ownerDeviceId": "67C9AA0E-B37F-4012-ABE1-DBCAD065B23A",
+    "companyEmail": "stephanebrosset7@gmail.com",
+    "devicesIds": [
+      "67C9AA0E-B37F-4012-ABE1-DBCAD065B23A"
+    ],
+    "_id": "lYMHwzpWG2gnFCKTbNDzd43QdiK2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "www.bellevue-porrentruy.ch",
+    "companyPhoneNumber": "0324665544",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Fabrice Burgunder",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FnfE1hPDQLtURItduIFfWUn1rZso1?alt=media&token=4ac910ce-5df2-4695-9175-c9d12a8f3edd",
+    "companyName": "Bellevue",
+    "privateEmail": "mail@bellevue-porrentruy.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+    "companyEmail": "mail@bellevue-porrentruy.ch",
+    "devicesIds": [
+      "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3"
+    ],
+    "_id": "nfE1hPDQLtURItduIFfWUn1rZso1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 0,
+    "companyWebsite": "",
+    "companyPhoneNumber": "+41787745140",
+    "activitySector": "889QZiGYylVmuZTplcSG",
+    "companyContactFullName": "Félicie Périat",
+    "companyName": "Les Matins Bleus",
+    "privateEmail": "cyril-felicie@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "f_pKrdjG8kH5g3agyG2SpW:APA91bEDHpTUDzncx_VQnQ8GAd27UgaPFVxyIi96FyDWs6IiUDTDb579o8vAzHc1ccm4qtyjPog3pZmdgxxl-PM1SUupCguEo10M9y17620iaEZk469PXhOayu9L3dIDB9KR_3jI3Vbi",
+    "ownerDeviceId": "06885B86-9603-4CAE-BD73-4D9B61778738",
+    "companyEmail": "info@lesmatinsbleus.com",
+    "devicesIds": [
+      "06885B86-9603-4CAE-BD73-4D9B61778738"
+    ],
+    "_id": "nicL6DuGzCWUMN4mmkUIzaYe6gw1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 20,
+    "companyWebsite": "f-haenni.ch",
+    "companyPhoneNumber": "0324661455",
+    "activitySector": "KZOZWAewILp5SCbQwpGL",
+    "favoritesUid": [
+      "sW6nBD2gqOeu3R35aJwn"
+    ],
+    "companyContactFullName": "Emmanuel Stächeli",
+    "companyName": "F.hänni SA",
+    "privateEmail": "installation@f-haenni.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "A1F908A4-F9FD-4B84-87B6-E0484D5BD2F4",
+    "companyEmail": "installation@f-haenni.ch",
+    "devicesIds": [
+      "A1F908A4-F9FD-4B84-87B6-E0484D5BD2F4"
+    ],
+    "_id": "pJxdFJ9xayeJE54vAgvIyND3KJ12"
+  },
+  {
+    "companyContactFullName": "Claire Girardin",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "www.acontresens.ch",
+    "companyPhoneNumber": "0768220313",
+    "activitySector": "LpZIMkGQ9fWrRdeZwS2p",
+    "role": "PARTNER",
+    "favoritesUid": [
+      "3fJWa9wiVAp0l6wM5DL3"
+    ],
+    "companyName": "A Contresens",
+    "privateEmail": "info@acontresens.ch",
+    "privatePhoneNumber": "0788209525",
+    "fcmToken": "cAJ2trPkwkzFmjWLIzMn43:APA91bHjn1bSTmWdzUjzAXzrOMubMDV0yZ4TNN135tALCOVnBG4W7Jo5Y_dGiup1kL9zyhDAcyDplvIzlGstfsiPAsmcToExsR_QIVkAGoJgfmrCdq37xj_CaPPu8_yANUiD8aKWmF6k",
+    "ownerDeviceId": "27E44ECD-2B48-401A-9C47-519C989A3946",
+    "companyEmail": "info@acontresens.ch",
+    "devicesIds": [
+      "27E44ECD-2B48-401A-9C47-519C989A3946"
+    ],
+    "_id": "pZ4Rae5250axWImA6IMRfwGz72Y2"
+  },
+  {
+    "companyContactFullName": "Girel",
+    "companyNumberOfEmployees": 9,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0215667040",
+    "activitySector": "LbXObxQDgIHwoCrLfWjN",
+    "role": "PARTNER",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2Fr9Kug3tk7CT1NapiAWYGjjfaDPr2?alt=media&token=0b745830-1713-47f9-8805-e18b5cb3c448",
+    "companyName": "Ohm Energy ",
+    "privateEmail": "contact@ohmenergy.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "D1E93E82-ED81-4001-8577-189ABF831082",
+    "companyEmail": "contact@ohmenergy.ch",
+    "devicesIds": [
+      "D1E93E82-ED81-4001-8577-189ABF831082"
+    ],
+    "_id": "r9Kug3tk7CT1NapiAWYGjjfaDPr2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324622228",
+    "activitySector": "ieXWySW7nmq1vnyvVesd",
+    "companyContactFullName": "Josy Stadelmann",
+    "favoritesUid": [
+      "58y6XCnOlSYjFvTaANDG"
+    ],
+    "companyName": "Au Fin Gourmet - Josy Stadelmann",
+    "privateEmail": "josystadelmann@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "52990D83-0132-474C-8D38-554175FAE612",
+    "companyEmail": "josystadelmann@bluewin.ch",
+    "devicesIds": [
+      "52990D83-0132-474C-8D38-554175FAE612"
+    ],
+    "_id": "t54w1FaIvvMaiMnsGJMIVXGAya82"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 2,
+    "companyWebsite": "",
+    "companyPhoneNumber": "032 466 42 52",
+    "activitySector": "nM6CuoAK4bIcu8mPOzKd",
+    "companyContactFullName": "Nicolas Choffat ",
+    "companyName": "Choffat Optique ",
+    "privateEmail": "choffatoptique@gmail.com",
+    "privatePhoneNumber": "079 841 88 40",
+    "fcmToken": "dBuvtcA7Saau1ugYCdM8q3:APA91bG0n4B5_fpI9FuKgW4veokobl2hSDGHQlMlonhk6kKlYqyy5Fly3nUw6P7_o17nCKL0TWa7HAHpD62U0JjVwjwF8YK3ul6B0LbjXbpXjSNWOeyWj_10pOwz9em2d80dhEPBKmgL",
+    "isAccepted": true,
+    "devicesIds": [
+      "TP1A.220624.014"
+    ],
+    "companyEmail": "choffatoptique@gmail.com",
+    "_id": "uEgcHSkAeCh2kKZOmeNzsiz4hn72"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "www.cyclesrefouss.ch",
+    "companyPhoneNumber": "0324671626",
+    "activitySector": "QmMQtt5uPhgF74HrxAau",
+    "companyContactFullName": "Jean-Louis Maeder",
+    "companyName": "Cycles et Motos Refouss",
+    "privateEmail": "cyclesrefouss@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "cZct7pmnH0DyvCb7VU5pjM:APA91bGkjwL7mEV9w0fVjtIsAgC6Tu5Xem-xrWuAY1J0AC-KQfL9ATjdEwyrdO26N6-O8LM1tKvKWxXrg8SO5fARfPWWc1pdac-_jj2tlEkoUZ1mNbz0a_eSleSV220IRoBySdCu1fVA",
+    "ownerDeviceId": "52990D83-0132-474C-8D38-554175FAE612",
+    "companyEmail": "cyclesrefouss@bluewin.ch",
+    "devicesIds": [
+      "52990D83-0132-474C-8D38-554175FAE612",
+      "F772DA08-98F9-43D9-AF33-A9176D0981DC"
+    ],
+    "_id": "uXHtyhfilWbM69Hh3WjM91bdm2Q2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "technoware.ch",
+    "companyPhoneNumber": "+41324673222",
+    "activitySector": "vdWqDRx1OdParvoyKQFY",
+    "companyContactFullName": "Bryan Gogniat",
+    "companyName": "Technoware Sàrl",
+    "privateEmail": "info@technoware.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "dGTwvkZbQjmvGJHoB7xjye:APA91bHfqCycaTV1M6ZSmtFE4md14nLlokOTqoaGG0TUVmB0KpBLVPJBILXUIdMY4Ld6b875EHyamGcC7grNAgUjb_ues2gu7eTlgAifKijpuyeKV7Pc1hBQ9tUo1N_mYPOz1d-UQCMF",
+    "ownerDeviceId": "UKQ1.230804.001",
+    "companyEmail": "info@technoware.ch",
+    "devicesIds": [
+      "UKQ1.230804.001",
+      "AQ3A.240912.001"
+    ],
+    "_id": "vHyZwhTDjDPmNbfuvvZZnDLpN0n2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 3,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0324671115",
+    "activitySector": "8EOPRrCo29l7ABQIaNlS",
+    "companyContactFullName": "Kleinholtz Fabien ",
+    "companyName": "Let's Go Fitness ",
+    "privateEmail": "lgf.porrentruy@letsgo-fit.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": "fW45oKcPSey2iehbC7dKbM:APA91bF-beEi4ZhCufHlaF-4mbp8HDWLnCOs2zXE4WujzEiaS_6zug7GiPcbAAyMMVhQ29UqrtMn9Qt_iPOp91YiIUNmXYyNWHCgL2XMvosTA6TyT6djKFUBmTm7G2URMyo59MKEaPKO",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyEmail": "lgf.porrentruy@letsgo-fit.ch",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "_id": "vsAIQIIc7RNt5pnoFNZMJFJw6gH2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "https://www.minimarche.ch/",
+    "companyPhoneNumber": "+41324222266",
+    "activitySector": "VRCUGT9bMvA4kHI7TiTI",
+    "companyContactFullName": "Romain Burki",
+    "companyName": "mini-marché",
+    "privateEmail": "info@minimarche.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+    "companyEmail": "info@minimarche.ch",
+    "devicesIds": [
+      "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3"
+    ],
+    "_id": "wBX0gV3hobXH63hWjGti6gsSHEI3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 0,
+    "companyWebsite": "",
+    "companyContactFullName": "Janique Joray",
+    "activitySector": "giCQahUojFlhQF1cVPHY",
+    "companyPhoneNumber": "079 339 56 38",
+    "companyName": "Jaja Forever",
+    "privateEmail": "janique.joray@bluewin.ch",
+    "privatePhoneNumber": "079 339 56 38",
+    "isAccepted": true,
+    "fcmToken": "dJX4S9gCTh2mw9FAqYUGgM:APA91bGzsb9sjt5tKLOKKPIwnc4Q3n-BU2e-dTwiwCYmNsj2dL5fgFgCI0a16GWqwxpjRYZH_NEH1yMuh6GET4lQBw3UVTkEwtDoeZGWFQXBXO5iEKNKPACDRENC2QITTBQgImi8bn0B",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "companyEmail": "janique.joray@bluewin.ch",
+    "_id": "wNLmhS9ZFFbX7hpHji6iyDggWr32"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "www.les-deux-clefs.ch",
+    "companyPhoneNumber": "+41 324613110",
+    "activitySector": "NBZlXu3Fmo010YKmedWr",
+    "companyContactFullName": "Lydia Froidevaux",
+    "companyName": "Les Deux Clefs",
+    "privateEmail": "froidevaux.lydiae@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "52990D83-0132-474C-8D38-554175FAE612",
+    "companyEmail": "froidevaux.lydiae@gmail.com",
+    "devicesIds": [
+      "52990D83-0132-474C-8D38-554175FAE612"
+    ],
+    "_id": "wXOrYQP9LWPODi9gm954QPcZeOW2"
+  },
+  {
+    "companyContactFullName": "Tamara",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0772689977",
+    "activitySector": "889QZiGYylVmuZTplcSG",
+    "role": "PARTNER",
+    "companyName": "Institut Temps Pour Soi",
+    "privateEmail": "t.jacquier94@gmail.com",
+    "privatePhoneNumber": "",
+    "fcmToken": "fwPmOOws1UDxjzcB546-Ld:APA91bE1rWypBk61i-T7urmE8P59NPTW1LaDEUFNptqb8mq5Wf61QgzDpt49T90YrOjMyY3EyxXzS-dEfoDp2co4ovUfhlHVLTpmkAlzXmjS0Sv36gZV96A",
+    "ownerDeviceId": "C87E769C-28D2-4E27-A37C-70A45F3F46CE",
+    "companyEmail": "institut.temps.pour.soi@gmail.com",
+    "devicesIds": [
+      "C87E769C-28D2-4E27-A37C-70A45F3F46CE"
+    ],
+    "_id": "wllzNBs2RlSk1EbighZpBbyviEF3"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 5,
+    "companyWebsite": "www.atelierdecoiffure.ch",
+    "companyPhoneNumber": "+41324662141",
+    "activitySector": "khV1hn0pMUb6EwrAg1vf",
+    "companyContactFullName": "Christèle Terrier",
+    "favoritesUid": [
+      "lWz47gRBBeh5vdxwdOep"
+    ],
+    "companyName": "Atelier de coiffure",
+    "privateEmail": "christele-d@bluewin.ch",
+    "privatePhoneNumber": "",
+    "fcmToken": null,
+    "ownerDeviceId": "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3",
+    "companyEmail": "christele-d@bluewin.ch",
+    "devicesIds": [
+      "02E4F93A-9B35-45D3-8AA1-F03F6E9592B3"
+    ],
+    "_id": "x18lgF682iU7jFS4OjL5QZ2H7ps1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyContactFullName": "Annie Molleyres ",
+    "activitySector": "riMWhOlYAYunpTSktMX2",
+    "favoritesUid": [
+      "z8oZDPysKs86gkVGPLPy"
+    ],
+    "companyEmail": "contact@creasens.ch",
+    "ownerDeviceId": "UP1A.231005.007",
+    "companyPhoneNumber": "0788476059",
+    "companyWebsite": "www.creasens.ch",
+    "companyName": "CréaSens ",
+    "fcmToken": "fyDjJafeRo6ktGNPemaLwQ:APA91bEEYEUE35B-Roj-48q10xMS4FPlfps7It4MNqxLrpHZ8TDEMJQ_eYk8aFJXVOt9US_JOss80FDjUlEVgV85LED0tDG4WO8-PZIN-8hpVDF89QlXjTE",
+    "privatePhoneNumber": "",
+    "privateEmail": "a.molleyres@gmail.com",
+    "devicesIds": [
+      "UP1A.231005.007",
+      "BP2A.250605.031.A3"
+    ],
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2Fx41t95raK7ZtCcTIsHqcj1N8Y7m1?alt=media&token=8dfaa7d0-a696-481c-90e9-7b3e54ace722",
+    "_id": "x41t95raK7ZtCcTIsHqcj1N8Y7m1"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 1,
+    "companyWebsite": "",
+    "companyPhoneNumber": "0794525418",
+    "activitySector": "BG4ALCR3V4xLrxXd9Ivl",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/altai-prod.appspot.com/o/users%2FxA1Bc9h9mAQIn6VVbBA2UxqKCyu2?alt=media&token=fe9f4ac3-c26f-4e7a-94ae-0f1637294b2b",
+    "companyContactFullName": "Julie MIGY ",
+    "companyName": "Pot à Pot ",
+    "fcmToken": "eKEZaLmtQDSAY80eAgw05o:APA91bHZptuyttOeKXenXbWmIw3LPlbwp82rELpcJPO8Nvr80JHBK-yYaxpH_DE6N3REexmCqhAETFy3TNZ-m4K61Zeuep-NEMVSIS6E1BCAcSIyWsKSRips22-vfdO4w6d1ULBn8Fn-",
+    "privatePhoneNumber": "",
+    "privateEmail": "juliemigy@hotmail.com",
+    "devicesIds": [
+      "UP1A.231005.007"
+    ],
+    "companyEmail": "juliemigy@hotmail.com",
+    "ownerDeviceId": "UP1A.231005.007",
+    "_id": "xA1Bc9h9mAQIn6VVbBA2UxqKCyu2"
+  },
+  {
+    "role": "PARTNER",
+    "companyNumberOfEmployees": 4,
+    "companyWebsite": "www.blackpig.ch",
+    "companyPhoneNumber": "032 423 69 69",
+    "activitySector": "mqft6bis5A2IjG24gfQo",
+    "companyContactFullName": "Ben Bost",
+    "companyName": "Brasserie BlackPig",
+    "privateEmail": "ben@blackpig.ch",
+    "privatePhoneNumber": "079 793 01 84",
+    "fcmToken": "flZcW0S-SrmX5VgrTmEXVz:APA91bFUlvEurotKbzeNC9g8iuSxvbkkjq0tEaP5O1V-gfDVVnYRFp7l1DC2feh6mJbVcFtkkqM7vY0kM3iBe-Qi1pToZdF6Fmk539Rj9aw077fOZvg-FhR2FjMfZRsMNTKW_ZQMV9v6",
+    "isAccepted": true,
+    "devicesIds": [
+      "PPR1.180610.011"
+    ],
+    "companyEmail": "contact@blackpig.ch",
+    "_id": "zuNVu0TkFXRZRuRQjmyryBMwca13"
+  }
+]
