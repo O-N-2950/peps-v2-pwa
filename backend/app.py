@@ -97,13 +97,22 @@ def stripe_webhook():
 def setup_v18():
     db.create_all()
     
-    # 1. Pack
-    if not Pack.query.filter_by(name="Abonnement Annuel").first():
-        db.session.add(Pack(name="Abonnement Annuel", price_chf=49.0, access_count=1))
+    # 1. Pack - Force création
+    pack = Pack.query.filter_by(name="Abonnement Annuel").first()
+    if not pack:
+        pack = Pack(name="Abonnement Annuel", price_chf=49.0, access_count=1)
+        db.session.add(pack)
         db.session.commit()
+        print("✅ Pack créé")
+    else:
+        print("✅ Pack existe déjà")
     
-    try: sync_stripe_products()
-    except: print("Stripe skipped")
+    # 2. Sync Stripe
+    try:
+        sync_stripe_products()
+        print("✅ Stripe sync OK")
+    except Exception as e:
+        print(f"⚠️ Stripe sync error: {e}")
     
     # 2. Comptes Génériques
     accounts = [
