@@ -2,55 +2,100 @@ import React, { useState } from 'react';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const res = await fetch('/api/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
-    });
-    const data = await res.json();
-    
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('is_both', data.is_both ? 'true' : 'false');
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
       
-      // Redirection Intelligente V10
-      if (data.role === 'admin') window.location.href = '/admin';
-      else if (data.role === 'company_admin') window.location.href = '/company';
-      else if (data.role === 'partner') window.location.href = '/partner'; 
-      else window.location.href = '/'; 
-    } else {
-      alert("Erreur: " + (data.error || "Problème connexion"));
+      if (data.token) {
+        // 1. Stockage des infos critiques
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        
+        // Gestion du cas hybride (V10)
+        if (data.is_both) localStorage.setItem('is_both', 'true');
+        else localStorage.removeItem('is_both');
+        
+        // 2. REDIRECTION STRICTE SELON LE RÔLE (Le Bug était ici)
+        switch(data.role) {
+            case 'admin':
+                window.location.href = '/admin';
+                break;
+            case 'partner':
+                window.location.href = '/partner';
+                break;
+            case 'company_admin':
+                window.location.href = '/company';
+                break;
+            case 'member':
+            default:
+                window.location.href = '/'; // Dashboard Membre par défaut
+                break;
+        }
+      } else {
+        setError(data.error || "Erreur de connexion");
+      }
+    } catch (err) {
+      setError("Erreur réseau.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fill = (email, pass) => setForm({email, password: pass});
 
   return (
-    <div className="min-h-screen flex flex-col justify-center p-8 bg-white">
-      <div className="mb-8 text-center">
-          <h1 className="text-4xl font-black text-[#3D9A9A] mb-2">Connexion</h1>
-          <p className="text-gray-400 text-sm">Espace sécurisé PEP's</p>
-      </div>
-      
-      <form onSubmit={handleLogin} className="w-full max-w-sm mx-auto space-y-4">
-        <input className="w-full p-4 bg-gray-50 rounded-xl border font-bold" placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} />
-        <input className="w-full p-4 bg-gray-50 rounded-xl border font-bold" type="password" placeholder="Mot de passe" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} />
-        <button className="w-full bg-black text-white p-4 rounded-xl font-bold text-lg shadow-lg hover:scale-105 transition">SE CONNECTER</button>
-      </form>
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-gray-50">
+      <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm">
+        <h1 className="text-2xl font-black text-center mb-6 text-[#3D9A9A]">Connexion</h1>
+        <p className="text-xs text-gray-400 text-center mb-6">Espace sécurisé PEP's</p>
+        
+        {error && <div className="mb-4 p-3 bg-red-100 text-red-700 text-xs font-bold rounded text-center">{error}</div>}
 
-      <div className="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-100 w-full max-w-sm mx-auto">
-        <p className="font-bold text-gray-900 text-xs uppercase mb-2 text-center">Comptes de Test V10 :</p>
-        <div className="space-y-2 text-xs text-gray-600 font-mono">
-            <div onClick={()=>fill('admin@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>👑 Admin</span><span>admin@peps.swiss</span></div>
-            <div onClick={()=>fill('partner@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>🏪 Partner</span><span>partner@peps.swiss</span></div>
-            <div onClick={()=>fill('company@peps.swiss','123456')} className="flex justify-between cursor-pointer hover:text-[#3D9A9A]"><span>🏢 Company</span><span>company@peps.swiss</span></div>
-            <div onClick={()=>fill('both@peps.swiss','123456')} className="flex justify-between cursor-pointer text-[#3D9A9A] font-bold bg-[#3D9A9A]/10 p-1 rounded"><span>🔄 Hybride</span><span>both@peps.swiss</span></div>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input 
+            className="w-full p-4 bg-gray-50 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-[#3D9A9A]" 
+            placeholder="Email" 
+            type="text"
+            value={form.email} 
+            onChange={e=>setForm({...form, email:e.target.value})} 
+          />
+          <input 
+            className="w-full p-4 bg-gray-50 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-[#3D9A9A]" 
+            type="password" 
+            placeholder="Mot de passe" 
+            value={form.password} 
+            onChange={e=>setForm({...form, password:e.target.value})} 
+          />
+          <button disabled={loading} className="w-full bg-black text-white p-4 rounded-xl font-bold hover:scale-105 transition-transform disabled:opacity-50">
+            {loading ? '...' : 'SE CONNECTER'}
+          </button>
+        </form>
+
+        {/* Comptes de Test */}
+        <div className="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500 font-mono space-y-2">
+            <p className="font-bold text-center mb-2 text-gray-800">COMPTES DE TEST V10 :</p>
+            <div onClick={()=>fill('admin@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>👑 Admin</span><span>admin@peps.swiss</span></div>
+            <div onClick={()=>fill('partner@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>🏪 Partner</span><span>partner@peps.swiss</span></div>
+            <div onClick={()=>fill('company@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>🏢 Company</span><span>company@peps.swiss</span></div>
+            <div onClick={()=>fill('both@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>🔄 Hybride</span><span>both@peps.swiss</span></div>
+        </div>
+
+        <div className="mt-6 text-center">
+          <a href="/register" className="text-xs text-gray-400 hover:text-[#3D9A9A]">Pas de compte ? S'inscrire</a>
         </div>
       </div>
-      
-      <a href="/register" className="mt-6 block text-center text-sm font-bold text-gray-400 hover:text-[#3D9A9A]">Pas de compte ? S'inscrire</a>
     </div>
   );
 }
