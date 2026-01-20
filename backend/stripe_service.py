@@ -1,45 +1,42 @@
 import os
 import stripe
+import random
+import string
 from datetime import datetime, timedelta
+from models import db, Member, Pack, Subscription, AccessSlot
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 FRONTEND_URL = os.getenv('DOMAIN_URL', "https://www.peps.swiss")
 
-def sync_stripe_products():
-    """Crée le produit d'abonnement dans Stripe si inexistant"""
-    from models import db, Pack # Lazy Import
+def sync_v19_products():
+    """Crée les produits Stripe V19"""
     if not stripe.api_key: return
-    try:
-        pack = Pack.query.filter_by(name="Abonnement Annuel").first()
-        if pack and not pack.stripe_price_id:
-            prod = stripe.Product.create(name="Abonnement PEP's Digital")
-            price = stripe.Price.create(
-                product=prod.id,
-                unit_amount=4900, # 49.00 CHF
-                currency='chf',
-                recurring={'interval': 'year'},
-            )
-            pack.stripe_price_id = price.id
-            db.session.commit()
-            print(f"✅ Stripe Price Created: {price.id}")
-    except Exception as e:
-        print(f"⚠️ Stripe Sync Error: {e}")
+    packs = Pack.query.all()
+    for p in packs:
+        if not p.stripe_price_id:
+            try:
+                prod = stripe.Product.create(name=f"PEP's - {p.name}")
+                price = stripe.Price.create(
+                    product=prod.id,
+                    unit_amount=int(p.price_chf * 100),
+                    currency='chf',
+                    recurring={'interval': 'year'},
+                )
+                p.stripe_price_id = price.id
+                db.session.commit()
+                print(f"✅ Stripe Price: {p.name}")
+            except: pass
 
-def create_checkout_session(member_id):
-    from models import db, Member, Pack # Lazy Import
+def create_checkout_session(member_id, pack_id):
     member = Member.query.get(member_id)
-    pack = Pack.query.filter_by(name="Abonnement Annuel").first()
+    pack = Pack.query.get(pack_id)
     
-    if not pack or not pack.stripe_price_id:
-        sync_stripe_products()
-        pack = Pack.query.filter_by(name="Abonnement Annuel").first()
-        if not pack or not pack.stripe_price_id:
-            return {"error": "Configuration Stripe incomplète (Pack manquant)"}
+    if not pack.stripe_price_id: sync_v19_products()
+    pack = Pack.query.get(pack_id) # Reload
 
     try:
         if not member.stripe_customer_id:
-            email = member.owner.email if member.owner else f"member_{member.id}@peps.swiss"
-            cust = stripe.Customer.create(email=email, name=f"{member.first_name}")
+            cust = stripe.Customer.create(email=member.user.email, name=f"{member.first_name}")
             member.stripe_customer_id = cust.id
             db.session.commit()
 
@@ -48,44 +45,41 @@ def create_checkout_session(member_id):
             payment_method_types=['card'],
             line_items=[{'price': pack.stripe_price_id, 'quantity': 1}],
             mode='subscription',
-            success_url=f"{FRONTEND_URL}/?success=subscription_active",
+            success_url=f"{FRONTEND_URL}/?success=sub_ok",
             cancel_url=f"{FRONTEND_URL}/?canceled=true",
-            client_reference_id=str(member.id)
+            client_reference_id=f"{member.id}|{pack.id}"
         )
         return {"url": session.url}
     except Exception as e:
         return {"error": str(e)}
 
-def create_portal_session(member_id):
-    from models import Member # Lazy Import
-    member = Member.query.get(member_id)
-    if not member or not member.stripe_customer_id: return {"error": "Pas de client Stripe"}
+def handle_subscription_success(stripe_sub_id, member_id, pack_id, end_timestamp):
+    """Active l'abo et génère les N slots"""
     try:
-        session = stripe.billing_portal.Session.create(
-            customer=member.stripe_customer_id,
-            return_url=FRONTEND_URL
+        member = Member.query.get(member_id)
+        pack = Pack.query.get(pack_id)
+        
+        # 1. Créer l'abonnement
+        sub = Subscription(
+            member_id=member.id,
+            pack_id=pack.id,
+            stripe_subscription_id=stripe_sub_id,
+            status='active',
+            current_period_end=datetime.fromtimestamp(end_timestamp)
         )
-        return {"url": session.url}
-    except Exception as e:
-        return {"error": str(e)}
-
-def handle_subscription_success(member_id, end_timestamp):
-    from models import db, Member # Lazy Import
-    member = Member.query.get(member_id)
-    if member:
-        member.subscription_status = 'active'
-        member.current_period_end = datetime.fromtimestamp(end_timestamp)
+        db.session.add(sub)
         db.session.commit()
-        print(f"🎉 Abonnement activé pour Membre {member_id}")
-
-def extend_subscription(member_id, months=1):
-    from models import db, Member # Lazy Import
-    member = Member.query.get(member_id)
-    if not member: return
-    
-    current_end = member.current_period_end or datetime.utcnow()
-    if current_end < datetime.utcnow(): current_end = datetime.utcnow()
-    
-    member.current_period_end = current_end + timedelta(days=30 * months)
-    member.subscription_status = 'active'
-    db.session.commit()
+        
+        # 2. Générer les Slots
+        # Slot 1 : Pour le propriétaire (Auto-assigné)
+        owner_slot = AccessSlot(subscription_id=sub.id, member_id=member.id, status='active')
+        db.session.add(owner_slot)
+        
+        # Slots restants : Vides (à inviter)
+        for _ in range(pack.max_slots - 1):
+            db.session.add(AccessSlot(subscription_id=sub.id, status='empty'))
+            
+        db.session.commit()
+        print(f"🎉 Abo V19 activé ({pack.max_slots} slots)")
+    except Exception as e:
+        print(f"❌ Erreur activation: {e}")

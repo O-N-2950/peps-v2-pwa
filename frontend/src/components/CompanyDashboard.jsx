@@ -1,2 +1,11 @@
 import React from 'react';
-export default function CompanyDashboard() { return <div className="p-10 font-bold text-center">Company Dashboard V18.2</div>; }
+import GroupManager from './GroupManager';
+
+export default function CompanyDashboard() {
+  return (
+    <div className="bg-gray-50 min-h-screen p-4 pb-24">
+        <h1 className="font-black text-xl text-[#3D9A9A] mb-4">Espace Entreprise</h1>
+        <GroupManager />
+    </div>
+  );
+}
