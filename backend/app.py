@@ -84,6 +84,36 @@ def setup_v19():
             # 4 Slots Vides
             for _ in range(4): db.session.add(AccessSlot(subscription_id=sub.id))
             db.session.commit()
+    
+    # 3. Compte Admin Test
+    if not User.query.filter_by(email='admin@peps.swiss').first():
+        u = User(email='admin@peps.swiss', password_hash=generate_password_hash('123456'), role='admin')
+        db.session.add(u); db.session.commit()
+    
+    # 4. Compte Partner Test
+    if not User.query.filter_by(email='partner@peps.swiss').first():
+        u = User(email='partner@peps.swiss', password_hash=generate_password_hash('123456'), role='partner')
+        db.session.add(u); db.session.commit()
+        p = Partner(user_id=u.id, name="Mario Pizza", address="Rue de Test 1", city="Gen\u00e8ve", category="Restaurant")
+        db.session.add(p); db.session.commit()
+    
+    # 5. Compte Company Test
+    if not User.query.filter_by(email='company@peps.swiss').first():
+        u = User(email='company@peps.swiss', password_hash=generate_password_hash('123456'), role='company_admin')
+        db.session.add(u); db.session.commit()
+        m = Member(user_id=u.id, first_name="Acme", last_name="Corp")
+        db.session.add(m); db.session.commit()
+        
+        # Abo PME 30 slots
+        pack = Pack.query.filter_by(name="PME (30)").first()
+        if pack:
+            sub = Subscription(member_id=m.id, pack_id=pack.id, status='active', current_period_end=datetime(2030,1,1))
+            db.session.add(sub); db.session.commit()
+            # Slot 1 (Owner)
+            db.session.add(AccessSlot(subscription_id=sub.id, member_id=m.id, status='active'))
+            # 29 Slots Vides
+            for _ in range(29): db.session.add(AccessSlot(subscription_id=sub.id))
+            db.session.commit()
 
     return jsonify(success=True, msg="V19 Ready")
 
