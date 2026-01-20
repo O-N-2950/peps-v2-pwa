@@ -91,6 +91,43 @@ def webhook():
         handle_webhook_v20(event['data']['object'])
     return jsonify(success=True)
 
+# --- 🔍 RECHERCHE V2 (OPTIMISÉE & CACHÉE) ---
+@app.route('/api/partners/search_v2')
+@cache.cached(timeout=300, query_string=True) # Cache 5 min unique par recherche
+def search_v2():
+    q = request.args.get('q', '').strip().lower()
+    cat = request.args.get('category', 'all')
+    
+    # 1. Optimisation : On ne prend que les partenaires qui ont une position GPS
+    query = Partner.query.filter(Partner.latitude.isnot(None))
+    
+    # 2. Filtre Catégorie
+    if cat != 'all':
+        query = query.filter(Partner.category == cat)
+    
+    # 3. Recherche Texte (Nom ou Ville)
+    if q:
+        query = query.filter(or_(
+            Partner.name.ilike(f"%{q}%"),
+            Partner.city.ilike(f"%{q}%")
+        ))
+    
+    # Limite à 500 résultats pour ne pas faire laguer la carte Leaflet
+    partners = query.limit(500).all()
+    
+    # Format optimisé pour le Frontend
+    return jsonify([{
+        "id": p.id,
+        "name": p.name,
+        "category": p.category,
+        "city": p.city or "",
+        "lat": p.latitude,
+        "lng": p.longitude,
+        "img": p.image_url,
+        # Compteur d'offres pour filtrage visuel (ex: marqueur gris si 0)
+        "offer_count": len([o for o in p.offers if o.active])
+    } for p in partners])
+
 # --- 🛠️ SETUP V20 MASSIF ---
 @app.route('/api/setup_v20')
 def setup_v20():
