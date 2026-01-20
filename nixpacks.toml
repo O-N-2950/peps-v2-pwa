@@ -1,7 +1,8 @@
 providers = ["python", "node"]
 
 [phases.setup]
-nixPkgs = ["python3", "nodejs", "npm"]
+# Ajout explicite de gcc et libffi pour la compilation des modules crypto
+nixPkgs = ["python3", "nodejs", "npm", "gcc", "libffi", "openssl"]
 
 [phases.install]
 cmds = [
@@ -11,11 +12,11 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '🌍 V20 GLOBAL BUILD - INSTALLING CLUSTERS...'",
+  "echo '🌍 V20 GLOBAL BUILD (NIXPACKS)...'",
   "cd frontend && rm -rf dist node_modules/.cache",
   "cd frontend && npm run build"
 ]
 
 [start]
-# Timeout augmenté à 300s pour la migration V20
+# Timeout augmenté à 300s pour la migration
 cmd = "cd backend && gunicorn -w 4 -b 0.0.0.0:$PORT --timeout 300 app:app"
