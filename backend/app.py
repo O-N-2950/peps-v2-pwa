@@ -40,7 +40,7 @@ with app.app_context():
 # 1. ENREGISTREMENT DU BLUEPRINT (PRIORITÉ ABSOLUE)
 # ==========================================
 # Doit être fait ICI, AVANT toutes les autres routes
-app.register_blueprint(admin_bp, url_prefix='/api/admin')
+app.register_blueprint(admin_bp)
 
 def maintenance():
     with app.app_context():
