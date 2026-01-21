@@ -40,7 +40,7 @@ class User(db.Model):
     country = db.Column(db.String(2), default='CH')
     currency = db.Column(db.String(3), default='CHF')
     
-    partner_profile = db.relationship('Partner', backref='owner', uselist=False)
+    partner_profile = db.relationship('Partner', backref='owner', uselist=False, foreign_keys='Partner.user_id')
     member_profile = db.relationship('Member', backref='owner', uselist=False)
     company_profile = db.relationship('Company', backref='admin', uselist=False)
     followed_partners = db.relationship('Partner', secondary=followers, backref='followers_list')
@@ -114,6 +114,9 @@ class Partner(db.Model):
     validation_status = db.Column(db.String(20), default='draft', index=True)  # draft, pending, published
     validated_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     validated_at = db.Column(db.DateTime)
+    
+    # Relation explicite pour le validateur
+    validator = db.relationship('User', foreign_keys=[validated_by], primaryjoin="Partner.validated_by == User.id", backref=db.backref('validated_partners', lazy='dynamic'))
     
     offers = db.relationship('Offer', backref='partner', lazy=True)
     feedbacks = db.relationship('PartnerFeedback', backref='partner', lazy=True)
