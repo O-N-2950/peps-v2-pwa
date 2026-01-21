@@ -240,6 +240,11 @@ def login():
 # ==========================================
 # Au lieu d'un catch-all agressif, on utilise le gestionnaire d'erreur.
 
+# Route pour servir les assets statiques (CSS, JS, images, etc.)
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
+
 @app.route('/')
 def index():
     if os.path.exists(os.path.join(app.static_folder, 'index.html')):
