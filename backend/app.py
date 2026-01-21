@@ -213,8 +213,19 @@ def login():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
+    # SÉCURITÉ : Si l'URL commence par 'api/', c'est une erreur 404 JSON
+    if path.startswith('api/'):
+        return jsonify({
+            "error": "API Endpoint Not Found",
+            "path": path,
+            "hint": "Check routing in app.py or blueprints"
+        }), 404
+    
+    # Si c'est un fichier statique existant, on le sert
     if path and os.path.exists(os.path.join(app.static_folder, path)): 
         return send_from_directory(app.static_folder, path)
+    
+    # Sinon, on sert index.html pour le routing React (SPA)
     return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
