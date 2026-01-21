@@ -16,7 +16,7 @@ export default function HomeWahoo() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
       <div className="fixed top-0 w-full p-6 flex justify-between items-center z-50 bg-white/90 backdrop-blur">
-        <div className="font-black text-2xl text-[#3D9A9A]">PEP's</div>
+        <img src="/logo-peps-v20.png" alt="PEP's" className="h-12" />
         <div className="flex bg-gray-100 rounded-full p-1">
             {['CHF', 'EUR'].map(c => (
                 <button key={c} onClick={()=>switchCurrency(c)} className={`px-4 py-1 rounded-full text-xs font-bold ${currency===c?'bg-[#3D9A9A] text-white':'text-gray-500'}`}>{c}</button>
@@ -25,9 +25,12 @@ export default function HomeWahoo() {
       </div>
 
       <div className="pt-32 pb-20 px-6 bg-[#1F2937] text-white text-center">
-        <motion.h1 initial={{y:20, opacity:0}} animate={{y:0, opacity:1}} className="text-5xl md:text-8xl font-black mb-6">
-            L'économie <span className="text-[#3D9A9A]">Locale</span>
+        <motion.h1 initial={{y:20, opacity:0}} animate={{y:0, opacity:1}} className="text-4xl md:text-6xl font-black mb-4">
+            Soutenir l'économie locale<br/>par l'innovation digitale
         </motion.h1>
+        <motion.p initial={{y:20, opacity:0}} animate={{y:0, opacity:1, transition:{delay:0.2}}} className="text-xl md:text-2xl font-bold text-[#3D9A9A] mb-8">
+            Mets du PEP's dans ta vie !
+        </motion.p>
         <Link to="/map" className="bg-[#3D9A9A] px-8 py-4 rounded-full font-bold shadow-lg inline-flex items-center gap-2"><MapPin/> EXPLORER</Link>
       </div>
 
