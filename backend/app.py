@@ -12,6 +12,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from models import db, User, Partner, Offer, Member, Pack, Subscription, AccessSlot, PrivilegeUsage
 from stripe_service import sync_v20_products, create_checkout_v20, handle_webhook_v20
 from migrate_v20_auto import run_migration
+from routes_admin_v20 import admin_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -33,6 +34,9 @@ jwt = JWTManager(app)
 # V20 ADMIN - Exécuter la migration automatique au démarrage
 with app.app_context():
     run_migration()
+
+# V20 ADMIN - Enregistrer le blueprint admin
+app.register_blueprint(admin_bp)
 
 def maintenance():
     with app.app_context():
