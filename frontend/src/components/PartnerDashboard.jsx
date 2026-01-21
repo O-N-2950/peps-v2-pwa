@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { LayoutDashboard, Users, TrendingUp, Zap, Sparkles, Gift, BarChart2, Plus, Trash2, LogOut } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import Countdown from 'react-countdown';
+
 
 export default function PartnerDashboard() {
   const [tab, setTab] = useState('stats');
