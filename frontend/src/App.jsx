@@ -1,51 +1,63 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useSearchParams } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import PartnerDashboard from './components/PartnerDashboard';
 import MemberDashboard from './components/MemberDashboard';
-import AdminDashboard from './components/AdminDashboard';
-import AdminDashboardV20 from './components/AdminDashboardV20';
 import CompanyDashboard from './components/CompanyDashboard';
 import HomeWahoo from './components/HomeWahoo';
 import MapPage from './components/MapPage';
 
-const Protected = ({ role }) => {
+// Admin Components V20
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './pages/AdminDashboard';
+import PartnerManagement from './pages/PartnerManagement';
+import OfferManagement from './pages/OfferManagement';
+
+const ProtectedRoute = ({ role, children }) => {
   const token = localStorage.getItem('token');
-  if (!token) return <Navigate to="/login" />;
-  return <Outlet />;
+  if (!token) return <Navigate to="/login" replace />;
+  // (Ajoutez ici la vérification du rôle si nécessaire)
+  return children ? children : <Outlet />;
 };
 
 const StripeHandler = () => {
     return <MemberDashboard />;
 };
 
-const PublicRoute = () => {
-  return <Outlet />;
-};
-
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes V20 */}
+        {/* Public Routes */}
         <Route path="/home" element={<HomeWahoo />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
         {/* Protected Routes */}
-        <Route element={<Protected role="partner" />}><Route path="/partner" element={<PartnerDashboard />} /></Route>
-        <Route element={<Protected role="member" />}><Route path="/dashboard" element={<StripeHandler />} /></Route>
-        <Route element={<Protected role="admin" />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/v20" element={<AdminDashboardV20 />} />
+        <Route element={<ProtectedRoute role="partner" />}>
+          <Route path="/partner" element={<PartnerDashboard />} />
         </Route>
-        <Route element={<Protected role="company_admin" />}><Route path="/company" element={<CompanyDashboard />} /></Route>
         
-        {/* Default Route */}
+        <Route element={<ProtectedRoute role="member" />}>
+          <Route path="/dashboard" element={<StripeHandler />} />
+        </Route>
+        
+        {/* Routes Admin V20 */}
+        <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="partners" element={<PartnerManagement />} />
+            <Route path="offers" element={<OfferManagement />} />
+        </Route>
+        
+        <Route element={<ProtectedRoute role="company_admin" />}>
+          <Route path="/company" element={<CompanyDashboard />} />
+        </Route>
+        
+        {/* Default Routes */}
         <Route path="/" element={<HomeWahoo />} />
-        <Route path="*" element={<Navigate to="/home" />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

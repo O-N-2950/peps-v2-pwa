@@ -12,6 +12,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from models import db, User, Partner, Offer, Member, Pack, Subscription, AccessSlot, PrivilegeUsage
 from stripe_service import sync_v20_products, create_checkout_v20, handle_webhook_v20
 from migrate_v20_auto import run_migration
+# IMPORTANT : Import du blueprint Admin
 from routes_admin_v20 import admin_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
@@ -35,8 +36,11 @@ jwt = JWTManager(app)
 with app.app_context():
     run_migration()
 
-# V20 ADMIN - Enregistrer le blueprint admin
-app.register_blueprint(admin_bp)
+# ==========================================
+# 1. ENREGISTREMENT DU BLUEPRINT (PRIORITÉ ABSOLUE)
+# ==========================================
+# Doit être fait ICI, AVANT toutes les autres routes
+app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
 def maintenance():
     with app.app_context():
@@ -50,6 +54,10 @@ def get_user():
         uid = int(get_jwt_identity()) if isinstance(get_jwt_identity(), str) else get_jwt_identity()['id']
         return User.query.get(uid)
     except: return None
+
+# ==========================================
+# 2. ROUTES API PUBLIQUES (Existantes)
+# ==========================================
 
 # --- 🌍 GEO & DEVISE ---
 @app.route('/api/currency/detect')
@@ -75,6 +83,11 @@ def get_packs():
             "price": p.price_amount, "currency": curr
         })
     return jsonify(res)
+
+@app.route('/api/partners')
+def get_partners():
+    partners = Partner.query.limit(50).all()
+    return jsonify([{'id': p.id, 'name': p.name} for p in partners])
 
 # --- 💳 CHECKOUT ---
 @app.route('/api/checkout', methods=['POST'])
@@ -201,7 +214,7 @@ def admin_stats():
     mrr_eur = db.session.query(func.sum(Subscription.amount_paid)).filter_by(status='active', currency='EUR').scalar() or 0
     return jsonify({"mrr_chf": mrr_chf, "mrr_eur": mrr_eur, "members": Member.query.count(), "partners": Partner.query.count()})
 
-# --- AUTH & SERVE ---
+# --- AUTH ---
 @app.route('/api/login', methods=['POST'])
 def login():
     d = request.json
@@ -210,23 +223,30 @@ def login():
         return jsonify(token=create_access_token(identity=str(u.id), additional_claims={'role': u.role}), role=u.role)
     return jsonify(error="Incorrect"), 401
 
+# ==========================================
+# 3. CATCH-ALL SÉCURISÉ (EN DERNIER)
+# ==========================================
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    # SÉCURITÉ : Si l'URL commence par 'api/', c'est une erreur 404 JSON
-    if path.startswith('api/'):
+    # SÉCURITÉ : Si l'URL commence par 'api', on ne renvoie JAMAIS index.html
+    # On force une erreur 404 JSON pour que le frontend puisse gérer l'erreur
+    if path.startswith('api/') or path == 'api':
         return jsonify({
             "error": "API Endpoint Not Found",
             "path": path,
-            "hint": "Check routing in app.py or blueprints"
+            "hint": "Check routing order in app.py"
         }), 404
-    
-    # Si c'est un fichier statique existant, on le sert
-    if path and os.path.exists(os.path.join(app.static_folder, path)): 
+
+    # Servir les fichiers statiques (JS, CSS)
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
-    
-    # Sinon, on sert index.html pour le routing React (SPA)
-    return send_from_directory(app.static_folder, 'index.html')
+
+    # Servir l'application React (SPA)
+    if os.path.exists(os.path.join(app.static_folder, 'index.html')):
+        return send_from_directory(app.static_folder, 'index.html')
+    else:
+        return "Frontend not built. Run 'npm run build'", 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
