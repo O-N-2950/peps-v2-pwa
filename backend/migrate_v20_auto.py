@@ -25,8 +25,13 @@ def run_migration():
         with engine.connect() as conn:
             print("🔄 Début de la migration V20 Admin...")
             
-            # 1. Ajouter colonnes à la table partners
+            # 1. Ajouter colonnes à la table users (V20 LOCALISATION)
             migrations = [
+                # Localisation utilisateur
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR(2) DEFAULT 'CH'",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS currency VARCHAR(3) DEFAULT 'CHF'",
+                
+                # 2. Ajouter colonnes à la table partners
                 # Adresse complète
                 "ALTER TABLE partners ADD COLUMN IF NOT EXISTS address_street VARCHAR(200)",
                 "ALTER TABLE partners ADD COLUMN IF NOT EXISTS address_number VARCHAR(20)",
