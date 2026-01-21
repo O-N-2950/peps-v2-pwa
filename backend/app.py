@@ -172,6 +172,15 @@ def setup_v20():
         
     return f"V20 Installed ({count} packs)"
 
+@app.route('/api/force_migration')
+def force_migration():
+    """Route de debug pour forcer l'exécution de la migration"""
+    try:
+        result = run_migration()
+        return jsonify({"success": result, "message": "Migration exécutée"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route('/api/nuke_db')
 def nuke():
     with db.engine.connect() as c: c.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO public;")); c.commit()
