@@ -11,6 +11,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from models import db, User, Partner, Offer, Member, Pack, Subscription, AccessSlot, PrivilegeUsage
 from stripe_service import sync_v20_products, create_checkout_v20, handle_webhook_v20
+from migrate_v20_auto import run_migration
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -28,6 +29,10 @@ STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
 db.init_app(app)
 jwt = JWTManager(app)
+
+# V20 ADMIN - Exécuter la migration automatique au démarrage
+with app.app_context():
+    run_migration()
 
 def maintenance():
     with app.app_context():
