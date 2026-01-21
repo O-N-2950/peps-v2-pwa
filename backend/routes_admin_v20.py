@@ -323,7 +323,7 @@ def create_offer(partner_id):
     
     return jsonify({'message': 'Offer created', 'id': offer.id})
 
-@admin_bp.route('/offers/<int:offer_id>', methods='PUT'])
+@admin_bp.route('/offers/<int:offer_id>', methods=['PUT'])
 @jwt_required()
 def update_offer(offer_id):
     """Met à jour un privilège"""
