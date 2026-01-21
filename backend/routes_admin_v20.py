@@ -13,7 +13,7 @@ from models import (
     PartnerFeedback, PartnerWarning, Notification, NotificationReceipt, Referral
 )
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
+admin_bp = Blueprint('admin', __name__)
 
 def require_admin():
     """Vérifie que l'utilisateur est admin"""

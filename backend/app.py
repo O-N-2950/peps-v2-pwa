@@ -37,10 +37,22 @@ with app.app_context():
     run_migration()
 
 # ==========================================
-# 1. ENREGISTREMENT DU BLUEPRINT (PRIORITÉ ABSOLUE)
+# 1. ENREGISTREMENT DU BLUEPRINT
 # ==========================================
-# Doit être fait ICI, AVANT toutes les autres routes
-app.register_blueprint(admin_bp)
+# C'est ICI et UNIQUEMENT ICI qu'on définit le préfixe.
+# Résultat final : /api/admin + /stats = /api/admin/stats
+app.register_blueprint(admin_bp, url_prefix='/api/admin')
+
+# ==========================================
+# 2. ROUTE DE DEBUG (L'arme absolue)
+# ==========================================
+# Cette route listera toutes les URLs que Flask connait vraiment.
+@app.route('/api/debug-routes')
+def debug_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append(str(rule))
+    return jsonify(routes)
 
 def maintenance():
     with app.app_context():
@@ -224,29 +236,32 @@ def login():
     return jsonify(error="Incorrect"), 401
 
 # ==========================================
-# 3. CATCH-ALL SÉCURISÉ (EN DERNIER)
+# 3. ROUTING SPA SÉCURISÉ (Pattern 404)
 # ==========================================
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    # SÉCURITÉ : Si l'URL commence par 'api', on ne renvoie JAMAIS index.html
-    # On force une erreur 404 JSON pour que le frontend puisse gérer l'erreur
-    if path.startswith('api/') or path == 'api':
-        return jsonify({
-            "error": "API Endpoint Not Found",
-            "path": path,
-            "hint": "Check routing order in app.py"
-        }), 404
+# Au lieu d'un catch-all agressif, on utilise le gestionnaire d'erreur.
 
-    # Servir les fichiers statiques (JS, CSS)
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-
-    # Servir l'application React (SPA)
+@app.route('/')
+def index():
     if os.path.exists(os.path.join(app.static_folder, 'index.html')):
         return send_from_directory(app.static_folder, 'index.html')
-    else:
-        return "Frontend not built. Run 'npm run build'", 500
+    return "Frontend not built", 500
+
+@app.errorhandler(404)
+def not_found(e):
+    # Si l'URL commence par /api, c'est une erreur API -> JSON
+    # Cela empêche le HTML de "fuir" dans les requêtes de données
+    if request.path.startswith('/api'):
+        return jsonify({
+            "error": "API Route Not Found",
+            "path_requested": request.path,
+            "hint": "Check /api/debug-routes to see available endpoints"
+        }), 404
+
+    # Sinon, c'est une route React -> Index.html
+    if os.path.exists(os.path.join(app.static_folder, 'index.html')):
+        return send_from_directory(app.static_folder, 'index.html')
+    
+    return e, 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
