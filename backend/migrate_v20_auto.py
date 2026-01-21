@@ -58,7 +58,14 @@ def run_migration():
                 "CREATE INDEX IF NOT EXISTS idx_partners_status ON partners(status)",
                 "CREATE INDEX IF NOT EXISTS idx_partners_validation_status ON partners(validation_status)",
                 
-                # 2. Ajouter colonnes à la table offers
+                # 2. Ajouter colonnes à la table packs (si manquantes)
+                "ALTER TABLE packs ADD COLUMN IF NOT EXISTS access_count INTEGER",
+                "ALTER TABLE packs ADD COLUMN IF NOT EXISTS price_amount FLOAT",
+                "ALTER TABLE packs ADD COLUMN IF NOT EXISTS category VARCHAR(50)",
+                "CREATE INDEX IF NOT EXISTS idx_packs_category ON packs(category)",
+                "CREATE INDEX IF NOT EXISTS idx_packs_access_count ON packs(access_count)",
+                
+                # 3. Ajouter colonnes à la table offers
                 "ALTER TABLE offers ADD COLUMN IF NOT EXISTS description TEXT",
                 "ALTER TABLE offers ADD COLUMN IF NOT EXISTS conditions TEXT",
                 "ALTER TABLE offers ADD COLUMN IF NOT EXISTS valid_from TIMESTAMP",
@@ -68,7 +75,7 @@ def run_migration():
                 "ALTER TABLE offers ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
                 "ALTER TABLE offers ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
                 
-                # 3. Créer table partner_feedbacks
+                # 4. Créer table partner_feedbacks
                 """
                 CREATE TABLE IF NOT EXISTS partner_feedbacks (
                     id SERIAL PRIMARY KEY,
@@ -90,7 +97,7 @@ def run_migration():
                 "CREATE INDEX IF NOT EXISTS idx_feedbacks_experience_type ON partner_feedbacks(experience_type)",
                 "CREATE INDEX IF NOT EXISTS idx_feedbacks_created_at ON partner_feedbacks(created_at)",
                 
-                # 4. Créer table partner_warnings
+                # 5. Créer table partner_warnings
                 """
                 CREATE TABLE IF NOT EXISTS partner_warnings (
                     id SERIAL PRIMARY KEY,
@@ -107,7 +114,7 @@ def run_migration():
                 "CREATE INDEX IF NOT EXISTS idx_warnings_type ON partner_warnings(warning_type)",
                 "CREATE INDEX IF NOT EXISTS idx_warnings_created_at ON partner_warnings(created_at)",
                 
-                # 5. Créer table notifications
+                # 6. Créer table notifications
                 """
                 CREATE TABLE IF NOT EXISTS notifications (
                     id SERIAL PRIMARY KEY,
@@ -131,7 +138,7 @@ def run_migration():
                 "CREATE INDEX IF NOT EXISTS idx_notifications_target_role ON notifications(target_role)",
                 "CREATE INDEX IF NOT EXISTS idx_notifications_sent_at ON notifications(sent_at)",
                 
-                # 6. Créer table notification_receipts
+                # 7. Créer table notification_receipts
                 """
                 CREATE TABLE IF NOT EXISTS notification_receipts (
                     id SERIAL PRIMARY KEY,
@@ -144,7 +151,7 @@ def run_migration():
                 "CREATE INDEX IF NOT EXISTS idx_receipts_notification ON notification_receipts(notification_id)",
                 "CREATE INDEX IF NOT EXISTS idx_receipts_user ON notification_receipts(user_id)",
                 
-                # 7. Mettre à jour table referrals (déjà existante mais vide)
+                # 8. Mettre à jour table referrals (déjà existante mais vide)
                 "ALTER TABLE referrals ADD COLUMN IF NOT EXISTS referrer_id INTEGER REFERENCES users(id)",
                 "ALTER TABLE referrals ADD COLUMN IF NOT EXISTS referred_id INTEGER REFERENCES users(id)",
                 "ALTER TABLE referrals ADD COLUMN IF NOT EXISTS referrer_type VARCHAR(20)",
