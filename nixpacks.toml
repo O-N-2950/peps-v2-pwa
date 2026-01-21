@@ -2,7 +2,7 @@ providers = ["python", "node"]
 
 [phases.setup]
 # Ajout explicite de gcc et libffi pour la compilation des modules crypto
-nixPkgs = ["python3", "nodejs", "npm", "gcc", "libffi", "openssl"]
+nixPkgs = ["python3", "nodejs-18_x", "npm-9_x", "gcc", "libffi", "openssl"]
 
 [phases.install]
 cmds = [
