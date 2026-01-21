@@ -175,11 +175,16 @@ def setup_v20():
 @app.route('/api/force_migration')
 def force_migration():
     """Route de debug pour forcer l'exécution de la migration"""
+    import traceback
     try:
         result = run_migration()
-        return jsonify({"success": result, "message": "Migration exécutée"})
+        return jsonify({"success": result, "message": "Migration exécutée avec succès !"})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({
+            "success": False, 
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }), 500
 
 @app.route('/api/nuke_db')
 def nuke():
