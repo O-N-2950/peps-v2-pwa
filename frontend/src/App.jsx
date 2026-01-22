@@ -6,6 +6,7 @@ import PartnerDashboard from './components/PartnerDashboard';
 import MemberDashboard from './components/MemberDashboard';
 import CompanyDashboard from './components/CompanyDashboard';
 import HomeWahoo from './components/HomeWahoo';
+import HomePage from './pages/HomePage';
 import MapPage from './components/MapPage';
 
 // Admin Components V20
@@ -56,7 +57,7 @@ export default function App() {
         </Route>
         
         {/* Default Routes */}
-        <Route path="/" element={<HomeWahoo />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
