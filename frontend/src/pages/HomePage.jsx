@@ -17,7 +17,7 @@ const HomePage = () => {
             transition={{ duration: 0.6 }}
             className="mb-8 inline-block rounded-full bg-teal-100 px-4 py-1.5 text-sm font-semibold text-teal-700 shadow-sm"
           >
-            🚀 Le Pass Digital Local N°1 dans le Jura
+            🚀 Soutenir l'économie locale par l'innovation digitale
           </motion.div>
 
           <motion.h1 
@@ -26,9 +26,9 @@ const HomePage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-6 text-5xl font-extrabold tracking-tight text-gray-900 md:text-7xl"
           >
-            Découvrez le Jura <br />
+            Mets du <br />
             <span className="bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
-              avec du PEP'S !
+              PEP'S dans ta vie !
             </span>
           </motion.h1>
 
@@ -38,7 +38,7 @@ const HomePage = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mx-auto mb-10 max-w-2xl text-lg text-gray-600 md:text-xl"
           >
-            Accédez à plus de <strong>100 partenaires locaux</strong> (restaurants, loisirs, artisans) et économisez tout au long de l'année. Une seule offre, simple et accessible à tous.
+            Soutiens les commerces locaux et bénéficie d'avantages exclusifs toute l'année. Une application qui connecte les membres, les commerçants et les entreprises autour de privilèges qui font du bien à tous.
           </motion.p>
 
           <motion.div 
