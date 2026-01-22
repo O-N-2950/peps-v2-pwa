@@ -9,6 +9,7 @@ import HomeWahoo from './components/HomeWahoo';
 import HomePage from './pages/HomePage';
 import PricingPage from './pages/PricingPage';
 import MapPage from './components/MapPage';
+import PartnerDetailPage from './pages/PartnerDetailPage';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -34,6 +35,7 @@ export default function App() {
         {/* Public Routes */}
         <Route path="/home" element={<HomeWahoo />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/partner/:id" element={<PartnerDetailPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
