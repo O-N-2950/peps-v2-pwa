@@ -83,12 +83,12 @@ export default function HomePage() {
 
         {/* CALL TO ACTIONS */}
         <div className="flex flex-col md:flex-row gap-4 w-full max-w-md mx-auto mb-16">
-            <button className="flex-1 bg-white text-gray-900 h-14 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition shadow-xl">
-                <Smartphone className="text-black" /> App Store
-            </button>
-            <button className="flex-1 bg-transparent border-2 border-white/30 text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition">
-                <Smartphone className="text-white" /> Google Play
-            </button>
+            <Link to="/register" className="flex-1 bg-gradient-to-r from-[#2A9D8F] to-[#E76F51] text-white h-16 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-2xl transition transform hover:scale-105 shadow-xl text-lg">
+                <Star className="text-white" /> Devenir membre
+            </Link>
+            <Link to="/map" className="flex-1 bg-transparent border-2 border-white/30 text-white h-16 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition text-lg">
+                <MapPin className="text-white" /> Explorer
+            </Link>
         </div>
 
       </main>
