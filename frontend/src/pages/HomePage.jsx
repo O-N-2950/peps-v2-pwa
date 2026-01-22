@@ -113,7 +113,7 @@ const HomePage = () => {
 
       {/* FOOTER SIMPLE (Placeholder) */}
       <footer className="bg-gray-900 py-12 text-white text-center">
-        <p>© 2024 PEP'S Jura. Tous droits réservés.</p>
+        <p>© 2026 PEP'S Swiss SA. Tous droits réservés.</p>
       </footer>
     </div>
   );
