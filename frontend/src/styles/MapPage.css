@@ -1,0 +1,148 @@
+/* MapPage.css - Styles personnalisés pour la carte interactive PEP'S */
+
+/* Markers personnalisés */
+.custom-marker {
+  position: relative;
+}
+
+.marker-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  background: #2A9D8F;
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -15px 0 0 -15px;
+  animation: bounce 0.5s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.marker-pin:after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  margin: 8px 0 0 8px;
+  background: #fff;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.marker-shadow {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Marker utilisateur */
+.user-marker {
+  position: relative;
+}
+
+.user-pin {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4A90E2;
+  border: 3px solid white;
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(74, 144, 226, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+  }
+}
+
+@keyframes bounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-2000px) rotate(-45deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(30px) rotate(-45deg);
+  }
+  80% {
+    transform: translateY(-10px) rotate(-45deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-45deg);
+  }
+}
+
+/* Clustering personnalisé */
+.marker-cluster-small {
+  background-color: rgba(42, 157, 143, 0.6);
+}
+
+.marker-cluster-small div {
+  background-color: rgba(42, 157, 143, 0.8);
+  color: white;
+  font-weight: bold;
+}
+
+.marker-cluster-medium {
+  background-color: rgba(231, 111, 81, 0.6);
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(231, 111, 81, 0.8);
+  color: white;
+  font-weight: bold;
+}
+
+.marker-cluster-large {
+  background-color: rgba(38, 70, 83, 0.6);
+}
+
+.marker-cluster-large div {
+  background-color: rgba(38, 70, 83, 0.8);
+  color: white;
+  font-weight: bold;
+}
+
+/* Popup personnalisée */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+  min-width: 250px;
+}
+
+/* Glassmorphism pour les contrôles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .marker-pin {
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+  }
+  
+  .marker-pin:after {
+    width: 10px;
+    height: 10px;
+    margin: 7px 0 0 7px;
+  }
+}
