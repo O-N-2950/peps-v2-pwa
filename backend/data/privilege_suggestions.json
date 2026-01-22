@@ -1,0 +1,586 @@
+{
+  "suggestions": [
+    {
+      "category_id": 1,
+      "category_name": "Restaurant",
+      "privileges": [
+        "10% sur l'addition",
+        "Café offert",
+        "Dessert offert",
+        "Apéritif offert",
+        "Menu du jour à prix réduit",
+        "Entrée offerte",
+        "Digestif offert",
+        "Bouteille d'eau offerte"
+      ]
+    },
+    {
+      "category_id": 2,
+      "category_name": "Café / Bar",
+      "privileges": [
+        "Café offert",
+        "2ème boisson à moitié prix",
+        "Croissant offert avec café",
+        "10% sur consommations",
+        "Happy hour prolongé",
+        "Amuse-bouche offert"
+      ]
+    },
+    {
+      "category_id": 3,
+      "category_name": "Boulangerie / Pâtisserie",
+      "privileges": [
+        "10% sur tous les pains",
+        "Croissant offert dès 5 CHF d'achat",
+        "Pain du jour offert",
+        "Viennoiserie offerte le weekend",
+        "15% sur pâtisseries",
+        "Café offert avec achat"
+      ]
+    },
+    {
+      "category_id": 4,
+      "category_name": "Traiteur",
+      "privileges": [
+        "10% sur commandes",
+        "Livraison gratuite dès 50 CHF",
+        "Amuse-bouche offert",
+        "15% sur buffets",
+        "Conseil menu gratuit"
+      ]
+    },
+    {
+      "category_id": 5,
+      "category_name": "Fast-food / Street food",
+      "privileges": [
+        "Boisson offerte",
+        "Frites offertes",
+        "10% sur menu",
+        "Dessert offert",
+        "2ème menu à moitié prix"
+      ]
+    },
+    {
+      "category_id": 6,
+      "category_name": "Restaurant gastronomique",
+      "privileges": [
+        "Amuse-bouche offert",
+        "Coupe de champagne offerte",
+        "10% sur menu dégustation",
+        "Mignardises offertes",
+        "Accord mets-vins conseillé"
+      ]
+    },
+    {
+      "category_id": 7,
+      "category_name": "Épicerie / Superette",
+      "privileges": [
+        "5% sur tout le magasin",
+        "10% sur produits locaux",
+        "Article offert dès 20 CHF",
+        "Livraison gratuite à domicile"
+      ]
+    },
+    {
+      "category_id": 8,
+      "category_name": "Primeur / Fruits & Légumes",
+      "privileges": [
+        "10% sur fruits et légumes",
+        "Fruit de saison offert",
+        "Panier surprise à prix réduit",
+        "Conseil recettes gratuit"
+      ]
+    },
+    {
+      "category_id": 9,
+      "category_name": "Boucherie / Charcuterie",
+      "privileges": [
+        "10% sur viandes",
+        "Saucisse offerte",
+        "Conseil cuisson gratuit",
+        "15% sur charcuterie"
+      ]
+    },
+    {
+      "category_id": 10,
+      "category_name": "Poissonnerie",
+      "privileges": [
+        "10% sur poissons frais",
+        "Conseil préparation gratuit",
+        "Écaillage gratuit",
+        "Crevettes offertes dès 30 CHF"
+      ]
+    },
+    {
+      "category_id": 11,
+      "category_name": "Fromagerie",
+      "privileges": [
+        "10% sur fromages",
+        "Dégustation gratuite",
+        "Conseil accord vins-fromages",
+        "Échantillon offert"
+      ]
+    },
+    {
+      "category_id": 12,
+      "category_name": "Cave à vin",
+      "privileges": [
+        "10% sur vins",
+        "Dégustation gratuite",
+        "Conseil sommelier offert",
+        "Livraison gratuite dès 100 CHF"
+      ]
+    },
+    {
+      "category_id": 13,
+      "category_name": "Épicerie fine",
+      "privileges": [
+        "10% sur produits du terroir",
+        "Dégustation gratuite",
+        "Échantillon offert",
+        "Emballage cadeau offert"
+      ]
+    },
+    {
+      "category_id": 14,
+      "category_name": "Coiffeur",
+      "privileges": [
+        "10% sur coupe",
+        "Brushing offert",
+        "Produit capillaire offert",
+        "Shampoing offert",
+        "Diagnostic capillaire gratuit",
+        "15% sur coloration"
+      ]
+    },
+    {
+      "category_id": 15,
+      "category_name": "Esthétique",
+      "privileges": [
+        "10% sur soins",
+        "Épilation sourcils offerte",
+        "Vernis offert avec manucure",
+        "Diagnostic peau gratuit",
+        "Échantillons offerts",
+        "15% sur forfait beauté"
+      ]
+    },
+    {
+      "category_id": 16,
+      "category_name": "Spa / Massage",
+      "privileges": [
+        "15 min de massage offert",
+        "Accès sauna offert",
+        "10% sur forfait bien-être",
+        "Boisson détox offerte",
+        "Consultation gratuite"
+      ]
+    },
+    {
+      "category_id": 17,
+      "category_name": "Parfumerie",
+      "privileges": [
+        "10% sur parfums",
+        "Échantillons offerts",
+        "Conseil personnalisé gratuit",
+        "Miniature offerte dès 50 CHF"
+      ]
+    },
+    {
+      "category_id": 18,
+      "category_name": "Tatouage / Piercing",
+      "privileges": [
+        "10% sur tatouage",
+        "Consultation gratuite",
+        "Produit de soin offert",
+        "Retouche gratuite"
+      ]
+    },
+    {
+      "category_id": 19,
+      "category_name": "Boutique de vêtements",
+      "privileges": [
+        "15% sur tout le magasin",
+        "Article offert dès 50 CHF d'achat",
+        "10% sur nouvelle collection",
+        "Retouches gratuites",
+        "Conseil styliste offert"
+      ]
+    },
+    {
+      "category_id": 20,
+      "category_name": "Chaussures",
+      "privileges": [
+        "10% sur chaussures",
+        "Entretien offert",
+        "2ème paire à moitié prix",
+        "Conseil pointure gratuit"
+      ]
+    },
+    {
+      "category_id": 21,
+      "category_name": "Maroquinerie",
+      "privileges": [
+        "10% sur sacs et accessoires",
+        "Gravure offerte",
+        "Entretien cuir offert",
+        "Emballage cadeau offert"
+      ]
+    },
+    {
+      "category_id": 22,
+      "category_name": "Bijouterie / Horlogerie",
+      "privileges": [
+        "10% sur bijoux",
+        "Nettoyage gratuit",
+        "Gravure offerte",
+        "Changement pile montre offert"
+      ]
+    },
+    {
+      "category_id": 23,
+      "category_name": "Optique",
+      "privileges": [
+        "10% sur lunettes",
+        "Contrôle vue gratuit",
+        "Nettoyage gratuit à vie",
+        "Étui offert"
+      ]
+    },
+    {
+      "category_id": 24,
+      "category_name": "Pharmacie",
+      "privileges": [
+        "10% sur parapharmacie",
+        "Conseil gratuit",
+        "Échantillons offerts",
+        "Mesure tension gratuite"
+      ]
+    },
+    {
+      "category_id": 25,
+      "category_name": "Parapharmacie",
+      "privileges": [
+        "10% sur compléments",
+        "Échantillons offerts",
+        "Conseil nutrition gratuit",
+        "Produit offert dès 30 CHF"
+      ]
+    },
+    {
+      "category_id": 26,
+      "category_name": "Ostéopathie / Physiothérapie",
+      "privileges": [
+        "10% sur séances",
+        "Consultation gratuite",
+        "Bilan postural offert",
+        "Conseils exercices gratuits"
+      ]
+    },
+    {
+      "category_id": 27,
+      "category_name": "Médecine alternative",
+      "privileges": [
+        "10% sur consultations",
+        "Bilan énergétique offert",
+        "Conseils personnalisés gratuits",
+        "Produit naturel offert"
+      ]
+    },
+    {
+      "category_id": 28,
+      "category_name": "Fitness / Salle de sport",
+      "privileges": [
+        "Séance d'essai gratuite",
+        "10% sur abonnement annuel",
+        "Coaching personnalisé offert",
+        "Bilan forme gratuit",
+        "Boisson protéinée offerte"
+      ]
+    },
+    {
+      "category_id": 29,
+      "category_name": "Yoga / Pilates",
+      "privileges": [
+        "Cours d'essai gratuit",
+        "10% sur forfait 10 cours",
+        "Tapis de yoga offert",
+        "Consultation posturale gratuite"
+      ]
+    },
+    {
+      "category_id": 30,
+      "category_name": "Cinéma / Théâtre",
+      "privileges": [
+        "10% sur places",
+        "Popcorn offert",
+        "2ème place à moitié prix",
+        "Boisson offerte"
+      ]
+    },
+    {
+      "category_id": 31,
+      "category_name": "Musée / Galerie",
+      "privileges": [
+        "Entrée à prix réduit",
+        "Visite guidée offerte",
+        "Catalogue offert",
+        "Accès exposition temporaire offert"
+      ]
+    },
+    {
+      "category_id": 32,
+      "category_name": "Librairie / Papeterie",
+      "privileges": [
+        "10% sur livres",
+        "Marque-page offert",
+        "Carte de vœux offerte",
+        "Emballage cadeau offert",
+        "Conseil lecture gratuit"
+      ]
+    },
+    {
+      "category_id": 33,
+      "category_name": "Musique / Instruments",
+      "privileges": [
+        "10% sur instruments",
+        "Cours d'essai gratuit",
+        "Accessoire offert",
+        "Réglage instrument offert"
+      ]
+    },
+    {
+      "category_id": 34,
+      "category_name": "Jeux / Jouets",
+      "privileges": [
+        "10% sur jeux et jouets",
+        "Emballage cadeau offert",
+        "Démonstration jeu gratuite",
+        "Petit jouet offert dès 30 CHF"
+      ]
+    },
+    {
+      "category_id": 35,
+      "category_name": "Photographie",
+      "privileges": [
+        "10% sur séance photo",
+        "Tirage offert",
+        "Retouche gratuite",
+        "Consultation gratuite"
+      ]
+    },
+    {
+      "category_id": 36,
+      "category_name": "Décoration intérieure",
+      "privileges": [
+        "10% sur décoration",
+        "Conseil déco gratuit",
+        "Livraison gratuite dès 100 CHF",
+        "Accessoire offert"
+      ]
+    },
+    {
+      "category_id": 37,
+      "category_name": "Fleuriste",
+      "privileges": [
+        "10% sur bouquets",
+        "Rose offerte",
+        "Livraison gratuite",
+        "Conseil entretien gratuit",
+        "Emballage cadeau offert"
+      ]
+    },
+    {
+      "category_id": 38,
+      "category_name": "Bricolage / Quincaillerie",
+      "privileges": [
+        "10% sur outillage",
+        "Conseil bricolage gratuit",
+        "Coupe bois gratuite",
+        "Petit accessoire offert"
+      ]
+    },
+    {
+      "category_id": 39,
+      "category_name": "Électroménager",
+      "privileges": [
+        "10% sur électroménager",
+        "Livraison gratuite",
+        "Installation offerte",
+        "Extension garantie gratuite"
+      ]
+    },
+    {
+      "category_id": 40,
+      "name": "Meubles",
+      "privileges": [
+        "10% sur meubles",
+        "Livraison gratuite",
+        "Montage offert",
+        "Conseil aménagement gratuit"
+      ]
+    },
+    {
+      "category_id": 41,
+      "category_name": "Pressing / Blanchisserie",
+      "privileges": [
+        "10% sur nettoyage",
+        "Chemise offerte dès 5 pièces",
+        "Détachage gratuit",
+        "Livraison gratuite"
+      ]
+    },
+    {
+      "category_id": 42,
+      "category_name": "Cordonnerie / Retouches",
+      "privileges": [
+        "10% sur réparations",
+        "Cirage gratuit",
+        "Conseil entretien gratuit",
+        "Petite retouche offerte"
+      ]
+    },
+    {
+      "category_id": 43,
+      "category_name": "Imprimerie / Reprographie",
+      "privileges": [
+        "10% sur impressions",
+        "Plastification gratuite",
+        "Livraison gratuite",
+        "Conseil mise en page gratuit"
+      ]
+    },
+    {
+      "category_id": 44,
+      "category_name": "Coworking / Bureaux",
+      "privileges": [
+        "Journée d'essai gratuite",
+        "10% sur abonnement mensuel",
+        "Café offert",
+        "Salle de réunion offerte 1h"
+      ]
+    },
+    {
+      "category_id": 45,
+      "category_name": "Services administratifs",
+      "privileges": [
+        "10% sur prestations",
+        "Consultation gratuite",
+        "Conseil gratuit",
+        "Première heure offerte"
+      ]
+    },
+    {
+      "category_id": 46,
+      "category_name": "Garage / Mécanique",
+      "privileges": [
+        "Vidange à prix réduit",
+        "Contrôle gratuit",
+        "10% sur main d'œuvre",
+        "Diagnostic gratuit",
+        "Lavage offert"
+      ]
+    },
+    {
+      "category_id": 47,
+      "category_name": "Lavage auto",
+      "privileges": [
+        "10% sur lavages",
+        "Aspirateur offert",
+        "2ème lavage à moitié prix",
+        "Désodorisant offert"
+      ]
+    },
+    {
+      "category_id": 48,
+      "category_name": "Vélo / Trottinette",
+      "privileges": [
+        "10% sur vélos",
+        "Révision offerte",
+        "Accessoire offert",
+        "Conseil entretien gratuit"
+      ]
+    },
+    {
+      "category_id": 49,
+      "category_name": "Location de véhicules",
+      "privileges": [
+        "10% sur location",
+        "Surclassement gratuit",
+        "2ème conducteur gratuit",
+        "Assurance tous risques offerte"
+      ]
+    },
+    {
+      "category_id": 50,
+      "category_name": "Informatique / Réparation",
+      "privileges": [
+        "Diagnostic gratuit",
+        "10% sur réparation",
+        "Accessoire offert",
+        "Conseil gratuit",
+        "Nettoyage PC offert"
+      ]
+    },
+    {
+      "category_id": 51,
+      "category_name": "Téléphonie / Accessoires",
+      "privileges": [
+        "10% sur accessoires",
+        "Coque offerte",
+        "Protection écran offerte",
+        "Conseil gratuit"
+      ]
+    },
+    {
+      "category_id": 52,
+      "category_name": "Électronique",
+      "privileges": [
+        "10% sur électronique",
+        "Livraison gratuite",
+        "Installation offerte",
+        "Extension garantie gratuite"
+      ]
+    },
+    {
+      "category_id": 53,
+      "category_name": "Jeux vidéo",
+      "privileges": [
+        "10% sur jeux",
+        "Reprise ancien jeu",
+        "Poster offert",
+        "Conseil jeux gratuit"
+      ]
+    },
+    {
+      "category_id": 54,
+      "category_name": "Animalerie",
+      "privileges": [
+        "10% sur accessoires",
+        "Friandise offerte",
+        "Conseil gratuit",
+        "Jouet offert dès 30 CHF"
+      ]
+    },
+    {
+      "category_id": 55,
+      "category_name": "Vétérinaire",
+      "privileges": [
+        "10% sur consultations",
+        "Contrôle gratuit",
+        "Conseil nutrition gratuit",
+        "Carnet de santé offert"
+      ]
+    },
+    {
+      "category_id": 56,
+      "category_name": "Toilettage",
+      "privileges": [
+        "10% sur toilettage",
+        "Coupe griffes offerte",
+        "Shampoing offert",
+        "Conseil entretien gratuit"
+      ]
+    }
+  ]
+}

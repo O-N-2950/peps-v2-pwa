@@ -1,0 +1,403 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Restaurant",
+      "parent": "Restauration & Gastronomie",
+      "icon": "Utensils",
+      "description": "Restaurant traditionnel, Brasserie, Bistrot"
+    },
+    {
+      "id": 2,
+      "name": "Café / Bar",
+      "parent": "Restauration & Gastronomie",
+      "icon": "Coffee",
+      "description": "Café, Bar, Tea room"
+    },
+    {
+      "id": 3,
+      "name": "Boulangerie / Pâtisserie",
+      "parent": "Restauration & Gastronomie",
+      "icon": "Croissant",
+      "description": "Boulangerie artisanale, Pâtisserie"
+    },
+    {
+      "id": 4,
+      "name": "Traiteur",
+      "parent": "Restauration & Gastronomie",
+      "icon": "ChefHat",
+      "description": "Service traiteur, Catering"
+    },
+    {
+      "id": 5,
+      "name": "Fast-food / Street food",
+      "parent": "Restauration & Gastronomie",
+      "icon": "Sandwich",
+      "description": "Kebab, Pizza, Burger"
+    },
+    {
+      "id": 6,
+      "name": "Restaurant gastronomique",
+      "parent": "Restauration & Gastronomie",
+      "icon": "Award",
+      "description": "Restaurant étoilé, Fine dining"
+    },
+    {
+      "id": 7,
+      "name": "Épicerie / Superette",
+      "parent": "Alimentation & Épicerie",
+      "icon": "ShoppingCart",
+      "description": "Épicerie de quartier, Superette"
+    },
+    {
+      "id": 8,
+      "name": "Primeur / Fruits & Légumes",
+      "parent": "Alimentation & Épicerie",
+      "icon": "Apple",
+      "description": "Maraîcher, Primeur"
+    },
+    {
+      "id": 9,
+      "name": "Boucherie / Charcuterie",
+      "parent": "Alimentation & Épicerie",
+      "icon": "Beef",
+      "description": "Boucherie artisanale"
+    },
+    {
+      "id": 10,
+      "name": "Poissonnerie",
+      "parent": "Alimentation & Épicerie",
+      "icon": "Fish",
+      "description": "Poissonnerie fraîche"
+    },
+    {
+      "id": 11,
+      "name": "Fromagerie",
+      "parent": "Alimentation & Épicerie",
+      "icon": "Cheese",
+      "description": "Fromagerie artisanale"
+    },
+    {
+      "id": 12,
+      "name": "Cave à vin",
+      "parent": "Alimentation & Épicerie",
+      "icon": "Wine",
+      "description": "Caviste, Œnothèque"
+    },
+    {
+      "id": 13,
+      "name": "Épicerie fine",
+      "parent": "Alimentation & Épicerie",
+      "icon": "Gift",
+      "description": "Produits du terroir, Spécialités"
+    },
+    {
+      "id": 14,
+      "name": "Coiffeur",
+      "parent": "Beauté & Bien-être",
+      "icon": "Scissors",
+      "description": "Salon de coiffure, Barbier"
+    },
+    {
+      "id": 15,
+      "name": "Esthétique",
+      "parent": "Beauté & Bien-être",
+      "icon": "Sparkles",
+      "description": "Institut de beauté, Onglerie"
+    },
+    {
+      "id": 16,
+      "name": "Spa / Massage",
+      "parent": "Beauté & Bien-être",
+      "icon": "Waves",
+      "description": "Centre de massage, Spa"
+    },
+    {
+      "id": 17,
+      "name": "Parfumerie",
+      "parent": "Beauté & Bien-être",
+      "icon": "Flower",
+      "description": "Parfumerie, Cosmétiques"
+    },
+    {
+      "id": 18,
+      "name": "Tatouage / Piercing",
+      "parent": "Beauté & Bien-être",
+      "icon": "Pen",
+      "description": "Studio de tatouage"
+    },
+    {
+      "id": 19,
+      "name": "Boutique de vêtements",
+      "parent": "Mode & Accessoires",
+      "icon": "ShoppingBag",
+      "description": "Prêt-à-porter, Mode"
+    },
+    {
+      "id": 20,
+      "name": "Chaussures",
+      "parent": "Mode & Accessoires",
+      "icon": "Footprints",
+      "description": "Magasin de chaussures"
+    },
+    {
+      "id": 21,
+      "name": "Maroquinerie",
+      "parent": "Mode & Accessoires",
+      "icon": "Briefcase",
+      "description": "Sacs, Accessoires cuir"
+    },
+    {
+      "id": 22,
+      "name": "Bijouterie / Horlogerie",
+      "parent": "Mode & Accessoires",
+      "icon": "Watch",
+      "description": "Bijoutier, Horloger"
+    },
+    {
+      "id": 23,
+      "name": "Optique",
+      "parent": "Mode & Accessoires",
+      "icon": "Glasses",
+      "description": "Opticien, Lunettes"
+    },
+    {
+      "id": 24,
+      "name": "Pharmacie",
+      "parent": "Santé & Services médicaux",
+      "icon": "Pill",
+      "description": "Pharmacie"
+    },
+    {
+      "id": 25,
+      "name": "Parapharmacie",
+      "parent": "Santé & Services médicaux",
+      "icon": "Heart",
+      "description": "Parapharmacie, Compléments"
+    },
+    {
+      "id": 26,
+      "name": "Ostéopathie / Physiothérapie",
+      "parent": "Santé & Services médicaux",
+      "icon": "Activity",
+      "description": "Ostéopathe, Physio"
+    },
+    {
+      "id": 27,
+      "name": "Médecine alternative",
+      "parent": "Santé & Services médicaux",
+      "icon": "Leaf",
+      "description": "Naturopathe, Acupuncture"
+    },
+    {
+      "id": 28,
+      "name": "Fitness / Salle de sport",
+      "parent": "Santé & Services médicaux",
+      "icon": "Dumbbell",
+      "description": "Salle de sport, Fitness"
+    },
+    {
+      "id": 29,
+      "name": "Yoga / Pilates",
+      "parent": "Santé & Services médicaux",
+      "icon": "Sparkle",
+      "description": "Studio de yoga"
+    },
+    {
+      "id": 30,
+      "name": "Cinéma / Théâtre",
+      "parent": "Loisirs & Culture",
+      "icon": "Film",
+      "description": "Cinéma, Théâtre"
+    },
+    {
+      "id": 31,
+      "name": "Musée / Galerie",
+      "parent": "Loisirs & Culture",
+      "icon": "Palette",
+      "description": "Musée, Galerie d'art"
+    },
+    {
+      "id": 32,
+      "name": "Librairie / Papeterie",
+      "parent": "Loisirs & Culture",
+      "icon": "Book",
+      "description": "Librairie, Papeterie"
+    },
+    {
+      "id": 33,
+      "name": "Musique / Instruments",
+      "parent": "Loisirs & Culture",
+      "icon": "Music",
+      "description": "Magasin de musique"
+    },
+    {
+      "id": 34,
+      "name": "Jeux / Jouets",
+      "parent": "Loisirs & Culture",
+      "icon": "Gamepad",
+      "description": "Magasin de jeux, Jouets"
+    },
+    {
+      "id": 35,
+      "name": "Photographie",
+      "parent": "Loisirs & Culture",
+      "icon": "Camera",
+      "description": "Studio photo, Photographe"
+    },
+    {
+      "id": 36,
+      "name": "Décoration intérieure",
+      "parent": "Maison & Décoration",
+      "icon": "Home",
+      "description": "Magasin de déco"
+    },
+    {
+      "id": 37,
+      "name": "Fleuriste",
+      "parent": "Maison & Décoration",
+      "icon": "Flower2",
+      "description": "Fleuriste, Jardinerie"
+    },
+    {
+      "id": 38,
+      "name": "Bricolage / Quincaillerie",
+      "parent": "Maison & Décoration",
+      "icon": "Hammer",
+      "description": "Quincaillerie, Bricolage"
+    },
+    {
+      "id": 39,
+      "name": "Électroménager",
+      "parent": "Maison & Décoration",
+      "icon": "Zap",
+      "description": "Électroménager"
+    },
+    {
+      "id": 40,
+      "name": "Meubles",
+      "parent": "Maison & Décoration",
+      "icon": "Sofa",
+      "description": "Magasin de meubles"
+    },
+    {
+      "id": 41,
+      "name": "Pressing / Blanchisserie",
+      "parent": "Services professionnels",
+      "icon": "Shirt",
+      "description": "Pressing, Nettoyage"
+    },
+    {
+      "id": 42,
+      "name": "Cordonnerie / Retouches",
+      "parent": "Services professionnels",
+      "icon": "Scissors",
+      "description": "Cordonnier, Retouches"
+    },
+    {
+      "id": 43,
+      "name": "Imprimerie / Reprographie",
+      "parent": "Services professionnels",
+      "icon": "Printer",
+      "description": "Imprimerie, Copie"
+    },
+    {
+      "id": 44,
+      "name": "Coworking / Bureaux",
+      "parent": "Services professionnels",
+      "icon": "Building",
+      "description": "Espace de coworking"
+    },
+    {
+      "id": 45,
+      "name": "Services administratifs",
+      "parent": "Services professionnels",
+      "icon": "FileText",
+      "description": "Secrétariat, Comptabilité"
+    },
+    {
+      "id": 46,
+      "name": "Garage / Mécanique",
+      "parent": "Automobile & Mobilité",
+      "icon": "Wrench",
+      "description": "Garage automobile"
+    },
+    {
+      "id": 47,
+      "name": "Lavage auto",
+      "parent": "Automobile & Mobilité",
+      "icon": "Droplet",
+      "description": "Station de lavage"
+    },
+    {
+      "id": 48,
+      "name": "Vélo / Trottinette",
+      "parent": "Automobile & Mobilité",
+      "icon": "Bike",
+      "description": "Magasin de vélos, Réparation"
+    },
+    {
+      "id": 49,
+      "name": "Location de véhicules",
+      "parent": "Automobile & Mobilité",
+      "icon": "Car",
+      "description": "Location auto, Moto"
+    },
+    {
+      "id": 50,
+      "name": "Informatique / Réparation",
+      "parent": "Technologie & Multimédia",
+      "icon": "Laptop",
+      "description": "Réparation ordinateurs"
+    },
+    {
+      "id": 51,
+      "name": "Téléphonie / Accessoires",
+      "parent": "Technologie & Multimédia",
+      "icon": "Smartphone",
+      "description": "Magasin de téléphones"
+    },
+    {
+      "id": 52,
+      "name": "Électronique",
+      "parent": "Technologie & Multimédia",
+      "icon": "Cpu",
+      "description": "Électronique, High-tech"
+    },
+    {
+      "id": 53,
+      "name": "Jeux vidéo",
+      "parent": "Technologie & Multimédia",
+      "icon": "Gamepad2",
+      "description": "Magasin de jeux vidéo"
+    },
+    {
+      "id": 54,
+      "name": "Animalerie",
+      "parent": "Animaux & Animalerie",
+      "icon": "PawPrint",
+      "description": "Animalerie, Accessoires"
+    },
+    {
+      "id": 55,
+      "name": "Vétérinaire",
+      "parent": "Animaux & Animalerie",
+      "icon": "Stethoscope",
+      "description": "Clinique vétérinaire"
+    },
+    {
+      "id": 56,
+      "name": "Toilettage",
+      "parent": "Animaux & Animalerie",
+      "icon": "Scissors",
+      "description": "Toilettage pour animaux"
+    },
+    {
+      "id": 57,
+      "name": "Autre",
+      "parent": "Autre",
+      "icon": "MoreHorizontal",
+      "description": "Domaine non listé"
+    }
+  ]
+}
