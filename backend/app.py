@@ -19,6 +19,8 @@ from migrate_v20_auto import run_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20 import admin_bp
 from routes_stripe import stripe_bp
+from routes_members import members_bp
+from routes_partners_v2 import partners_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -48,6 +50,8 @@ with app.app_context():
 # Résultat final : /api/admin + /stats = /api/admin/stats
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(stripe_bp, url_prefix='/api/stripe')
+app.register_blueprint(members_bp, url_prefix='/api/members')
+app.register_blueprint(partners_bp, url_prefix='/api/partners')
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)

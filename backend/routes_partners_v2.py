@@ -12,7 +12,7 @@ import re
 # from utils.geocoding import geocode_address
 # from utils.privilege_suggestions import get_privilege_suggestions, get_all_categories
 
-partners_v2_bp = Blueprint('partners_v2', __name__, url_prefix='/api/partners')
+partners_bp = Blueprint('partners', __name__)
 
 
 def validate_email(email: str) -> bool:
@@ -33,7 +33,7 @@ def calculate_age(birth_date: date) -> int:
     return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
 
 
-@partners_v2_bp.route('/register', methods=['POST'])
+@partners_bp.route('/register', methods=['POST'])
 def register_partner():
     """
     Inscription d'un nouveau partenaire
@@ -227,7 +227,7 @@ def register_partner():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@partners_v2_bp.route('/categories', methods=['GET'])
+@partners_bp.route('/categories', methods=['GET'])
 def get_categories():
     """
     Récupère toutes les catégories d'activité
@@ -255,7 +255,7 @@ def get_categories():
         return jsonify({'error': str(e)}), 500
 
 
-@partners_v2_bp.route('/privilege-suggestions', methods=['GET'])
+@partners_bp.route('/privilege-suggestions', methods=['GET'])
 def get_privilege_suggestions_endpoint():
     """
     Récupère les suggestions de privilèges pour une catégorie
@@ -299,7 +299,7 @@ def get_privilege_suggestions_endpoint():
         return jsonify({'error': str(e)}), 500
 
 
-@partners_v2_bp.route('/suggest-category', methods=['POST'])
+@partners_bp.route('/suggest-category', methods=['POST'])
 def suggest_category():
     """
     Suggère un nouveau domaine d'activité (si "Autre" sélectionné)
@@ -352,7 +352,7 @@ def suggest_category():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@partners_v2_bp.route('/validate-privilege', methods=['POST'])
+@partners_bp.route('/validate-privilege', methods=['POST'])
 def validate_privilege():
     """
     Valide qu'un privilège est non vide et suffisamment descriptif

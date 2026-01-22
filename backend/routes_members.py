@@ -11,7 +11,7 @@ import re
 # from models import db, User, Member
 # from utils.geocoding import geocode_address
 
-members_bp = Blueprint('members', __name__, url_prefix='/api/members')
+members_bp = Blueprint('members', __name__)
 
 
 def validate_email(email: str) -> bool:
