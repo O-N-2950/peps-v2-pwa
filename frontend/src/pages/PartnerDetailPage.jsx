@@ -10,7 +10,8 @@ import {
   Gift, 
   ArrowLeft,
   ExternalLink,
-  Share2
+  Share2,
+  Store
 } from 'lucide-react';
 import ConfettiCelebration from '../components/ConfettiCelebration';
 
