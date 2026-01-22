@@ -10,10 +10,15 @@ from flask_caching import Cache
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from models import db, User, Partner, Offer, Member, Pack, Subscription, AccessSlot, PrivilegeUsage
+try:
+    from models_stripe import Payment
+except ImportError:
+    Payment = None  # Le modèle sera créé après la migration
 from stripe_service import sync_v20_products, create_checkout_v20, handle_webhook_v20
 from migrate_v20_auto import run_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20 import admin_bp
+from routes_stripe import stripe_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -42,6 +47,7 @@ with app.app_context():
 # C'est ICI et UNIQUEMENT ICI qu'on définit le préfixe.
 # Résultat final : /api/admin + /stats = /api/admin/stats
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
+app.register_blueprint(stripe_bp, url_prefix='/api/stripe')
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)

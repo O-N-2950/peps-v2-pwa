@@ -1,106 +1,296 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Search, MapPin, User, Store, Globe, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, Smartphone, Star } from 'lucide-react';
 
-// Composant Logo CSS (Rendu immédiat sans attendre l'image)
-const PepsLogo = ({ size = "text-6xl" }) => (
-  <div className={`font-black tracking-tighter select-none ${size}`}>
-    <span className="text-[#2A9D8F]">P</span>
-    <span className="text-[#E76F51]">E</span>
-    <span className="text-[#2A9D8F]">P</span>
-    <span className="text-[#E76F51]">'</span>
-    <span className="text-[#2A9D8F]">S</span>
+// ==========================================
+// LOGO ANIMÉ PEP'S
+// ==========================================
+const PepsLogo = () => (
+  <div className="flex items-center justify-center mb-6 scale-75 md:scale-100 select-none">
+    <motion.span 
+      className="text-7xl md:text-9xl font-black text-[#2A9D8F] tracking-tighter drop-shadow-[0_0_20px_rgba(42,157,143,0.6)]"
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+    >
+      P
+    </motion.span>
+    <motion.span 
+      className="text-7xl md:text-9xl font-black text-[#E76F51] tracking-tighter drop-shadow-[0_0_20px_rgba(231,111,81,0.6)]"
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+    >
+      E
+    </motion.span>
+    <motion.span 
+      className="text-7xl md:text-9xl font-black text-[#2A9D8F] tracking-tighter drop-shadow-[0_0_20px_rgba(42,157,143,0.6)]"
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+    >
+      P
+    </motion.span>
+    <span className="text-7xl md:text-9xl font-black text-[#E76F51] tracking-tighter">'</span>
+    <motion.span 
+      className="text-7xl md:text-9xl font-black text-[#2A9D8F] tracking-tighter drop-shadow-[0_0_20px_rgba(42,157,143,0.6)]"
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+    >
+      S
+    </motion.span>
   </div>
 );
 
+// ==========================================
+// CARTE OPTION
+// ==========================================
+const OptionCard = ({ icon: Icon, title, price, desc, btnText, link, delay, color, badge }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: delay * 0.1, duration: 0.5 }}
+    whileHover={{ scale: 1.05, translateY: -10 }}
+    className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl flex flex-col relative overflow-hidden group hover:border-white/30 transition-all shadow-2xl"
+  >
+    {/* Badge */}
+    {badge && (
+      <div className="absolute top-4 right-4 bg-[#E76F51] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+        {badge}
+      </div>
+    )}
+    
+    {/* Icône */}
+    <div className={`p-4 rounded-2xl w-fit mb-4 ${color} bg-opacity-20 text-white group-hover:bg-opacity-100 transition-all duration-500`}>
+      <Icon size={32} />
+    </div>
+    
+    {/* Contenu */}
+    <h3 className="text-2xl font-bold text-white mb-1">{title}</h3>
+    {price && <p className="text-[#2A9D8F] font-black text-xl mb-3">{price}</p>}
+    <p className="text-gray-400 text-sm mb-8 leading-relaxed flex-grow">{desc}</p>
+    
+    {/* Bouton */}
+    <Link to={link} className="w-full mt-auto">
+      <button className="w-full py-3 rounded-xl font-bold bg-white text-gray-900 hover:bg-[#2A9D8F] hover:text-white transition-all flex items-center justify-center gap-2 group-hover:gap-3">
+        {btnText} <ArrowRight size={18}/>
+      </button>
+    </Link>
+  </motion.div>
+);
+
+// ==========================================
+// PAGE D'ACCUEIL PRINCIPALE
+// ==========================================
 export default function HomePage() {
+  const [search, setSearch] = useState("");
+
+  const handleSearch = () => {
+    if (search.trim()) {
+      window.location.href = `/map?q=${encodeURIComponent(search)}`;
+    } else {
+      window.location.href = '/map';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#0F172A] text-white font-sans overflow-x-hidden selection:bg-[#E76F51] selection:text-white">
       
-      {/* BACKGROUND IMAGE - VILLE NUIT */}
-      <div 
-        className="fixed inset-0 z-0 opacity-40 bg-cover bg-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=2564&auto=format&fit=crop')" }}
-      />
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-gray-900/80 via-gray-900/90 to-gray-900 pointer-events-none" />
-
-      {/* HEADER / NAV */}
-      <nav className="relative z-10 flex justify-between items-center p-6 max-w-7xl mx-auto">
-        <div className="scale-75 origin-left md:scale-100">
-           <PepsLogo size="text-4xl" />
+      {/* ==========================================
+          SECTION 1 : HERO AVEC PARALLAX
+          ========================================== */}
+      <div className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+        {/* Background avec parallax */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0F172A]/80 via-[#0F172A]/90 to-[#0F172A] z-10" />
+          <img 
+            src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=2564" 
+            className="w-full h-full object-cover opacity-40" 
+            alt="City night" 
+          />
         </div>
-        <div className="flex gap-4">
-            <Link to="/login" className="text-white font-bold hover:text-[#2A9D8F] transition py-2">Connexion</Link>
-            <Link to="/register" className="bg-[#E76F51] hover:bg-[#d65f41] text-white px-5 py-2 rounded-full font-bold shadow-lg transition transform hover:scale-105">
-                S'inscrire
+
+        {/* NAVBAR OVERLAY */}
+        <nav className="absolute top-0 left-0 right-0 z-50 p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+          <div className="font-bold text-xl tracking-tighter">PEP'S</div>
+          <div className="flex gap-4">
+            <Link to="/pricing" className="text-gray-300 hover:text-white font-bold py-2 transition">
+              Tarifs
             </Link>
-        </div>
-      </nav>
+            <Link to="/login" className="bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-2 rounded-full font-bold transition backdrop-blur-sm">
+              Connexion
+            </Link>
+          </div>
+        </nav>
 
-      {/* HERO SECTION */}
-      <main className="relative z-10 flex flex-col items-center justify-center text-center px-4 mt-12 md:mt-24 max-w-4xl mx-auto">
-        
-        {/* LOGO HERO */}
-        <div className="mb-8 animate-fade-in-up">
-            <PepsLogo size="text-7xl md:text-9xl" />
-            <div className="text-2xl md:text-3xl font-light italic mt-2 text-white/90">
-                Platform for Exclusive Partnerships
-            </div>
-        </div>
-
-        {/* SLOGAN */}
-        <h1 className="text-3xl md:text-5xl font-extrabold mb-8 leading-tight drop-shadow-lg">
+        {/* CONTENU HERO */}
+        <div className="relative z-20 max-w-5xl mx-auto text-center mt-[-50px]">
+          {/* Logo animé */}
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            transition={{ duration: 0.8 }}
+          >
+            <PepsLogo />
+          </motion.div>
+          
+          {/* Slogan principal */}
+          <motion.h1 
+            initial={{ y: 20, opacity: 0 }} 
+            animate={{ y: 0, opacity: 1 }} 
+            transition={{ delay: 0.3 }}
+            className="text-3xl md:text-5xl font-extrabold mb-8 leading-tight drop-shadow-2xl"
+          >
             Soutenir l'économie locale par <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2A9D8F] to-[#E76F51]">
-                l'innovation digitale
+              l'innovation digitale
             </span>
-        </h1>
+          </motion.h1>
 
-        {/* PASTILLE PUNCHY */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 px-8 py-3 rounded-full mb-10 transform hover:scale-105 transition duration-300 cursor-default shadow-[0_0_15px_rgba(231,111,81,0.5)]">
-            <span className="text-xl md:text-2xl font-black text-white uppercase tracking-wide flex items-center gap-2">
-                <span className="text-[#E76F51]">⚡</span> Mets du PEP'S dans ta vie !
+          {/* Badge accrocheur */}
+          <motion.div 
+            initial={{ scale: 0 }} 
+            animate={{ scale: 1 }} 
+            transition={{ delay: 0.6, type: "spring" }}
+            className="inline-flex bg-white/10 backdrop-blur border border-white/20 px-6 py-2 rounded-full mb-12 shadow-[0_0_20px_rgba(231,111,81,0.4)]"
+          >
+            <span className="font-bold text-[#E76F51] flex items-center gap-2">
+              <Sparkles size={20} /> Mets du PEP'S dans ta vie !
             </span>
-        </div>
+          </motion.div>
 
-        {/* TEXTE DESCRIPTIF */}
-        <p className="text-lg md:text-xl text-white/80 mb-10 max-w-3xl leading-relaxed">
-            Soutiens les commerces locaux et bénéficie d'avantages exclusifs toute l'année. Une application qui connecte les membres, les commerçants et les entreprises autour de privilèges qui font du bien à tous.
-        </p>
-
-        {/* SEARCH BAR (PREVIEW) */}
-        <div className="w-full max-w-2xl bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-2 flex items-center shadow-2xl mb-12">
-            <MapPin className="text-[#E76F51] ml-3" />
+          {/* BARRE DE RECHERCHE */}
+          <motion.div 
+            initial={{ width: "80%", opacity: 0 }} 
+            animate={{ width: "100%", opacity: 1 }} 
+            transition={{ delay: 0.8 }}
+            className="flex items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl hover:border-white/40 transition-all mx-auto max-w-2xl"
+          >
+            <MapPin className="text-[#E76F51] ml-3 mr-2 shrink-0" />
             <input 
-                type="text" 
-                placeholder="Rechercher un commerce, une ville..." 
-                className="bg-transparent border-none outline-none text-white placeholder-gray-300 w-full p-3 font-medium"
+              type="text" 
+              placeholder="Rechercher un commerce, une ville..." 
+              className="bg-transparent border-none outline-none text-white w-full p-3 font-medium placeholder-gray-400"
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
-            <button className="bg-[#2A9D8F] p-3 rounded-xl hover:bg-[#21867a] transition">
-                <Search className="text-white" />
+            <button 
+              onClick={handleSearch}
+              className="bg-gradient-to-r from-[#2A9D8F] to-[#21867a] p-3 rounded-xl hover:shadow-lg transition shrink-0 m-1"
+            >
+              <Search className="text-white" />
             </button>
+          </motion.div>
         </div>
+      </div>
 
-        {/* CALL TO ACTIONS */}
-        <div className="flex flex-col md:flex-row gap-4 w-full max-w-md mx-auto mb-16">
-            <Link to="/register" className="flex-1 bg-gradient-to-r from-[#2A9D8F] to-[#E76F51] text-white h-16 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-2xl transition transform hover:scale-105 shadow-xl text-lg">
-                <Star className="text-white" /> Devenir membre
-            </Link>
-            <Link to="/map" className="flex-1 bg-transparent border-2 border-white/30 text-white h-16 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition text-lg">
-                <MapPin className="text-white" /> Explorer
-            </Link>
+      {/* ==========================================
+          SECTION 2 : 3 OPTIONS CLAIRES
+          ========================================== */}
+      <div className="relative z-20 -mt-32 pb-24 px-4 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Option 1 : Devenir Membre */}
+          <OptionCard 
+            delay={1} 
+            icon={User} 
+            title="Devenir Membre" 
+            price="Dès 49 CHF/an"
+            desc="Bénéficie de privilèges exclusifs chez 100+ commerçants partenaires. De 1 à 5000 accès disponibles avec tarifs dégressifs. Pour toi, ta famille, ou ton équipe !"
+            btnText="Voir les tarifs" 
+            link="/pricing" 
+            color="bg-[#2A9D8F]"
+          />
+          
+          {/* Option 2 : Devenir Partenaire */}
+          <OptionCard 
+            delay={2} 
+            icon={Store} 
+            title="Devenir Partenaire" 
+            price="GRATUIT" 
+            badge="POPULAIRE"
+            desc="Commerçant, association, artisan ? Rejoins PEP'S gratuitement et offre un privilège exclusif à nos membres. Booste ta visibilité locale !"
+            btnText="Rejoindre gratuitement" 
+            link="/register?type=partner" 
+            color="bg-[#E76F51]"
+          />
+          
+          {/* Option 3 : Explorer */}
+          <OptionCard 
+            delay={3} 
+            icon={Globe} 
+            title="Explorer" 
+            price="GRATUIT"
+            desc="Découvre les commerçants partenaires, les privilèges disponibles et la carte interactive avant de t'inscrire. Aucune carte bancaire requise."
+            btnText="Voir la carte" 
+            link="/map" 
+            color="bg-blue-500"
+          />
         </div>
+      </div>
 
-      </main>
+      {/* ==========================================
+          SECTION 3 : CARTE INTERACTIVE (TODO)
+          ========================================== */}
+      <div className="relative z-20 pb-24 px-4 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl md:text-5xl font-black mb-4">
+            Découvre nos partenaires près de chez toi
+          </h2>
+          <p className="text-gray-400 text-lg">
+            Plus de 100 commerçants locaux t'attendent avec des privilèges exclusifs
+          </p>
+        </motion.div>
 
-      {/* FOOTER SIMPLE */}
-      <footer className="relative z-10 mt-12 py-8 text-center text-gray-500 text-sm border-t border-white/5 bg-gray-900/80 backdrop-blur">
-        <div className="flex justify-center gap-8 mb-4 text-gray-400 font-bold">
-            <div className="flex items-center gap-2"><MapPin size={16}/> 100+ Partenaires</div>
-            <div className="flex items-center gap-2"><Star size={16}/> Club VIP</div>
+        {/* Placeholder pour la carte - À remplacer par MapPage */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl"
+        >
+          <div className="aspect-video bg-gradient-to-br from-[#2A9D8F]/20 to-[#E76F51]/20 rounded-2xl flex items-center justify-center">
+            <div className="text-center">
+              <MapPin size={64} className="text-[#2A9D8F] mx-auto mb-4" />
+              <p className="text-xl font-bold mb-2">Carte interactive</p>
+              <p className="text-gray-400 mb-4">Explore tous les partenaires sur la carte</p>
+              <Link to="/map">
+                <button className="bg-[#2A9D8F] hover:bg-[#21867a] text-white px-6 py-3 rounded-xl font-bold transition">
+                  Ouvrir la carte complète
+                </button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ==========================================
+          SECTION 4 : FOOTER
+          ========================================== */}
+      <footer className="bg-[#0B1120] py-12 text-center text-gray-500 border-t border-white/5 relative z-20">
+        <div className="flex flex-wrap justify-center gap-8 mb-6 font-bold text-gray-400">
+          <span>100+ Partenaires</span>
+          <span>1000+ Membres</span>
+          <span>100% Swiss Made</span>
         </div>
-        <p>© 2026 PEP'S Switzerland. Tous droits réservés.</p>
-        <Link to="/login" className="mt-4 inline-block text-gray-600 hover:text-white transition text-xs">Accès Partenaire</Link>
+        <p className="text-sm">© 2026 PEP'S Switzerland. Tous droits réservés.</p>
+        <div className="flex justify-center gap-6 mt-4">
+          <Link to="/legal" className="text-gray-500 hover:text-white transition text-sm">
+            Mentions légales
+          </Link>
+          <Link to="/privacy" className="text-gray-500 hover:text-white transition text-sm">
+            Confidentialité
+          </Link>
+          <Link to="/contact" className="text-gray-500 hover:text-white transition text-sm">
+            Contact
+          </Link>
+        </div>
       </footer>
     </div>
   );
