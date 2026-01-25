@@ -617,7 +617,7 @@ export const PartnerRegistrationForm = () => {
 
 
             {/* Formulaire et Étapes */}
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-12">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-12 mb-[100px] md:mb-0">
                 <AnimatePresence mode="wait">
                     <CurrentStepComponent 
                         key={currentStep} 
@@ -639,7 +639,7 @@ export const PartnerRegistrationForm = () => {
                 )}
 
                 {/* Navigation */}
-                <div className="flex justify-between mt-8 pt-4 border-t border-gray-100">
+                <div className="fixed bottom-0 inset-x-0 bg-white p-4 shadow-2xl z-50 md:relative md:mt-8 md:pt-4 md:border-t md:border-gray-100 flex justify-between pb-safe">
                     <motion.button
                         type="button"
                         onClick={() => setCurrentStep(prev => prev - 1)}
