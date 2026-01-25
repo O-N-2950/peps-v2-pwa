@@ -34,7 +34,7 @@ const TESTIMONIALS = [
 const FAQ_ITEMS = [
   {
     question: "Comment fonctionne PEP'S ?",
-    answer: "PEP'S connecte les membres à un réseau de commerçants locaux offrant des privilèges exclusifs. Téléchargez l'app, choisissez votre abonnement, et profitez de centaines d'avantages toute l'année !"
+    answer: "PEP'S connecte les membres à un réseau de commerçants locaux offrant des privilèges exclusifs. Inscris-toi et profite de centaines de privilèges toute l'année !"
   },
   {
     question: "Combien coûte l'abonnement ?",
@@ -395,44 +395,57 @@ const HomePage = () => {
             Choisissez votre <span style={{ color: COLORS.turquoise }}>option</span>
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <OptionCard 
               delay={1} 
               icon={User} 
               title="Pour les Membres" 
-              price="Dès 49 CHF/an"
-              desc="Accédez à des centaines de privilèges exclusifs chez les commerçants locaux. Économisez toute l'année." 
+              price="49 CHF/an"
+              desc="Accédez à des centaines de privilèges exclusifs chez les commerçants locaux." 
               btnText="Voir les tarifs" 
               link="/pricing" 
-              color={`bg-[${COLORS.turquoise}]`} // Utilisation de la couleur Turquoise
-              image="https://images.unsplash.com/photo-1558778263-e38053641215?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" // Shopping
-              details={["Accès illimité aux offres", "Application mobile incluse", "Support prioritaire"]}
+              color={`bg-[${COLORS.turquoise}]`}
+              image="https://images.unsplash.com/photo-1558778263-e38053641215?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              details={["Accès illimité", "App mobile", "Support prioritaire"]}
             />
             
             <OptionCard 
               delay={2} 
-              icon={Store} 
-              title="Pour les Partenaires" 
-              price="Gratuit"
-              desc="Rejoignez notre réseau et attirez de nouveaux clients fidèles sans frais d'adhésion ni commissions." 
-              btnText="Devenir partenaire" 
-              link="/register/partner" 
-              color={`bg-[${COLORS.corail}]`} // Utilisation de la couleur Corail
-              image="https://images.unsplash.com/photo-1596495578051-692237583f73?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" // Commerçant
-              details={["Visibilité augmentée", "Fidélisation client", "Tableau de bord partenaire"]}
+              icon={Heart} 
+              title="Pour les Familles" 
+              price="Dès 89 CHF/an"
+              desc="Économisez en famille avec 2 à 5 accès. Partagez les privilèges avec vos proches." 
+              btnText="Voir les tarifs" 
+              link="/pricing" 
+              color="bg-pink-500"
+              image="https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              details={["2 à 5 accès", "Tarifs dégressifs", "Partage facile"]}
             />
             
             <OptionCard 
               delay={3} 
+              icon={Store} 
+              title="Pour les Partenaires" 
+              price="Gratuit"
+              desc="Rejoignez notre réseau et attirez de nouveaux clients fidèles sans frais." 
+              btnText="Devenir partenaire" 
+              link="/register/partner" 
+              color={`bg-[${COLORS.corail}]`}
+              image="https://images.unsplash.com/photo-1596495578051-692237583f73?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              details={["Visibilité +", "Fidélisation", "Dashboard"]}
+            />
+            
+            <OptionCard 
+              delay={4} 
               icon={Building} 
               title="Pour les Entreprises" 
-              price="Tarifs dégressifs"
-              desc="Offrez des accès PEP'S à vos collaborateurs. Un avantage social moderne et très apprécié." 
+              price="Dès 390 CHF/an"
+              desc="Offrez des accès PEP'S à vos collaborateurs. Avantage social moderne." 
               btnText="Demander un devis" 
               link="/contact/entreprise" 
-              color="bg-indigo-600" // Couleur secondaire pour l'entreprise
-              image="https://images.unsplash.com/photo-1549941328-9d419b4b0e8b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" // Équipe
-              details={["Réduction d'impôts", "Motivation des équipes", "Gestion centralisée des accès"]}
+              color="bg-indigo-600"
+              image="https://images.unsplash.com/photo-1549941328-9d419b4b0e8b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              details={["10+ accès", "Tarifs dégressifs", "Gestion centralisée"]}
             />
           </div>
         </div>
