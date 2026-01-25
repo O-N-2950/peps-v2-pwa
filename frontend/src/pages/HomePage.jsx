@@ -408,7 +408,7 @@ const HomePage = () => {
               btnText="Voir les tarifs" 
               link="/pricing" 
               color={`bg-[${COLORS.turquoise}]`}
-              image="https://images.unsplash.com/photo-1558778263-e38053641215?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              image="/images/members-bg.jpg"
               details={["Accès illimité", "App mobile", "Support prioritaire"]}
             />
             
@@ -434,7 +434,7 @@ const HomePage = () => {
               btnText="Devenir partenaire" 
               link="/register/partner" 
               color={`bg-[${COLORS.corail}]`}
-              image="https://images.unsplash.com/photo-1596495578051-692237583f73?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              image="/images/partners-bg.jpg"
               details={["Visibilité +", "Fidélisation", "Dashboard"]}
             />
             
@@ -447,7 +447,7 @@ const HomePage = () => {
               btnText="Demander un devis" 
               link="/contact/entreprise" 
               color="bg-indigo-600"
-              image="https://images.unsplash.com/photo-1549941328-9d419b4b0e8b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              image="/images/business-bg.jpg"
               details={["10+ accès", "Tarifs dégressifs", "Gestion centralisée"]}
             />
           </div>
