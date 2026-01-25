@@ -179,7 +179,7 @@ const PartnerDetailPage = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-center text-white/80 text-sm mt-3"
             >
-              Présentez votre carte PEP'S au commerçant
+              Les étoiles prouvent que vous êtes membre actif PEP'S
             </motion.p>
           )}
         </motion.div>

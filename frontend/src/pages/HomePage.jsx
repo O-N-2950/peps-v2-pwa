@@ -454,7 +454,7 @@ const HomePage = () => {
           <div className="grid md:grid-cols-3 gap-12">
             {[
               { icon: Map, title: "1. Localisez", desc: "Trouvez les commerces partenaires près de chez vous sur la carte interactive ou dans l'application." },
-              { icon: DollarSign, title: "2. Profitez", desc: "Présentez votre carte PEP'S (physique ou numérique) lors du paiement pour bénéficier du privilège." },
+              { icon: DollarSign, title: "2. Profitez", desc: "Présentez votre écran mobile et cliquez sur 'Profiter du privilège' devant le commerçant. Si des étoiles apparaissent, c'est la preuve que vous êtes membre actif." },
               { icon: Heart, title: "3. Soutenez", desc: "Faites des économies tout en soutenant l'économie locale et les petits commerçants." },
             ].map((step, index) => (
               <motion.div
