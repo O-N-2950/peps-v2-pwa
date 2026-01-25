@@ -34,4 +34,4 @@ WORKDIR /app/backend
 EXPOSE 5000
 
 # Start command
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "--timeout", "300", "app:app"]
+CMD ["sh", "-c", "gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} --timeout 300 app:app"]
