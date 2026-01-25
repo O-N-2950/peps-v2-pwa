@@ -326,7 +326,7 @@ const HomePage = () => {
   );
 
   return (
-    <div ref={ref} className="min-h-screen bg-white">
+    <div ref={ref} className="min-h-screen bg-gray-50">
       <GradientBackground />
 
       {/* 1. HERO SECTION (Parallax) */}
@@ -374,7 +374,7 @@ const HomePage = () => {
       </section>
 
       {/* 2. SECTION CHIFFRES CLÉS (Compteurs Animés) */}
-      <section className="py-16 bg-white shadow-inner">
+      <section className="py-16 bg-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-3 gap-8">
           <AnimatedCounter endValue={100} label="Partenaires Actifs" />
           <AnimatedCounter endValue={5000} label="Membres Heureux" />
