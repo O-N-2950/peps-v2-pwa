@@ -90,12 +90,15 @@ const OptionCard = ({ delay, icon: Icon, title, price, desc, btnText, link, colo
       >
         {/* Image de fond semi-transparente */}
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-multiply" 
+          className="absolute inset-0 bg-cover bg-center opacity-40" 
           style={{ backgroundImage: `url(${image})` }}
         ></div>
+        
+        {/* Overlay sombre pour contraste */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/40"></div>
 
         {/* Contenu */}
-        <div className="relative p-6 flex flex-col h-full text-white">
+        <div className="relative p-6 flex flex-col h-full text-white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
           <div className="flex justify-between items-start mb-4">
             <Icon size={40} className="p-2 rounded-full bg-white bg-opacity-20 shadow-lg" />
             <span className="text-xl font-semibold bg-white bg-opacity-30 px-3 py-1 rounded-full">{price}</span>
