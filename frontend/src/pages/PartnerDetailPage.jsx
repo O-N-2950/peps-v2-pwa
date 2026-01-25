@@ -170,7 +170,7 @@ const PartnerDetailPage = () => {
               }
             `}
           >
-            {privilegeUsed ? '✓ Privilège utilisé !' : 'Profiter du privilège'}
+            {privilegeUsed ? '✓ Privilège activé !' : 'Activez votre privilège'}
           </button>
 
           {privilegeUsed && (
