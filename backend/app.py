@@ -21,6 +21,7 @@ from routes_admin_v20 import admin_bp
 from routes_stripe import stripe_bp
 from routes_members import members_bp
 from routes_partners_v2 import partners_bp
+from routes_ai import ai_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -52,6 +53,7 @@ app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(stripe_bp, url_prefix='/api/stripe')
 app.register_blueprint(members_bp, url_prefix='/api/members')
 app.register_blueprint(partners_bp, url_prefix='/api/partners')
+app.register_blueprint(ai_bp)  # Préfixe déjà défini dans routes_ai.py
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)

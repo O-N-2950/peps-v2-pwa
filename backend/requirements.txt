@@ -10,4 +10,5 @@ python-dotenv==1.0.0
 apscheduler==3.10.4
 flask-caching==2.1.0
 redis==5.0.1
+google-genai>=1.60.0
 # Twilio/Faker/Pywebpush retirés temporairement pour garantir le build
