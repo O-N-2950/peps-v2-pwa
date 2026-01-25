@@ -442,13 +442,13 @@ const HomePage = () => {
               delay={4} 
               icon={Building} 
               title="Pour les Entreprises" 
-              price="Dès 390 CHF/an"
-              desc="Offrez des accès PEP'S à vos collaborateurs. Avantage social moderne." 
-              btnText="Demander un devis" 
-              link="/contact/entreprise" 
+              price="Dès 49 CHF/an"
+              desc="Offrez des accès PEP'S à vos collaborateurs. Tarifs identiques aux particuliers." 
+              btnText="Voir les tarifs" 
+              link="/pricing" 
               color="bg-indigo-600"
               image="/images/business-bg.jpg"
-              details={["10+ accès", "Tarifs dégressifs", "Gestion centralisée"]}
+              details={["À partir de 1 accès", "Tarifs dégressifs", "Gestion centralisée"]}
             />
           </div>
         </div>
