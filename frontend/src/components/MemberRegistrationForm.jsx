@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { 
     Briefcase, User, MapPin, Image, Gift, CheckSquare, 
-    Loader2, ArrowLeft, ArrowRight, Lightbulb, UploadCloud, Link, Trash2
+    Loader2, ArrowLeft, ArrowRight, Lightbulb, UploadCloud, Link, Trash2, Mail
 } from 'lucide-react';
 
 // --- Constantes et Données Fictives ---
