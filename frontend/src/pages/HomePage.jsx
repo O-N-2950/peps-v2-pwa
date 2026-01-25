@@ -175,11 +175,11 @@ const AnimatedCounter = ({ endValue, duration = 3, label }) => {
   }, [inView, endValue, duration]);
 
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-6xl font-extrabold text-gray-800 mb-1">
+    <div ref={ref} className="text-center px-4">
+      <div className="text-5xl sm:text-6xl font-extrabold text-gray-800 mb-2">
         {count.toLocaleString()}+
       </div>
-      <p className="text-lg text-gray-500">{label}</p>
+      <p className="text-base sm:text-lg text-gray-500 whitespace-nowrap">{label}</p>
     </div>
   );
 };
@@ -378,7 +378,7 @@ const HomePage = () => {
 
       {/* 2. SECTION CHIFFRES CLÉS (Compteurs Animés) */}
       <section className="py-16 bg-white shadow-lg">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-8">
           <AnimatedCounter endValue={100} label="Partenaires Actifs" />
           <AnimatedCounter endValue={5000} label="Membres Heureux" />
           <AnimatedCounter endValue={20} label="Villes Couvertes" />
