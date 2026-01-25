@@ -12,7 +12,9 @@ export default {
           pink: '#E06B7D',
           dark: '#1F2937',
           light: '#F0FDFA'
-        }
+        },
+        turquoise: '#2A9D8F',
+        corail: '#E76F51'
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
