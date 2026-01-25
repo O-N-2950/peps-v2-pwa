@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import PricingPage from './pages/PricingPage';
 import MapPage from './components/MapPage';
 import PartnerDetailPage from './pages/PartnerDetailPage';
+import PartnerRegistrationPage from './pages/PartnerRegistrationPage';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/register/partner" element={<PartnerRegistrationPage />} />
         
         {/* Protected Routes */}
         <Route element={<ProtectedRoute role="partner" />}>
