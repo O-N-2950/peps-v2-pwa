@@ -295,7 +295,7 @@ const StepMedia = ({ control, errors, watch, setValue }) => (
             label="Logo du commerce"
             name="logo"
             control={control}
-            rules={{ required: "Le logo est fortement recommandé pour la visibilité" }}
+            rules={{}} // Logo optionnel mais recommandé
             maxFileSize={2} // 2MB
             allowedFormats={['image/jpeg', 'image/png', 'image/webp']}
             watch={watch}
