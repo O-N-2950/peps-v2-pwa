@@ -257,6 +257,11 @@ def login():
 def serve_assets(filename):
     return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
 
+# Route pour servir les images du dossier /images/
+@app.route('/images/<path:filename>')
+def serve_images(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'images'), filename)
+
 @app.route('/')
 def index():
     if os.path.exists(os.path.join(app.static_folder, 'index.html')):
