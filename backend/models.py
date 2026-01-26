@@ -270,14 +270,181 @@ class Referral(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     completed_at = db.Column(db.DateTime)
 
-# Tables stubs (à développer plus tard)
+# ===========================
+# SYSTÈME DE RÉSERVATION
+# ===========================
+from sqlalchemy.dialects.postgresql import JSON
+
+class Service(db.Model):
+    """
+    Catalogue des prestations proposées par un commerçant
+    Mode 1 (Simple) : Un seul service générique "Réservation"
+    Mode 2 (Catalogue) : Plusieurs services avec prix et durées
+    """
+    __tablename__ = 'services'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, index=True)
+    
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Float, nullable=False)
+    peps_discount_percent = db.Column(db.Float, default=0)
+    peps_discount_amount = db.Column(db.Float, default=0)
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    capacity = db.Column(db.Integer, default=1)
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    display_order = db.Column(db.Integer, default=0)
+    
+    bookings = db.relationship('Booking', backref='service', lazy='dynamic')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id, 'partner_id': self.partner_id, 'name': self.name,
+            'description': self.description, 'price': self.price,
+            'peps_discount_percent': self.peps_discount_percent,
+            'peps_discount_amount': self.peps_discount_amount,
+            'duration_minutes': self.duration_minutes, 'capacity': self.capacity,
+            'is_active': self.is_active, 'display_order': self.display_order
+        }
+
+class PartnerBookingConfig(db.Model):
+    __tablename__ = 'partner_booking_configs'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, unique=True, index=True)
+    booking_mode = db.Column(db.String(20), default='catalog', nullable=False)
+    is_enabled = db.Column(db.Boolean, default=False)
+    slot_duration_minutes = db.Column(db.Integer, default=30)
+    advance_booking_days = db.Column(db.Integer, default=30)
+    min_notice_hours = db.Column(db.Integer, default=2)
+    opening_hours = db.Column(JSON, default={})
+    closed_dates = db.Column(JSON, default=[])
+    max_concurrent_bookings = db.Column(db.Integer, default=1)
+    notification_email = db.Column(db.String(120))
+    notification_phone = db.Column(db.String(50))
+    send_sms_notifications = db.Column(db.Boolean, default=False)
+    send_email_notifications = db.Column(db.Boolean, default=True)
+    cancellation_hours = db.Column(db.Integer, default=24)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id, 'partner_id': self.partner_id, 'booking_mode': self.booking_mode,
+            'is_enabled': self.is_enabled, 'slot_duration_minutes': self.slot_duration_minutes,
+            'advance_booking_days': self.advance_booking_days, 'min_notice_hours': self.min_notice_hours,
+            'opening_hours': self.opening_hours, 'closed_dates': self.closed_dates,
+            'max_concurrent_bookings': self.max_concurrent_bookings,
+            'notification_email': self.notification_email, 'notification_phone': self.notification_phone,
+            'send_sms_notifications': self.send_sms_notifications,
+            'send_email_notifications': self.send_email_notifications,
+            'cancellation_hours': self.cancellation_hours
+        }
+
+class Creneau(db.Model):
+    __tablename__ = 'creneaux'
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, index=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=True, index=True)
+    start_utc = db.Column(db.DateTime, nullable=False, index=True)
+    end_utc = db.Column(db.DateTime, nullable=False)
+    capacity_total = db.Column(db.Integer, default=1)
+    capacity_remaining = db.Column(db.Integer, default=1)
+    is_available = db.Column(db.Boolean, default=True, index=True)
+    blocked_reason = db.Column(db.String(100))
+    bookings = db.relationship('Booking', backref='creneau', lazy='dynamic')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    __table_args__ = (db.Index('idx_partner_start_available', 'partner_id', 'start_utc', 'is_available'),)
+    
+    def to_dict(self):
+        return {
+            'id': self.id, 'partner_id': self.partner_id, 'service_id': self.service_id,
+            'start_utc': self.start_utc.isoformat() if self.start_utc else None,
+            'end_utc': self.end_utc.isoformat() if self.end_utc else None,
+            'capacity_total': self.capacity_total, 'capacity_remaining': self.capacity_remaining,
+            'is_available': self.is_available, 'blocked_reason': self.blocked_reason
+        }
+
 class Booking(db.Model):
     __tablename__ = 'bookings'
     id = db.Column(db.Integer, primary_key=True)
+    member_id = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=False, index=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, index=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=True, index=True)
+    creneau_id = db.Column(db.Integer, db.ForeignKey('creneaux.id'), nullable=False, index=True)
+    booking_date = db.Column(db.DateTime, nullable=False, index=True)
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    number_of_people = db.Column(db.Integer, default=1)
+    price_original = db.Column(db.Float)
+    price_final = db.Column(db.Float)
+    discount_applied = db.Column(db.Float, default=0)
+    status = db.Column(db.String(20), default='confirmed', index=True)
+    member_notes = db.Column(db.Text)
+    partner_notes = db.Column(db.Text)
+    cancelled_at = db.Column(db.DateTime)
+    cancelled_by = db.Column(db.String(20))
+    cancellation_reason = db.Column(db.Text)
+    reminder_sent_at = db.Column(db.DateTime)
+    confirmation_sent_at = db.Column(db.DateTime)
+    google_event_id = db.Column(db.String(200), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id, 'member_id': self.member_id, 'partner_id': self.partner_id,
+            'service_id': self.service_id, 'creneau_id': self.creneau_id,
+            'booking_date': self.booking_date.isoformat() if self.booking_date else None,
+            'duration_minutes': self.duration_minutes, 'number_of_people': self.number_of_people,
+            'price_original': self.price_original, 'price_final': self.price_final,
+            'discount_applied': self.discount_applied, 'status': self.status,
+            'member_notes': self.member_notes, 'partner_notes': self.partner_notes,
+            'cancelled_at': self.cancelled_at.isoformat() if self.cancelled_at else None,
+            'cancelled_by': self.cancelled_by, 'cancellation_reason': self.cancellation_reason,
+            'google_event_id': self.google_event_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
 
-class Service(db.Model):
-    __tablename__ = 'services'
+class GoogleCalendarToken(db.Model):
+    __tablename__ = 'google_calendar_tokens'
     id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, unique=True, index=True)
+    access_token = db.Column(db.Text, nullable=False)
+    refresh_token = db.Column(db.Text, nullable=False)
+    token_expiry = db.Column(db.DateTime, nullable=False)
+    calendar_id = db.Column(db.String(200), default='primary')
+    calendar_timezone = db.Column(db.String(50), default='Europe/Zurich')
+    webhook_id = db.Column(db.String(200))
+    webhook_resource_id = db.Column(db.String(200))
+    webhook_expiry = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    last_sync_at = db.Column(db.DateTime)
+    sync_error = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id, 'partner_id': self.partner_id, 'calendar_id': self.calendar_id,
+            'calendar_timezone': self.calendar_timezone, 'is_active': self.is_active,
+            'last_sync_at': self.last_sync_at.isoformat() if self.last_sync_at else None,
+            'webhook_expiry': self.webhook_expiry.isoformat() if self.webhook_expiry else None
+        }
+
+class BookingNotificationLog(db.Model):
+    __tablename__ = 'booking_notification_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=False, index=True)
+    notification_type = db.Column(db.String(50), nullable=False)
+    recipient_type = db.Column(db.String(20), nullable=False)
+    channel = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default='pending')
+    error_message = db.Column(db.Text)
+    sent_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 class Availability(db.Model):
     __tablename__ = 'availabilities'

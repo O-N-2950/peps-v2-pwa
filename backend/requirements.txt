@@ -13,3 +13,4 @@ redis==5.0.1
 google-genai>=1.60.0
 geopy==2.4.1
 # Twilio/Faker/Pywebpush retirés temporairement pour garantir le build
+pytz==2024.1
