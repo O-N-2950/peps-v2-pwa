@@ -333,17 +333,19 @@ Génère {limit} suggestions de privilèges attractifs pour un établissement de
 Critères OBLIGATOIRES:
 1. Clair et concis (1 phrase courte, max 80 caractères)
 2. Chiffré (pourcentage, montant, quantité)
-3. Conditions visibles si nécessaire (hors alcool, du lundi au jeudi, etc.)
+3. Conditions visibles si nécessaire (jours/heures, quantité minimum)
 4. Action immédiate (réduction, offert, gratuit, 2 pour 1)
 5. Rapidement compréhensible pour les membres
 6. Tenir compte des marges commerciales (ne pas suggérer de réduction sur les produits à faible marge)
+7. PRIVILÉGIER les jours/heures creuses (lundi, mardi, mercredi) avec réductions plus importantes (15-20%)
 
 Exemples:
-- "10% sur l'addition"
+- "20% sur l'addition le mardi soir" (jour creux)
+- "15% sur les repas du lundi au mercredi" (jours creux)
+- "20% sur les coupes le lundi" (coiffeur, jour creux)
 - "Café offert pour toute formule du midi"
-- "10% sur toutes les coupes" (coiffeur)
 - "Dessert offert dès 2 plats commandés"
-- "Livraison gratuite dès 30 CHF d'achat"
+- "Happy hour PEP'S : 2 pour 1 du lundi au jeudi 17h-19h"
 
 Réponds UNIQUEMENT avec une liste JSON de {limit} suggestions, sans explication.
 Format: ["suggestion 1", "suggestion 2", ...]"""
