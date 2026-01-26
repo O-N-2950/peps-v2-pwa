@@ -163,7 +163,6 @@ def register_partner():
             user_id=user.id,
             name=data['establishment_name'],
             category=establishment_type,
-            category_id=data['category_id'],
             city=primary_address['city'],
             latitude=primary_lat,
             longitude=primary_lon,
