@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { User, Store, Building, ChevronDown, CheckCircle, Heart, DollarSign, Map, Zap } from 'lucide-react';
+import MapViewWahoo from '../components/MapViewWahoo';
+import axios from 'axios';
 
 // --- COULEURS OFFICIELLES PEP'S ---
 const COLORS = {
@@ -302,6 +304,24 @@ const FAQItem = ({ question, answer, index }) => {
 const HomePage = () => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref });
+  const [partners, setPartners] = useState([]);
+  const [loadingPartners, setLoadingPartners] = useState(true);
+
+  // Charger les partenaires depuis l'API
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const response = await axios.get('https://www.peps.swiss/api/partners');
+        const partnersData = response.data.partners || [];
+        setPartners(partnersData);
+      } catch (error) {
+        console.error('Erreur chargement partenaires:', error);
+      } finally {
+        setLoadingPartners(false);
+      }
+    };
+    fetchPartners();
+  }, []);
 
   // Parallax pour le fond du Hero
   const yParallax = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
@@ -494,9 +514,80 @@ const HomePage = () => {
       {/* 5. SECTION TÉMOIGNAGES (Carrousel Glassmorphism) */}
       <TestimonialsSection />
 
-      {/* 6. SECTION FAQ (Accordéon) */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4">
+      {/      {/* 6. SECTION CARTE INTERACTIVE */}
+      <section className="py-24 bg-gradient-to-br from-[#38B2AC]/10 to-[#F26D7D]/10">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className="text-5xl font-extrabold text-center mb-6 text-gray-900"
+          >
+            Découvrez nos <span style={{ color: COLORS.turquoise }}>partenaires</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto"
+          >
+            Explorez notre réseau de commerçants locaux et trouvez les meilleurs privilèges près de chez vous !
+          </motion.p>
+
+          {loadingPartners ? (
+            <div className="text-center py-20">
+              <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#38B2AC]"></div>
+              <p className="mt-4 text-gray-600">Chargement de la carte...</p>
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <MapViewWahoo partners={partners} showFilters={true} />
+            </motion.div>
+          )}
+
+          {/* CTA pour télécharger l'app */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-center mt-12"
+          >
+            <p className="text-lg text-gray-700 mb-4">
+              💡 <strong>Envie d'explorer tous les privilèges ?</strong> Téléchargez l'application PEP'S !
+            </p>
+            <div className="flex gap-4 justify-center">
+              <a
+                href="https://apps.apple.com/ch/app/peps-exclusive-partnerships/id6477572989?l=fr-FR"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
+              >
+                📱 App Store
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=swiss.peps.altai&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#38B2AC] text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
+              >
+                📱 Google Play
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 7. SECTION FAQ (Accordéon) */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4">px-4">
           <motion.h2
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
