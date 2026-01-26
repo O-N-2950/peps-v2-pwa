@@ -26,6 +26,7 @@ from routes_ai import ai_bp
 from routes_upload import upload_bp
 from routes_booking import booking_bp
 from routes_admin_migrate import admin_migrate_bp
+from routes_admin_sql import admin_sql_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -64,6 +65,7 @@ app.register_blueprint(ai_bp)  # Préfixe déjà défini dans routes_ai.py
 app.register_blueprint(upload_bp, url_prefix='/api/upload')
 app.register_blueprint(booking_bp)  # Routes de réservation
 app.register_blueprint(admin_migrate_bp)  # Route de migration
+app.register_blueprint(admin_sql_bp)  # Route SQL custom (debug)
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
