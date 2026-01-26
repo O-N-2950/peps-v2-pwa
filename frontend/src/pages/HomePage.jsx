@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { User, Store, Building, ChevronDown, CheckCircle, Heart, DollarSign, Map, Zap } from 'lucide-react';
 import MapViewWahoo from '../components/MapViewWahoo';
 import PWAInstallGuide from '../components/PWAInstallGuide';
-import PWAInstallFAB from '../components/PWAInstallFAB';
+import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import axios from 'axios';
 
 // --- COULEURS OFFICIELLES PEP'S ---
@@ -387,8 +387,8 @@ const HomePage = () => {
       {/* PWA Install Guide Modal */}
       <PWAInstallGuide isOpen={showPWAGuide} onClose={() => setShowPWAGuide(false)} />
       
-      {/* PWA Install FAB (Floating Action Button) */}
-      <PWAInstallFAB onOpenGuide={() => setShowPWAGuide(true)} />
+      {/* PWA Install Prompt (Bottom Sheet) */}
+      <PWAInstallPrompt />
 
       <GradientBackground />
 
