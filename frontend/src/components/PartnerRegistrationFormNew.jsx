@@ -336,7 +336,7 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                                 />
                                 {showDropdown && filteredCategories.length > 0 && (
                                     <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                        {filteredCategories.map(cat => (
+                                        {(filteredCategories || []).map(cat => (
                                             <button
                                                 key={cat.id}
                                                 type="button"
@@ -687,7 +687,7 @@ const AddressForm = ({ index, control, errors, setValue, remove, isFirst, watch 
                 )}
                 {addressSuggestions.length > 0 && (
                     <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {addressSuggestions.map((suggestion, idx) => (
+                        {(addressSuggestions || []).map((suggestion, idx) => (
                             <button
                                 key={idx}
                                 type="button"
@@ -950,7 +950,7 @@ const StepPrivilege = ({ control, errors, watch }) => {
                         <span className="text-sm font-medium text-gray-700">Suggestions IA :</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {suggestions.map((suggestion, idx) => (
+                        {(suggestions || []).map((suggestion, idx) => (
                             <button
                                 key={idx}
                                 type="button"
