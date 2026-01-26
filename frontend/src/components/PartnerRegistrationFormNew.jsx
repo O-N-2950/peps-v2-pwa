@@ -188,6 +188,8 @@ const LogoUpload = ({ control, errors, watch, setValue }) => {
 const StepEstablishment = ({ control, errors, watch, setValue }) => {
     const [categories, setCategories] = useState([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    
+    console.log('🔍 DEBUG StepEstablishment - categories:', categories, 'type:', typeof categories, 'isArray:', Array.isArray(categories));
 
     useEffect(() => {
         // Charger les catégories depuis le backend
@@ -816,8 +818,12 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
 
     const [hasMultipleAddresses, setHasMultipleAddresses] = useState(false);
     
+    console.log('🔍 DEBUG StepAddress - fields:', fields, 'type:', typeof fields, 'isArray:', Array.isArray(fields));
+    
     // Protection : Garantir que fields est toujours un tableau
     const safeFields = Array.isArray(fields) ? fields : [];
+    
+    console.log('🔍 DEBUG StepAddress - safeFields:', safeFields, 'length:', safeFields.length);
     
     // Initialiser la première adresse si vide
     useEffect(() => {
@@ -1108,6 +1114,8 @@ const StepValidation = ({ control, errors, watch }) => {
 
 // --- COMPOSANT PRINCIPAL ---
 export default function PartnerRegistrationFormNew() {
+    console.log('🎉 DEBUG PartnerRegistrationFormNew - COMPOSANT MONTE');
+    
     const [currentStep, setCurrentStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [submissionError, setSubmissionError] = useState(null);
