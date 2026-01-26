@@ -313,9 +313,22 @@ def get_privilege_suggestions_endpoint():
         # Générer les suggestions avec Gemini Flash
         client = OpenAI()  # Utilise OPENAI_API_KEY pré-configuré
         
+        # Conseils spécifiques par catégorie
+        category_hints = {
+            "Coiffeur": "Privilèges sur les COUPES uniquement (pas sur les produits car marge faible). Ex: 10% sur les coupes, coupe enfant offerte.",
+            "Salon de beauté": "Privilèges sur les prestations (pas sur les produits). Ex: 15% sur les soins, manucure offerte.",
+            "Restaurant": "Privilèges sur l'addition, hors boissons alcoolisées si possible. Ex: 10% sur l'addition (hors alcool).",
+            "Café / Bar": "Privilèges sur les consommations. Ex: Café offert, 2ème boisson à -50%.",
+            "Boulangerie": "Privilèges sur les produits. Ex: 6ème croissant offert, sandwich + boisson à prix réduit."
+        }
+        
+        hint = category_hints.get(category['name'], "Privilèges adaptés à l'activité.")
+        
         prompt = f"""Tu es un expert en marketing pour les commerces locaux.
 
 Génère {limit} suggestions de privilèges attractifs pour un établissement de type "{category['name']}" (catégorie: {category['parent']}).
+
+{hint}
 
 Critères OBLIGATOIRES:
 1. Clair et concis (1 phrase courte, max 80 caractères)
@@ -323,11 +336,12 @@ Critères OBLIGATOIRES:
 3. Conditions visibles si nécessaire (hors alcool, du lundi au jeudi, etc.)
 4. Action immédiate (réduction, offert, gratuit, 2 pour 1)
 5. Rapidement compréhensible pour les membres
+6. Tenir compte des marges commerciales (ne pas suggérer de réduction sur les produits à faible marge)
 
 Exemples:
 - "10% sur l'addition (hors boissons alcoolisées)"
 - "Café offert pour toute formule du midi"
-- "2ème article à -50% sur toute la boutique"
+- "10% sur toutes les coupes" (coiffeur)
 - "Livraison gratuite dès 30 CHF d'achat"
 
 Réponds UNIQUEMENT avec une liste JSON de {limit} suggestions, sans explication.
