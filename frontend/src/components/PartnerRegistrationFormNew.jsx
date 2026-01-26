@@ -188,6 +188,8 @@ const LogoUpload = ({ control, errors, watch, setValue }) => {
 const StepEstablishment = ({ control, errors, watch, setValue }) => {
     const [categories, setCategories] = useState([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showDropdown, setShowDropdown] = useState(false);
     
     console.log('🔍 DEBUG StepEstablishment - categories:', categories, 'type:', typeof categories, 'isArray:', Array.isArray(categories));
 
@@ -301,9 +303,6 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                     control={control}
                     rules={{ required: "La catégorie est requise" }}
                     render={({ field }) => {
-                        const [searchQuery, setSearchQuery] = useState('');
-                        const [showDropdown, setShowDropdown] = useState(false);
-                        
                         // Trier les catégories par ordre alphabétique
                         const sortedCategories = [...(categories || [])].sort((a, b) => a.name.localeCompare(b.name));
                         
