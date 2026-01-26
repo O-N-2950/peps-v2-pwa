@@ -550,8 +550,11 @@ const StepAddress = ({ control, errors, setValue }) => {
     }, []);
 
     const selectAddress = (suggestion) => {
+        console.log('selectAddress appelé avec:', suggestion);
+        
         // Parser l'adresse depuis Nominatim en utilisant l'objet address
         const addr = suggestion.address || {};
+        console.log('Objet address:', addr);
         
         // Extraire le nom de rue (road, street, pedestrian, etc.)
         const street = addr.road || addr.street || addr.pedestrian || addr.path || '';
@@ -571,6 +574,8 @@ const StepAddress = ({ control, errors, setValue }) => {
         // Extraire le pays (country_code en majuscules)
         const country = addr.country_code ? addr.country_code.toUpperCase() : 'CH';
         
+        console.log('Valeurs extraites:', { street, number, city, postalCode, canton, country });
+        
         // Remplir les champs du formulaire
         setValue('address.street', street, { shouldValidate: true });
         setValue('address.number', number, { shouldValidate: true });
@@ -578,6 +583,8 @@ const StepAddress = ({ control, errors, setValue }) => {
         setValue('address.city', city, { shouldValidate: true });
         setValue('address.canton', canton, { shouldValidate: true });
         setValue('address.country', country, { shouldValidate: true });
+        
+        console.log('Champs remplis avec setValue');
 
         setAddressSuggestions([]);
     };
@@ -604,15 +611,21 @@ const StepAddress = ({ control, errors, setValue }) => {
                 )}
                 
                 {addressSuggestions.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                         {addressSuggestions.map((suggestion, idx) => (
-                            <div
+                            <button
                                 key={idx}
-                                onClick={() => selectAddress(suggestion)}
-                                className="p-3 hover:bg-turquoise/10 cursor-pointer border-b last:border-b-0"
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Clic sur suggestion:', suggestion);
+                                    selectAddress(suggestion);
+                                }}
+                                className="w-full text-left p-3 hover:bg-turquoise/10 cursor-pointer border-b last:border-b-0 transition-colors"
                             >
                                 <p className="text-sm">{suggestion.display_name}</p>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 )}
