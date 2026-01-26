@@ -1209,16 +1209,18 @@ export default function PartnerRegistrationFormNew() {
                 gender: data.contact.gender,
                 position: data.contact.position,
                 email: data.contact.email.toLowerCase().trim(),
-                phone: data.contact.phone
+                mobile: data.contact.mobile,
+                phone: data.contact.phone || '',
+                show_mobile: data.contact.show_mobile || false
             },
-            address: {
-                street: data.address.street,
-                number: data.address.number || '',
-                postal_code: data.address.postal_code,
-                city: data.address.city,
-                canton: data.address.canton || '',
-                country: data.address.country
-            },
+            addresses: (data.addresses || []).map(addr => ({
+                street: addr.street,
+                number: addr.number || '',
+                postal_code: addr.postal_code,
+                city: addr.city,
+                state: addr.state || '',
+                country: data.country
+            })),
             password: data.password
         };
 
