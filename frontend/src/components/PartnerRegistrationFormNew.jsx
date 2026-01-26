@@ -204,7 +204,10 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
         // Charger les catégories depuis le backend
         axios.get('/api/partners/categories')
             .then(response => {
-                setCategories(response.data.categories || []);
+                // L'API retourne { categories: { categories: [...] } }
+                const cats = response.data.categories?.categories || response.data.categories || [];
+                console.log('✅ Catégories chargées:', cats.length, 'catégories');
+                setCategories(cats);
             })
             .catch(error => {
                 console.error('Erreur chargement catégories:', error);
