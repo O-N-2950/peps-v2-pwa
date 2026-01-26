@@ -303,7 +303,7 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                         const [showDropdown, setShowDropdown] = useState(false);
                         
                         // Trier les catégories par ordre alphabétique
-                        const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+                        const sortedCategories = [...(categories || [])].sort((a, b) => a.name.localeCompare(b.name));
                         
                         // Filtrer les catégories selon la recherche
                         const filteredCategories = sortedCategories.filter(cat => 
