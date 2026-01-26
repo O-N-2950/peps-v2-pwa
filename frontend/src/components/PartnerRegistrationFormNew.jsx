@@ -27,6 +27,12 @@ const ESTABLISHMENT_TYPES = [
     { value: 'artisan', label: 'Artisan' }
 ];
 
+const COUNTRIES = [
+    { code: 'CH', name: 'Suisse', flag: '🇨🇭', phonePrefix: '+41', phonePlaceholder: '+41 21 123 45 67' },
+    { code: 'FR', name: 'France', flag: '🇫🇷', phonePrefix: '+33', phonePlaceholder: '+33 1 23 45 67 89' },
+    { code: 'BE', name: 'Belgique', flag: '🇧🇪', phonePrefix: '+32', phonePlaceholder: '+32 2 123 45 67' }
+];
+
 // --- Composant de Base pour l'Input ---
 const InputField = ({ label, icon: Icon, error, ...props }) => (
     <div className="mb-4">
@@ -256,6 +262,36 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
             </div>
 
             <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pays d'implantation *</label>
+                <Controller
+                    name="country"
+                    control={control}
+                    rules={{ required: "Le pays est requis" }}
+                    defaultValue="CH"
+                    render={({ field }) => (
+                        <div className="flex gap-3">
+                            {COUNTRIES.map(country => (
+                                <label key={country.code} className="flex-1">
+                                    <input
+                                        type="radio"
+                                        {...field}
+                                        value={country.code}
+                                        checked={field.value === country.code}
+                                        className="hidden peer"
+                                    />
+                                    <div className="p-3 border-2 rounded-lg text-center cursor-pointer transition-all peer-checked:border-turquoise peer-checked:bg-turquoise/10 hover:border-turquoise/50">
+                                        <div className="text-2xl mb-1">{country.flag}</div>
+                                        <span className="font-medium text-sm">{country.name}</span>
+                                    </div>
+                                </label>
+                            ))}
+                        </div>
+                    )}
+                />
+                {errors.country && <p className="mt-1 text-xs text-corail">{errors.country.message}</p>}
+            </div>
+
+            <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie d'activité *</label>
                 <Controller
                     name="category_id"
@@ -365,8 +401,9 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
 };
 
 // --- ÉTAPE 2 : Personne de Contact ---
-const StepContact = ({ control, errors }) => (
-    <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
+const StepContact = ({ control, errors, watch }) => {
+    return (
+        <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
         <h3 className="text-xl font-semibold mb-4 text-turquoise flex items-center">
             <User className="w-6 h-6 mr-2" />
             2. Personne de contact
@@ -506,22 +543,27 @@ const StepContact = ({ control, errors }) => (
                     message: "Format de téléphone invalide"
                 }
             }}
-            render={({ field }) => (
-                <InputField 
-                    label="Téléphone *" 
-                    icon={Phone}
-                    type="tel"
-                    error={errors.contact?.phone?.message} 
-                    placeholder="+41 21 123 45 67"
-                    {...field} 
-                />
-            )}
+            render={({ field }) => {
+                const country = watch('country') || 'CH';
+                const countryData = COUNTRIES.find(c => c.code === country);
+                return (
+                    <InputField 
+                        label="Téléphone *" 
+                        icon={Phone}
+                        type="tel"
+                        error={errors.contact?.phone?.message} 
+                        placeholder={countryData?.phonePlaceholder || '+41 21 123 45 67'}
+                        {...field} 
+                    />
+                );
+            }}
         />
-    </motion.div>
-);
+        </motion.div>
+    );
+};
 
 // --- ÉTAPE 3 : Adresse ---
-const StepAddress = ({ control, errors, setValue }) => {
+const StepAddress = ({ control, errors, setValue, watch }) => {
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -708,6 +750,7 @@ const StepAddress = ({ control, errors, setValue }) => {
                     name="address.country"
                     control={control}
                     rules={{ required: "Le pays est requis" }}
+                    defaultValue={watch('country') || 'CH'}
                     render={({ field }) => (
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Pays *</label>
@@ -715,10 +758,10 @@ const StepAddress = ({ control, errors, setValue }) => {
                                 {...field}
                                 className="w-full p-3 border rounded-lg focus:ring-2 focus:border-turquoise focus:ring-turquoise/30"
                             >
-                                <option value="CH">Suisse</option>
-                                <option value="FR">France</option>
-                                <option value="BE">Belgique</option>
-                                <option value="LU">Luxembourg</option>
+                                <option value="CH">🇨🇭 Suisse</option>
+                                <option value="FR">🇫🇷 France</option>
+                                <option value="BE">🇧🇪 Belgique</option>
+                                <option value="LU">🇱🇺 Luxembourg</option>
                             </select>
                             {errors.address?.country && <p className="mt-1 text-xs text-corail">{errors.address.country.message}</p>}
                         </div>
