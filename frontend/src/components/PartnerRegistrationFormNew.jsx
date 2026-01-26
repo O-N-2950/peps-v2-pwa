@@ -261,32 +261,69 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                     name="category_id"
                     control={control}
                     rules={{ required: "La catégorie est requise" }}
-                    render={({ field }) => (
-                        <div className="relative">
-                            <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                            <select
-                                {...field}
-                                value={field.value || ''}
-                                onChange={(e) => {
-                                    const val = e.target.value ? parseInt(e.target.value, 10) : '';
-                                    field.onChange(val);
-                                }}
-                                disabled={loadingCategories}
-                                className={`w-full p-3 pl-10 border rounded-lg focus:ring-2 transition-all appearance-none ${
-                                    errors.category_id ? 'border-corail ring-corail/30' : 'border-gray-300 focus:border-turquoise focus:ring-turquoise/30'
-                                }`}
-                            >
-                                <option value="">
-                                    {loadingCategories ? 'Chargement...' : 'Sélectionnez une catégorie'}
-                                </option>
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>
-                                        {cat.name} ({cat.parent})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+                    render={({ field }) => {
+                        const [searchQuery, setSearchQuery] = useState('');
+                        const [showDropdown, setShowDropdown] = useState(false);
+                        
+                        // Trier les catégories par ordre alphabétique
+                        const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+                        
+                        // Filtrer les catégories selon la recherche
+                        const filteredCategories = sortedCategories.filter(cat => 
+                            cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            cat.parent.toLowerCase().includes(searchQuery.toLowerCase())
+                        );
+                        
+                        // Trouver la catégorie sélectionnée
+                        const selectedCategory = categories.find(cat => cat.id === field.value);
+                        
+                        return (
+                            <div className="relative">
+                                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                                <input
+                                    type="text"
+                                    value={selectedCategory ? `${selectedCategory.name} (${selectedCategory.parent})` : searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setShowDropdown(true);
+                                        if (!e.target.value && selectedCategory) {
+                                            field.onChange('');
+                                        }
+                                    }}
+                                    onFocus={() => setShowDropdown(true)}
+                                    placeholder={loadingCategories ? 'Chargement...' : 'Rechercher une catégorie...'}
+                                    disabled={loadingCategories}
+                                    className={`w-full p-3 pl-10 border rounded-lg focus:ring-2 transition-all ${
+                                        errors.category_id ? 'border-corail ring-corail/30' : 'border-gray-300 focus:border-turquoise focus:ring-turquoise/30'
+                                    }`}
+                                />
+                                {showDropdown && filteredCategories.length > 0 && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                        {filteredCategories.map(cat => (
+                                            <button
+                                                key={cat.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    field.onChange(cat.id);
+                                                    setSearchQuery('');
+                                                    setShowDropdown(false);
+                                                }}
+                                                className="w-full text-left p-3 hover:bg-turquoise/10 transition-colors border-b border-gray-100 last:border-b-0"
+                                            >
+                                                <div className="font-medium text-gray-900">{cat.name}</div>
+                                                <div className="text-xs text-gray-500">{cat.parent}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                                {showDropdown && filteredCategories.length === 0 && searchQuery && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-3 text-gray-500 text-sm">
+                                        Aucune catégorie trouvée
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    }}
                 />
                 {errors.category_id && <p className="mt-1 text-xs text-corail">{errors.category_id.message}</p>}
             </div>
