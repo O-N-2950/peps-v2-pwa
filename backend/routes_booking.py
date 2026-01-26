@@ -312,8 +312,8 @@ def partner_cancel_booking(partner_id, booking_id):
         # Libérer le créneau
         creneau = Creneau.query.get(booking.creneau_id)
         if creneau:
-            creneau.capacity_remaining += 1
-            if creneau.capacity_remaining > 0:
+            creneau.booked_count -= 1
+            if creneau.booked_count < creneau.capacity:
                 creneau.is_available = True
         
         db.session.commit()
@@ -373,9 +373,9 @@ def get_partner_availability(partner_id):
 
         all_creneaux = Creneau.query.filter(
             Creneau.partner_id == partner_id,
-            Creneau.start_utc >= start_date,
-            Creneau.start_utc < end_date
-        ).order_by(Creneau.start_utc).all()
+            Creneau.start_datetime >= start_date,
+            Creneau.start_datetime < end_date
+        ).order_by(Creneau.start_datetime).all()
 
         # 5. Algorithme de recherche de créneaux consécutifs
         available_booking_slots = []
@@ -389,15 +389,15 @@ def get_partner_availability(partner_id):
                 current_creneau = all_creneaux[i+j]
                 
                 # Vérifier la disponibilité
-                if not current_creneau.is_available or current_creneau.capacity_remaining <= 0:
+                if not current_creneau.is_available or current_creneau.booked_count >= current_creneau.capacity:
                     is_sequence_valid = False
                     break
                 
                 # Vérifier la consécutivité (sauf pour le premier)
                 if j > 0:
                     previous_creneau = all_creneaux[i+j-1]
-                    expected_start = previous_creneau.start_utc + timedelta(minutes=slot_duration)
-                    if current_creneau.start_utc != expected_start:
+                    expected_start = previous_creneau.start_datetime + timedelta(minutes=slot_duration)
+                    if current_creneau.start_datetime != expected_start:
                         is_sequence_valid = False
                         break
             
@@ -441,7 +441,7 @@ def create_booking():
         if not creneau:
             return jsonify({'success': False, 'error': 'Créneau non trouvé'}), 404
         
-        if not creneau.is_available or creneau.capacity_remaining <= 0:
+        if not creneau.is_available or creneau.booked_count >= creneau.capacity:
             return jsonify({'success': False, 'error': 'Créneau non disponible'}), 400
         
         # Récupérer les informations du service
@@ -471,7 +471,7 @@ def create_booking():
             partner_id=partner_id,
             service_id=service_id,
             creneau_id=creneau_id,
-            booking_date=creneau.start_utc,
+            booking_date=creneau.start_datetime,
             duration_minutes=duration_minutes,
             number_of_people=int(data.get('number_of_people', 1)),
             price_original=price_original,
@@ -481,9 +481,9 @@ def create_booking():
             member_notes=data.get('member_notes', '')
         )
         
-        # Réduire la capacité du créneau
-        creneau.capacity_remaining -= 1
-        if creneau.capacity_remaining <= 0:
+        # Augmenter le compteur de réservations
+        creneau.booked_count += 1
+        if creneau.booked_count >= creneau.capacity:
             creneau.is_available = False
         
         db.session.add(booking)
@@ -566,8 +566,8 @@ def member_cancel_booking(booking_id):
         # Libérer le créneau
         creneau = Creneau.query.get(booking.creneau_id)
         if creneau:
-            creneau.capacity_remaining += 1
-            if creneau.capacity_remaining > 0:
+            creneau.booked_count -= 1
+            if creneau.booked_count < creneau.capacity:
                 creneau.is_available = True
         
         db.session.commit()

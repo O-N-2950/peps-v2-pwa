@@ -348,22 +348,22 @@ class Creneau(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, index=True)
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=True, index=True)
-    start_utc = db.Column(db.DateTime, nullable=False, index=True)
-    end_utc = db.Column(db.DateTime, nullable=False)
-    capacity_total = db.Column(db.Integer, default=1)
-    capacity_remaining = db.Column(db.Integer, default=1)
+    start_datetime = db.Column(db.DateTime, nullable=False, index=True)
+    end_datetime = db.Column(db.DateTime, nullable=False)
+    capacity = db.Column(db.Integer, default=1)
+    booked_count = db.Column(db.Integer, default=0)
     is_available = db.Column(db.Boolean, default=True, index=True)
     blocked_reason = db.Column(db.String(100))
     bookings = db.relationship('Booking', backref='creneau', lazy='dynamic')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    __table_args__ = (db.Index('idx_partner_start_available', 'partner_id', 'start_utc', 'is_available'),)
+    __table_args__ = (db.Index('idx_partner_start_available', 'partner_id', 'start_datetime', 'is_available'),)
     
     def to_dict(self):
         return {
             'id': self.id, 'partner_id': self.partner_id, 'service_id': self.service_id,
-            'start_utc': self.start_utc.isoformat() if self.start_utc else None,
-            'end_utc': self.end_utc.isoformat() if self.end_utc else None,
-            'capacity_total': self.capacity_total, 'capacity_remaining': self.capacity_remaining,
+            'start_datetime': self.start_datetime.isoformat() if self.start_datetime else None,
+            'end_datetime': self.end_datetime.isoformat() if self.end_datetime else None,
+            'capacity': self.capacity, 'booked_count': self.booked_count,
             'is_available': self.is_available, 'blocked_reason': self.blocked_reason
         }
 
