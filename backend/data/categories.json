@@ -17,7 +17,7 @@
     {
       "id": 3,
       "name": "Boulangerie / Pâtisserie",
-      "parent": "Restauration & Gastronomie",
+      "parent": "Alimentation & Épicerie",
       "icon": "Croissant",
       "description": "Boulangerie artisanale, Pâtisserie"
     },
