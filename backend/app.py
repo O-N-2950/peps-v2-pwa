@@ -114,8 +114,28 @@ def get_packs():
 
 @app.route('/api/partners')
 def get_partners():
-    partners = Partner.query.limit(50).all()
-    return jsonify([{'id': p.id, 'name': p.name} for p in partners])
+    status_filter = request.args.get('status')
+    query = Partner.query
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+    partners = query.limit(50).all()
+    return jsonify([{
+        'id': p.id,
+        'name': p.name,
+        'category': p.category,
+        'city': p.city,
+        'latitude': p.latitude,
+        'longitude': p.longitude,
+        'image_url': p.image_url,
+        'address_street': p.address_street,
+        'address_number': p.address_number,
+        'address_postal_code': p.address_postal_code,
+        'address_city': p.address_city,
+        'address_country': p.address_country,
+        'phone': p.phone,
+        'website': p.website,
+        'status': p.status
+    } for p in partners])
 
 # --- 💳 CHECKOUT ---
 @app.route('/api/checkout', methods=['POST'])
