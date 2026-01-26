@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { User, Store, Building, ChevronDown, CheckCircle, Heart, DollarSign, Map, Zap } from 'lucide-react';
 import MapViewWahoo from '../components/MapViewWahoo';
+import PWAInstallGuide from '../components/PWAInstallGuide';
 import axios from 'axios';
 
 // --- COULEURS OFFICIELLES PEP'S ---
@@ -306,6 +307,7 @@ const HomePage = () => {
   const { scrollYProgress } = useScroll({ target: ref });
   const [partners, setPartners] = useState([]);
   const [loadingPartners, setLoadingPartners] = useState(true);
+  const [showPWAGuide, setShowPWAGuide] = useState(false);
 
   // Charger les partenaires depuis l'API
   useEffect(() => {
@@ -346,10 +348,42 @@ const HomePage = () => {
         }}
       />
     </div>
-  );
+   return (
+    <div ref={ref} className="bg-gray-50">
+      {/* Header avec boutons de connexion */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-md">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl font-bold bg-gradient-to-r from-[#38B2AC] to-[#F26D7D] bg-clip-text text-transparent">
+              PEP'S
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="/login/member"
+              className="px-4 py-2 text-gray-700 hover:text-[#38B2AC] font-semibold transition-colors"
+            >
+              Connexion Membre
+            </a>
+            <a
+              href="/login/partner"
+              className="px-4 py-2 text-gray-700 hover:text-[#F26D7D] font-semibold transition-colors"
+            >
+              Connexion Partenaire
+            </a>
+            <a
+              href="/admin"
+              className="px-4 py-2 bg-gradient-to-r from-[#38B2AC] to-[#F26D7D] text-white rounded-full font-bold hover:scale-105 transition-transform"
+            >
+              Admin
+            </a>
+          </div>
+        </div>
+      </header>
 
-  return (
-    <div ref={ref} className="min-h-screen bg-gray-50">
+      {/* PWA Install Guide Modal */}
+      <PWAInstallGuide isOpen={showPWAGuide} onClose={() => setShowPWAGuide(false)} />
+
       <GradientBackground />
 
       {/* 1. HERO SECTION (Parallax) */}
@@ -561,26 +595,11 @@ const HomePage = () => {
             className="text-center mt-12"
           >
             <p className="text-lg text-gray-700 mb-4">
-              💡 <strong>Envie d'explorer tous les privilèges ?</strong> Téléchargez l'application PEP'S !
+              💡 <strong>Envie d'explorer tous les privilèges ?</strong> Cliquez sur un marqueur pour découvrir les détails !
             </p>
-            <div className="flex gap-4 justify-center">
-              <a
-                href="https://apps.apple.com/ch/app/peps-exclusive-partnerships/id6477572989?l=fr-FR"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-black text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
-              >
-                📱 App Store
-              </a>
-              <a
-                href="https://play.google.com/store/apps/details?id=swiss.peps.altai&pcampaignid=web_share"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#38B2AC] text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
-              >
-                📱 Google Play
-              </a>
-            </div>
+            <p className="text-sm text-gray-600">
+              🌐 <strong>PEP'S est une PWA</strong> : Ajoutez-la à votre écran d'accueil pour un accès rapide !
+            </p>
           </motion.div>
         </div>
       </section>
@@ -614,7 +633,7 @@ const HomePage = () => {
       {/* FOOTER ou CTA final (Simple pour l'exemple) */}
       <footer className="bg-gray-800 text-white py-12">
         <div className="max-w-6xl mx-auto text-center">
-          <p>&copy; {new Date().getFullYear()} PEP'S V2. Tous droits réservés.</p>
+          <p>&copy; {new Date().getFullYear()} PEP'S. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
