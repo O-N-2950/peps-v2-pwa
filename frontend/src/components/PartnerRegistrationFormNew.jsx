@@ -265,7 +265,10 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                         <div className="relative">
                             <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
                             <select
-                                {...field}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
+                                onBlur={field.onBlur}
+                                name={field.name}
                                 disabled={loadingCategories}
                                 className={`w-full p-3 pl-10 border rounded-lg focus:ring-2 transition-all appearance-none ${
                                     errors.category_id ? 'border-corail ring-corail/30' : 'border-gray-300 focus:border-turquoise focus:ring-turquoise/30'
