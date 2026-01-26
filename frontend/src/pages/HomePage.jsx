@@ -514,7 +514,7 @@ const HomePage = () => {
       {/* 5. SECTION TÉMOIGNAGES (Carrousel Glassmorphism) */}
       <TestimonialsSection />
 
-      {/      {/* 6. SECTION CARTE INTERACTIVE */}
+      {/* 6. SECTION CARTE INTERACTIVE */}
       <section className="py-24 bg-gradient-to-br from-[#38B2AC]/10 to-[#F26D7D]/10">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
