@@ -16,7 +16,7 @@ def run_migration():
     
     engine = create_engine(database_url)
     
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         # Vérifier si la table existe déjà
         result = conn.execute(text("""
             SELECT EXISTS (
@@ -56,8 +56,6 @@ def run_migration():
             CREATE INDEX idx_partner_addresses_latitude ON partner_addresses(latitude);
             CREATE INDEX idx_partner_addresses_longitude ON partner_addresses(longitude);
         """))
-        
-        conn.commit()
         
         print("✅ Table partner_addresses créée avec succès")
         print("✅ Index créés avec succès")
