@@ -83,15 +83,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Comptes de Test */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500 font-mono space-y-2">
-            <p className="font-bold text-center mb-2 text-gray-800">COMPTES DE TEST V10 :</p>
-            <div onClick={()=>fill('admin@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>👑 Admin</span><span>admin@peps.swiss</span></div>
-            <div onClick={()=>fill('partner@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>🏪 Partner</span><span>partner@peps.swiss</span></div>
-            <div onClick={()=>fill('company@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>🏢 Company</span><span>company@peps.swiss</span></div>
-            <div onClick={()=>fill('both@peps.swiss','123456')} className="cursor-pointer hover:text-[#3D9A9A] flex justify-between"><span>🔄 Hybride</span><span>both@peps.swiss</span></div>
-        </div>
-
         <div className="mt-6 text-center">
           <a href="/register" className="text-xs text-gray-400 hover:text-[#3D9A9A]">Pas de compte ? S'inscrire</a>
         </div>
