@@ -311,8 +311,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const response = await axios.get('https://www.peps.swiss/api/partners');
-        const partnersData = response.data.partners || [];
+        const response = await axios.get('https://www.peps.swiss/api/partners?status=active');
+        const partnersData = Array.isArray(response.data) ? response.data : [];
         setPartners(partnersData);
       } catch (error) {
         console.error('Erreur chargement partenaires:', error);
