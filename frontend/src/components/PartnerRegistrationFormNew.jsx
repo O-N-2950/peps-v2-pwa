@@ -511,18 +511,34 @@ const StepAddress = ({ control, errors, setValue }) => {
     }, []);
 
     const selectAddress = (suggestion) => {
-        // Parser l'adresse depuis Nominatim
-        const parts = suggestion.display_name.split(',').map(p => p.trim());
+        // Parser l'adresse depuis Nominatim en utilisant l'objet address
+        const addr = suggestion.address || {};
         
-        setValue('address.street', parts[0] || '', { shouldValidate: true });
-        setValue('address.city', parts[1] || '', { shouldValidate: true });
-        setValue('address.postal_code', suggestion.address?.postcode || '', { shouldValidate: true });
-        setValue('address.country', suggestion.address?.country_code?.toUpperCase() || 'CH', { shouldValidate: true });
+        // Extraire le nom de rue (road, street, pedestrian, etc.)
+        const street = addr.road || addr.street || addr.pedestrian || addr.path || '';
         
-        // Extraire le canton pour la Suisse
-        if (suggestion.address?.state) {
-            setValue('address.canton', suggestion.address.state, { shouldValidate: true });
-        }
+        // Extraire le numéro de rue (house_number)
+        const number = addr.house_number || '';
+        
+        // Extraire la ville (city, town, village, municipality)
+        const city = addr.city || addr.town || addr.village || addr.municipality || '';
+        
+        // Extraire le code postal
+        const postalCode = addr.postcode || '';
+        
+        // Extraire le canton (state pour la Suisse)
+        const canton = addr.state || '';
+        
+        // Extraire le pays (country_code en majuscules)
+        const country = addr.country_code ? addr.country_code.toUpperCase() : 'CH';
+        
+        // Remplir les champs du formulaire
+        setValue('address.street', street, { shouldValidate: true });
+        setValue('address.number', number, { shouldValidate: true });
+        setValue('address.postal_code', postalCode, { shouldValidate: true });
+        setValue('address.city', city, { shouldValidate: true });
+        setValue('address.canton', canton, { shouldValidate: true });
+        setValue('address.country', country, { shouldValidate: true });
 
         setAddressSuggestions([]);
     };
