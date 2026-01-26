@@ -16,6 +16,7 @@ except ImportError:
     Payment = None  # Le modèle sera créé après la migration
 from stripe_service import sync_v20_products, create_checkout_v20, handle_webhook_v20
 from migrate_v20_auto import run_migration
+from migrate_partner_addresses import run_migration as run_partner_addresses_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20 import admin_bp
 from routes_stripe import stripe_bp
@@ -44,6 +45,7 @@ jwt = JWTManager(app)
 # V20 ADMIN - Exécuter la migration automatique au démarrage
 with app.app_context():
     run_migration()
+    run_partner_addresses_migration()
 
 # ==========================================
 # 1. ENREGISTREMENT DU BLUEPRINT

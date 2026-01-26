@@ -121,6 +121,7 @@ class Partner(db.Model):
     offers = db.relationship('Offer', backref='partner', lazy=True)
     feedbacks = db.relationship('PartnerFeedback', backref='partner', lazy=True)
     warnings = db.relationship('PartnerWarning', backref='partner', lazy=True)
+    addresses = db.relationship('PartnerAddress', backref='partner', lazy='dynamic', cascade="all, delete-orphan")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -297,3 +298,35 @@ class ViewLog(db.Model):
 class ClickLog(db.Model):
     __tablename__ = 'click_logs'
     id = db.Column(db.Integer, primary_key=True)
+
+
+# V2 - Système d'adresses multiples pour les partenaires
+class PartnerAddress(db.Model):
+    """
+    Table pour gérer les adresses multiples des partenaires
+    (un partenaire peut avoir plusieurs établissements)
+    """
+    __tablename__ = 'partner_addresses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey('partners.id'), nullable=False, index=True)
+
+    # Détails de l'adresse
+    street = db.Column(db.String(200), nullable=False)
+    number = db.Column(db.String(20))
+    postal_code = db.Column(db.String(20), nullable=False)
+    city = db.Column(db.String(100), nullable=False, index=True)
+    canton = db.Column(db.String(50))
+    country = db.Column(db.String(2), default='CH', nullable=False)
+
+    # Géocodage (pour la map interactive)
+    latitude = db.Column(db.Float, index=True)
+    longitude = db.Column(db.Float, index=True)
+
+    # Gestion de la priorité
+    is_primary = db.Column(db.Boolean, default=False, nullable=False)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<PartnerAddress {self.street} {self.number}, {self.city}>"
