@@ -283,6 +283,10 @@ def get_privilege_suggestions_endpoint():
     }
     """
     try:
+        import json
+        import os
+        from openai import OpenAI
+        
         category_id = request.args.get('category_id', type=int)
         category_name = request.args.get('category_name')
         limit = request.args.get('limit', default=5, type=int)
@@ -290,20 +294,82 @@ def get_privilege_suggestions_endpoint():
         if not category_id and not category_name:
             return jsonify({'error': 'category_id ou category_name requis'}), 400
         
-        # if category_name:
-        #     suggestions = get_privilege_suggestions(category_name, limit)
-        # else:
-        #     # Récupérer le nom de la catégorie par son ID
-        #     category = Category.query.get(category_id)
-        #     if not category:
-        #         return jsonify({'error': 'Catégorie non trouvée'}), 404
-        #     suggestions = get_privilege_suggestions(category.name, limit)
+        # Charger les catégories depuis le fichier JSON
+        categories_file = os.path.join(os.path.dirname(__file__), 'data', 'categories.json')
+        with open(categories_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            categories = data.get('categories', [])
         
-        suggestions = []  # Placeholder
-        return jsonify({'suggestions': suggestions}), 200
+        # Trouver la catégorie par ID
+        category = None
+        if category_id:
+            category = next((c for c in categories if c['id'] == category_id), None)
+        elif category_name:
+            category = next((c for c in categories if c['name'].lower() == category_name.lower()), None)
+        
+        if not category:
+            return jsonify({'error': 'Catégorie non trouvée'}), 404
+        
+        # Générer les suggestions avec Gemini Flash
+        client = OpenAI()  # Utilise OPENAI_API_KEY pré-configuré
+        
+        prompt = f"""Tu es un expert en marketing pour les commerces locaux.
+
+Génère {limit} suggestions de privilèges attractifs pour un établissement de type "{category['name']}" (catégorie: {category['parent']}).
+
+Critères OBLIGATOIRES:
+1. Clair et concis (1 phrase courte, max 80 caractères)
+2. Chiffré (pourcentage, montant, quantité)
+3. Conditions visibles si nécessaire (hors alcool, du lundi au jeudi, etc.)
+4. Action immédiate (réduction, offert, gratuit, 2 pour 1)
+5. Rapidement compréhensible pour les membres
+
+Exemples:
+- "10% sur l'addition (hors boissons alcoolisées)"
+- "Café offert pour toute formule du midi"
+- "2ème article à -50% sur toute la boutique"
+- "Livraison gratuite dès 30 CHF d'achat"
+
+Réponds UNIQUEMENT avec une liste JSON de {limit} suggestions, sans explication.
+Format: ["suggestion 1", "suggestion 2", ...]"""
+        
+        response = client.chat.completions.create(
+            model="gemini-2.5-flash",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.8,
+            max_tokens=500
+        )
+        
+        suggestions_text = response.choices[0].message.content.strip()
+        
+        # Parser la réponse JSON
+        try:
+            suggestions = json.loads(suggestions_text)
+            if not isinstance(suggestions, list):
+                raise ValueError("Réponse non valide")
+        except:
+            # Fallback: suggestions par défaut
+            suggestions = [
+                "10% de réduction sur l'addition",
+                "Café offert",
+                "Dessert offert",
+                "Livraison gratuite dès 30 CHF",
+                "2ème article à -50%"
+            ][:limit]
+        
+        return jsonify({'suggestions': suggestions[:limit]}), 200
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # En cas d'erreur, retourner des suggestions par défaut
+        return jsonify({
+            'suggestions': [
+                "10% de réduction sur l'addition",
+                "Café offert",
+                "Dessert offert",
+                "Livraison gratuite",
+                "Entrée offerte"
+            ][:request.args.get('limit', default=5, type=int)]
+        }), 200
 
 
 @partners_bp.route('/suggest-category', methods=['POST'])
