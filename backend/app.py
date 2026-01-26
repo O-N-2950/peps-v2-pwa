@@ -45,6 +45,7 @@ db.init_app(app)
 jwt = JWTManager(app)
 
 # V20 ADMIN - Exécuter la migration automatique au démarrage
+# BOOKING SYSTEM - Tables de réservation activées
 with app.app_context():
     run_migration()
     run_partner_addresses_migration()
