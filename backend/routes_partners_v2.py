@@ -315,10 +315,10 @@ def get_privilege_suggestions_endpoint():
         
         # Conseils spécifiques par catégorie
         category_hints = {
-            "Coiffeur": "Privilèges sur les COUPES uniquement (pas sur les produits car marge faible). Ex: 10% sur les coupes, coupe enfant offerte.",
-            "Salon de beauté": "Privilèges sur les prestations (pas sur les produits). Ex: 15% sur les soins, manucure offerte.",
-            "Restaurant": "Privilèges SIMPLES à appliquer (pas de calculs compliqués). Ex: 10% sur l'addition, café offert, dessert offert dès 2 plats.",
-            "Café / Bar": "Privilèges sur les consommations. Ex: Café offert, 2ème boisson à -50%.",
+            "Coiffeur": "Privilèges sur les COUPES uniquement (pas sur les produits car marge faible). Jours creux: MARDI et MERCREDI matin (PAS lundi car fermé). Ex: 20% sur les coupes le mardi.",
+            "Salon de beauté": "Privilèges sur les prestations (pas sur les produits). Jours creux: mardi, mercredi. Ex: 15% sur les soins le mardi.",
+            "Restaurant": "Privilèges SIMPLES à appliquer (pas de calculs compliqués). Jours creux: MARDI et MERCREDI soir. Ex: 20% sur l'addition le mardi soir.",
+            "Café / Bar": "Privilèges sur les consommations. Jours creux: lundi, mardi, mercredi. Ex: Happy hour PEP'S 17h-19h du lundi au mercredi.",
             "Boulangerie": "Privilèges sur les produits. Ex: 6ème croissant offert, sandwich + boisson à prix réduit."
         }
         
@@ -340,12 +340,12 @@ Critères OBLIGATOIRES:
 7. PRIVILÉGIER les jours/heures creuses (lundi, mardi, mercredi) avec réductions plus importantes (15-20%)
 
 Exemples:
-- "20% sur l'addition le mardi soir" (jour creux)
-- "15% sur les repas du lundi au mercredi" (jours creux)
-- "20% sur les coupes le lundi" (coiffeur, jour creux)
+- "20% sur l'addition le mardi soir" (restaurant, jour creux)
+- "15% sur les repas du mardi au mercredi" (restaurant, jours creux)
+- "20% sur les coupes le mardi" (coiffeur, jour creux - PAS lundi car fermé)
 - "Café offert pour toute formule du midi"
 - "Dessert offert dès 2 plats commandés"
-- "Happy hour PEP'S : 2 pour 1 du lundi au jeudi 17h-19h"
+- "Happy hour PEP'S : 2 pour 1 du lundi au mercredi 17h-19h" (bar)
 
 Réponds UNIQUEMENT avec une liste JSON de {limit} suggestions, sans explication.
 Format: ["suggestion 1", "suggestion 2", ...]"""
