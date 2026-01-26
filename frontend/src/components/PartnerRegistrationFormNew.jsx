@@ -823,7 +823,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
             </h3>
 
             {/* Afficher toutes les adresses */}
-            {fields.map((field, index) => (
+            {(fields || []).map((field, index) => (
                 <AddressForm
                     key={field.id}
                     index={index}
