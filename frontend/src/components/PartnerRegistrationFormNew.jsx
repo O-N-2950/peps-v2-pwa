@@ -312,7 +312,7 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                         );
                         
                         // Trouver la catégorie sélectionnée
-                        const selectedCategory = categories.find(cat => cat.id === field.value);
+                        const selectedCategory = (categories || []).find(cat => cat.id === field.value);
                         
                         return (
                             <div className="relative">
