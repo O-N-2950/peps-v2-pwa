@@ -18,12 +18,13 @@ from stripe_service import sync_v20_products, create_checkout_v20, handle_webhoo
 from migrate_v20_auto import run_migration
 from migrate_partner_addresses import run_migration as run_partner_addresses_migration
 # IMPORTANT : Import du blueprint Admin
-from routes_admin_v20 import admin_bp
+from routes_admin_v20_fixed import admin_bp_fixed as admin_bp
 from routes_stripe import stripe_bp
 from routes_members import members_bp
 from routes_partners_v2 import partners_bp
 from routes_ai import ai_bp
 from routes_upload import upload_bp
+from routes_booking import booking_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -46,6 +47,7 @@ jwt = JWTManager(app)
 with app.app_context():
     run_migration()
     run_partner_addresses_migration()
+    db.create_all()
 
 # ==========================================
 # 1. ENREGISTREMENT DU BLUEPRINT
@@ -58,6 +60,7 @@ app.register_blueprint(members_bp, url_prefix='/api/members')
 app.register_blueprint(partners_bp, url_prefix='/api/partners')
 app.register_blueprint(ai_bp)  # Préfixe déjà défini dans routes_ai.py
 app.register_blueprint(upload_bp, url_prefix='/api/upload')
+app.register_blueprint(booking_bp)  # Routes de réservation
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
