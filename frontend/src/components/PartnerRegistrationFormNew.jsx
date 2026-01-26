@@ -6,6 +6,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFieldArray } from 'react-hook-form';
 import axios from 'axios';
 import { 
     Briefcase, User, MapPin, Gift, Image as ImageIcon, CheckSquare, 
@@ -610,7 +611,7 @@ const StepContact = ({ control, errors, watch }) => {
 };
 
 // --- ÉTAPE 3 : Adresse ---
-const StepAddress = ({ control, errors, setValue, watch }) => {
+const AddressForm = ({ index, control, errors, setValue, remove, isFirst, watch }) => {
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -626,8 +627,9 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
                 params: {
                     format: 'json',
                     q: query,
-                    countrycodes: 'ch,fr',
-                    limit: 5
+                    countrycodes: 'ch,fr,be',
+                    limit: 5,
+                    addressdetails: 1
                 }
             });
             setAddressSuggestions(response.data);
@@ -639,66 +641,50 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
     }, []);
 
     const selectAddress = (suggestion) => {
-        console.log('selectAddress appelé avec:', suggestion);
-        
-        // Parser l'adresse depuis Nominatim en utilisant l'objet address
         const addr = suggestion.address || {};
-        console.log('Objet address:', addr);
         
-        // Extraire le nom de rue (road, street, pedestrian, etc.)
-        const street = addr.road || addr.street || addr.pedestrian || addr.path || '';
-        
-        // Extraire le numéro de rue (house_number)
-        const number = addr.house_number || '';
-        
-        // Extraire la ville (city, town, village, municipality)
-        const city = addr.city || addr.town || addr.village || addr.municipality || '';
-        
-        // Extraire le code postal
-        const postalCode = addr.postcode || '';
-        
-        // Extraire le canton (state pour la Suisse)
-        const canton = addr.state || '';
-        
-        // Extraire le pays (country_code en majuscules)
-        const country = addr.country_code ? addr.country_code.toUpperCase() : 'CH';
-        
-        console.log('Valeurs extraites:', { street, number, city, postalCode, canton, country });
-        
-        // Remplir les champs du formulaire
-        setValue('address.street', street, { shouldValidate: true });
-        setValue('address.number', number, { shouldValidate: true });
-        setValue('address.postal_code', postalCode, { shouldValidate: true });
-        setValue('address.city', city, { shouldValidate: true });
-        setValue('address.canton', canton, { shouldValidate: true });
-        setValue('address.country', country, { shouldValidate: true });
-        
-        console.log('Champs remplis avec setValue');
+        setValue(`addresses.${index}.street`, addr.road || addr.street || '', { shouldValidate: true });
+        setValue(`addresses.${index}.number`, addr.house_number || '', { shouldValidate: true });
+        setValue(`addresses.${index}.postal_code`, addr.postcode || '', { shouldValidate: true });
+        setValue(`addresses.${index}.city`, addr.city || addr.town || addr.village || '', { shouldValidate: true });
+        setValue(`addresses.${index}.canton`, addr.state || '', { shouldValidate: true });
+        setValue(`addresses.${index}.country`, addr.country_code ? addr.country_code.toUpperCase() : 'CH', { shouldValidate: true });
 
         setAddressSuggestions([]);
     };
 
     return (
-        <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
-            <h3 className="text-xl font-semibold mb-4 text-turquoise flex items-center">
-                <MapPin className="w-6 h-6 mr-2" />
-                3. Adresse de l'établissement
-            </h3>
+        <div className="p-4 border border-gray-200 rounded-lg mb-4 bg-gray-50">
+            <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-semibold text-gray-700">
+                    {isFirst ? '📍 Adresse principale *' : `📍 Adresse ${index + 1}`}
+                </h4>
+                {!isFirst && (
+                    <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="text-corail hover:text-red-700 flex items-center gap-1"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        Supprimer
+                    </button>
+                )}
+            </div>
 
+            {/* Recherche d'adresse */}
             <div className="mb-4 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Rechercher une adresse
                 </label>
                 <input
                     type="text"
-                    placeholder="Tapez une adresse..."
+                    placeholder="Tapez une adresse (ex: Bellevue 7 Courgenay)..."
                     onChange={(e) => handleAddressSearch(e.target.value)}
                     className="w-full p-3 border rounded-lg focus:ring-2 focus:border-turquoise focus:ring-turquoise/30"
                 />
                 {isSearching && (
                     <Loader2 className="absolute right-3 top-10 w-5 h-5 text-turquoise animate-spin" />
                 )}
-                
                 {addressSuggestions.length > 0 && (
                     <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                         {addressSuggestions.map((suggestion, idx) => (
@@ -708,29 +694,29 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    console.log('Clic sur suggestion:', suggestion);
                                     selectAddress(suggestion);
                                 }}
-                                className="w-full text-left p-3 hover:bg-turquoise/10 cursor-pointer border-b last:border-b-0 transition-colors"
+                                className="w-full text-left px-4 py-2 hover:bg-turquoise/10 transition-colors border-b last:border-b-0"
                             >
-                                <p className="text-sm">{suggestion.display_name}</p>
+                                <p className="text-sm font-medium">{suggestion.display_name}</p>
                             </button>
                         ))}
                     </div>
                 )}
             </div>
 
+            {/* Champs d'adresse */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                     <Controller
-                        name="address.street"
+                        name={`addresses.${index}.street`}
                         control={control}
-                        rules={{ required: "La rue est requise" }}
+                        rules={{ required: isFirst ? "La rue est requise" : false }}
                         render={({ field }) => (
                             <InputField 
-                                label="Rue *" 
+                                label={isFirst ? "Rue *" : "Rue"} 
                                 icon={MapPin}
-                                error={errors.address?.street?.message} 
+                                error={errors.addresses?.[index]?.street?.message} 
                                 placeholder="Rue du Commerce"
                                 {...field} 
                             />
@@ -738,7 +724,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
                     />
                 </div>
                 <Controller
-                    name="address.number"
+                    name={`addresses.${index}.number`}
                     control={control}
                     render={({ field }) => (
                         <InputField 
@@ -752,27 +738,26 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
-                    name="address.postal_code"
+                    name={`addresses.${index}.postal_code`}
                     control={control}
-                    rules={{ required: "Le code postal est requis" }}
+                    rules={{ required: isFirst ? "Le code postal est requis" : false }}
                     render={({ field }) => (
                         <InputField 
-                            label="Code postal *" 
-                            error={errors.address?.postal_code?.message} 
+                            label={isFirst ? "Code postal *" : "Code postal"} 
+                            error={errors.addresses?.[index]?.postal_code?.message} 
                             placeholder="1003"
                             {...field} 
                         />
                     )}
                 />
-
                 <Controller
-                    name="address.city"
+                    name={`addresses.${index}.city`}
                     control={control}
-                    rules={{ required: "La ville est requise" }}
+                    rules={{ required: isFirst ? "La ville est requise" : false }}
                     render={({ field }) => (
                         <InputField 
-                            label="Ville *" 
-                            error={errors.address?.city?.message} 
+                            label={isFirst ? "Ville *" : "Ville"} 
+                            error={errors.addresses?.[index]?.city?.message} 
                             placeholder="Lausanne"
                             {...field} 
                         />
@@ -782,7 +767,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
-                    name="address.canton"
+                    name={`addresses.${index}.canton`}
                     control={control}
                     render={({ field }) => (
                         <InputField 
@@ -792,15 +777,16 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
                         />
                     )}
                 />
-
                 <Controller
-                    name="address.country"
+                    name={`addresses.${index}.country`}
                     control={control}
-                    rules={{ required: "Le pays est requis" }}
+                    rules={{ required: isFirst ? "Le pays est requis" : false }}
                     defaultValue={watch('country') || 'CH'}
                     render={({ field }) => (
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Pays *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {isFirst ? "Pays *" : "Pays"}
+                            </label>
                             <select
                                 {...field}
                                 className="w-full p-3 border rounded-lg focus:ring-2 focus:border-turquoise focus:ring-turquoise/30"
@@ -810,14 +796,92 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
                                 <option value="BE">🇧🇪 Belgique</option>
                                 <option value="LU">🇱🇺 Luxembourg</option>
                             </select>
-                            {errors.address?.country && <p className="mt-1 text-xs text-corail">{errors.address.country.message}</p>}
+                            {errors.addresses?.[index]?.country && (
+                                <p className="mt-1 text-xs text-corail">{errors.addresses[index].country.message}</p>
+                            )}
                         </div>
                     )}
                 />
             </div>
+        </div>
+    );
+};
+
+const StepAddress = ({ control, errors, setValue, watch }) => {
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "addresses"
+    });
+
+    const [hasMultipleAddresses, setHasMultipleAddresses] = useState(false);
+
+    return (
+        <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
+            <h3 className="text-xl font-semibold mb-4 text-turquoise flex items-center">
+                <MapPin className="w-6 h-6 mr-2" />
+                3. Adresse(s) de l'établissement
+            </h3>
+
+            {/* Afficher toutes les adresses */}
+            {fields.map((field, index) => (
+                <AddressForm
+                    key={field.id}
+                    index={index}
+                    control={control}
+                    errors={errors}
+                    setValue={setValue}
+                    remove={remove}
+                    isFirst={index === 0}
+                    watch={watch}
+                />
+            ))}
+
+            {/* Checkbox "Avez-vous d'autres adresses ?" */}
+            {fields.length === 1 && (
+                <div className="mb-4">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={hasMultipleAddresses}
+                            onChange={(e) => setHasMultipleAddresses(e.target.checked)}
+                            className="form-checkbox h-5 w-5 text-turquoise border-gray-300 rounded focus:ring-turquoise"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                            Avez-vous d'autres adresses ? (plusieurs établissements)
+                        </span>
+                    </label>
+                </div>
+            )}
+
+            {/* Bouton "+ Ajouter une adresse" */}
+            {(hasMultipleAddresses || fields.length > 1) && fields.length < 10 && (
+                <button
+                    type="button"
+                    onClick={() => append({ 
+                        street: '', 
+                        number: '', 
+                        postal_code: '', 
+                        city: '', 
+                        canton: '', 
+                        country: watch('country') || 'CH' 
+                    })}
+                    className="w-full py-3 border-2 border-dashed border-turquoise text-turquoise rounded-lg hover:bg-turquoise/5 flex items-center justify-center gap-2 transition-colors"
+                >
+                    <Plus className="w-5 h-5" />
+                    Ajouter une adresse
+                </button>
+            )}
+
+            {fields.length >= 10 && (
+                <p className="text-sm text-gray-500 text-center mt-2">
+                    Maximum 10 adresses atteint
+                </p>
+            )}
         </motion.div>
     );
 };
+
+
 
 // --- ÉTAPE 4 : Privilège Exclusif ---
 const StepPrivilege = ({ control, errors, watch }) => {
@@ -1047,14 +1111,16 @@ export default function PartnerRegistrationFormNew() {
                 email: '',
                 phone: ''
             },
-            address: {
-                street: '',
-                number: '',
-                postal_code: '',
-                city: '',
-                canton: '',
-                country: 'CH'
-            },
+            addresses: [
+                {
+                    street: '',
+                    number: '',
+                    postal_code: '',
+                    city: '',
+                    canton: '',
+                    country: 'CH'
+                }
+            ],
             privilege: '',
             logo_url: '',
             password: '',

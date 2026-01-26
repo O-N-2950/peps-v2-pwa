@@ -58,14 +58,16 @@ def register_partner():
             "phone": "+41 21 123 45 67",
             "show_mobile": true
         },
-        "address": {
-            "street": "Rue du Commerce",
-            "number": "12",
-            "postal_code": "1003",
-            "city": "Lausanne",
-            "canton": "Vaud",
-            "country": "CH"
-        },
+        "addresses": [
+            {
+                "street": "Rue du Commerce",
+                "number": "12",
+                "postal_code": "1003",
+                "city": "Lausanne",
+                "canton": "Vaud",
+                "country": "CH"
+            }
+        ],
         "password": "SecurePassword123!"
     }
     
@@ -82,7 +84,7 @@ def register_partner():
         
         # Validation des champs obligatoires
         required_fields = ['establishment_name', 'establishment_type', 'category_id', 
-                          'privilege', 'contact', 'address', 'password']
+                          'privilege', 'contact', 'addresses', 'password']
         for field in required_fields:
             if field not in data or not data[field]:
                 return jsonify({'success': False, 'error': f'Champ obligatoire manquant: {field}'}), 400
