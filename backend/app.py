@@ -272,6 +272,19 @@ def login():
     return jsonify(error="Incorrect"), 401
 
 # --- ADMIN ROUTES ---
+@app.route('/api/reset-admin-password-temp')
+def reset_admin_password_temp():
+    admin = User.query.filter_by(email='admin@peps.swiss').first()
+    if admin:
+        admin.password_hash = generate_password_hash('Cristal4you11++')
+        db.session.commit()
+        return jsonify({"success": True, "message": "Mot de passe admin réinitialisé"})
+    else:
+        admin = User(email='admin@peps.swiss', password_hash=generate_password_hash('Cristal4you11++'), role='admin')
+        db.session.add(admin)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Compte admin créé"})
+
 @app.route('/api/admin/partners')
 @jwt_required()
 def admin_get_partners():
