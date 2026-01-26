@@ -22,6 +22,7 @@ from routes_stripe import stripe_bp
 from routes_members import members_bp
 from routes_partners_v2 import partners_bp
 from routes_ai import ai_bp
+from routes_upload import upload_bp
 
 app = Flask(__name__, static_folder='../frontend/dist')
 CORS(app)
@@ -54,6 +55,7 @@ app.register_blueprint(stripe_bp, url_prefix='/api/stripe')
 app.register_blueprint(members_bp, url_prefix='/api/members')
 app.register_blueprint(partners_bp, url_prefix='/api/partners')
 app.register_blueprint(ai_bp)  # Préfixe déjà défini dans routes_ai.py
+app.register_blueprint(upload_bp, url_prefix='/api/upload')
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
@@ -261,6 +263,12 @@ def serve_assets(filename):
 @app.route('/images/<path:filename>')
 def serve_images(filename):
     return send_from_directory(os.path.join(app.static_folder, 'images'), filename)
+
+# Route pour servir les fichiers uploadés (logos, photos, menus)
+@app.route('/uploads/<path:filename>')
+def serve_uploads(filename):
+    uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads')
+    return send_from_directory(uploads_dir, filename)
 
 @app.route('/')
 def index():

@@ -1,18 +1,12 @@
 import React from 'react';
-import { PartnerRegistrationForm } from '../components/MemberRegistrationForm';
+import PartnerRegistrationFormNew from '../components/PartnerRegistrationFormNew';
 
 /**
- * Page d'inscription pour les partenaires
+ * Page d'inscription pour les partenaires (Commerce/Association/Artisan)
  * Accessible via /register/partner
  */
 const PartnerRegistrationPage = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2A9D8F]/10 to-[#E76F51]/10 py-12">
-      <div className="container mx-auto px-4">
-        <PartnerRegistrationForm />
-      </div>
-    </div>
-  );
+  return <PartnerRegistrationFormNew />;
 };
 
 export default PartnerRegistrationPage;
