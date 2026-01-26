@@ -271,6 +271,41 @@ def login():
         return jsonify(token=create_access_token(identity=str(u.id), additional_claims={'role': u.role}), role=u.role)
     return jsonify(error="Incorrect"), 401
 
+# --- ADMIN ROUTES ---
+@app.route('/api/admin/partners')
+@jwt_required()
+def admin_get_partners():
+    if get_user().role != 'admin':
+        return jsonify(error="Accès refusé"), 403
+    partners = Partner.query.all()
+    return jsonify({"partners": [{
+        'id': p.id,
+        'name': p.name,
+        'category': p.category,
+        'city': p.city,
+        'status': p.status,
+        'latitude': p.latitude,
+        'longitude': p.longitude,
+        'address_street': p.address_street,
+        'address_number': p.address_number,
+        'address_postal_code': p.address_postal_code,
+        'address_city': p.address_city,
+        'phone': p.phone,
+        'website': p.website
+    } for p in partners]})
+
+@app.route('/api/admin/partners/<int:partner_id>', methods=['PUT'])
+@jwt_required()
+def admin_update_partner(partner_id):
+    if get_user().role != 'admin':
+        return jsonify(error="Accès refusé"), 403
+    partner = Partner.query.get_or_404(partner_id)
+    data = request.json
+    if 'status' in data:
+        partner.status = data['status']
+    db.session.commit()
+    return jsonify({"success": True, "message": "Partenaire mis à jour"})
+
 # ==========================================
 # 3. ROUTING SPA SÉCURISÉ (Pattern 404)
 # ==========================================

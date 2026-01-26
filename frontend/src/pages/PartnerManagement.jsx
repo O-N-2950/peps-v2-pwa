@@ -14,9 +14,10 @@ export default function PartnerManagement() {
   }, []);
 
   const handleToggleActive = async (id, currentStatus) => {
-    await axios.put(`/api/admin/partners/${id}`, { active: !currentStatus }, { headers: { Authorization: `Bearer ${token}` }});
-    toast.success(currentStatus ? "Désactivé" : "Activé");
-    setPartners(partners.map(p => p.id === id ? {...p, active: !currentStatus} : p));
+    const newStatus = currentStatus === 'active' ? 'pending' : 'active';
+    await axios.put(`/api/admin/partners/${id}`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` }});
+    toast.success(newStatus === 'active' ? "Activé" : "Désactivé");
+    setPartners(partners.map(p => p.id === id ? {...p, status: newStatus} : p));
   };
 
   const filtered = partners.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
@@ -46,13 +47,17 @@ export default function PartnerManagement() {
                         <td className="px-6 py-4 text-gray-600">{p.category || 'N/A'}</td>
                         <td className="px-6 py-4 text-gray-600">{p.city || 'N/A'}</td>
                         <td className="px-6 py-4">
-                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${p.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                {p.active ? <CheckCircle size={12}/> : <XCircle size={12}/>}
-                                {p.active ? 'Actif' : 'Inactif'}
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                p.status === 'active' ? 'bg-green-100 text-green-800' : 
+                                p.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                'bg-red-100 text-red-800'
+                            }`}>
+                                {p.status === 'active' ? <CheckCircle size={12}/> : <XCircle size={12}/>}
+                                {p.status === 'active' ? 'Actif' : p.status === 'pending' ? 'En attente' : 'Inactif'}
                             </span>
                         </td>
                         <td className="px-6 py-4 text-right space-x-2">
-                            <button onClick={() => handleToggleActive(p.id, p.active)} className="text-blue-600 hover:text-blue-800"><Edit size={16}/></button>
+                            <button onClick={() => handleToggleActive(p.id, p.status)} className="text-blue-600 hover:text-blue-800"><Edit size={16}/></button>
                             <button className="text-red-600 hover:text-red-800"><Trash2 size={16}/></button>
                         </td>
                     </tr>
