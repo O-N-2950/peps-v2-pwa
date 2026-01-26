@@ -11,7 +11,7 @@ import axios from 'axios';
 import { 
     Briefcase, User, MapPin, Gift, Image as ImageIcon, CheckSquare, 
     Loader2, ArrowLeft, ArrowRight, Lightbulb, UploadCloud, Trash2, 
-    Mail, Phone, Calendar, Building, Tag, FileText, Lock
+    Mail, Phone, Calendar, Building, Tag, FileText, Lock, Plus
 } from 'lucide-react';
 
 // --- Constantes ---
