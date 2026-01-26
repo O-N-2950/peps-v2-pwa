@@ -192,6 +192,13 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
     const [showDropdown, setShowDropdown] = useState(false);
     
     console.log('🔍 DEBUG StepEstablishment - categories:', categories, 'type:', typeof categories, 'isArray:', Array.isArray(categories));
+    
+    // Calculer en dehors de render pour éviter les problèmes de closure
+    const sortedCategories = Array.isArray(categories) ? [...categories].sort((a, b) => a.name.localeCompare(b.name)) : [];
+    const filteredCategories = sortedCategories.filter(cat => 
+        cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cat.parent.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     useEffect(() => {
         // Charger les catégories depuis le backend
@@ -303,17 +310,8 @@ const StepEstablishment = ({ control, errors, watch, setValue }) => {
                     control={control}
                     rules={{ required: "La catégorie est requise" }}
                     render={({ field }) => {
-                        // Trier les catégories par ordre alphabétique
-                        const sortedCategories = [...(categories || [])].sort((a, b) => a.name.localeCompare(b.name));
-                        
-                        // Filtrer les catégories selon la recherche
-                        const filteredCategories = sortedCategories.filter(cat => 
-                            cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            cat.parent.toLowerCase().includes(searchQuery.toLowerCase())
-                        );
-                        
                         // Trouver la catégorie sélectionnée
-                        const selectedCategory = (categories || []).find(cat => cat.id === field.value);
+                        const selectedCategory = Array.isArray(categories) ? categories.find(cat => cat.id === field.value) : null;
                         
                         return (
                             <div className="relative">
