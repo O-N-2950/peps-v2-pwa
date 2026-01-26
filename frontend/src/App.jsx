@@ -11,6 +11,8 @@ import PricingPage from './pages/PricingPage';
 import MapPage from './components/MapPage';
 import PartnerDetailPage from './pages/PartnerDetailPage';
 import PartnerRegistrationPage from './pages/PartnerRegistrationPage';
+import PartnerBookingDashboard from './pages/PartnerBookingDashboard';
+import MemberBookingPage from './pages/MemberBookingPage';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -45,10 +47,12 @@ export default function App() {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute role="partner" />}>
           <Route path="/partner" element={<PartnerDashboard />} />
+          <Route path="/partner/bookings" element={<PartnerBookingDashboard partnerId={1} />} />
         </Route>
         
         <Route element={<ProtectedRoute role="member" />}>
           <Route path="/dashboard" element={<StripeHandler />} />
+          <Route path="/book/:partnerId" element={<MemberBookingPage memberId={1} />} />
         </Route>
         
         {/* Routes Admin V20 */}
