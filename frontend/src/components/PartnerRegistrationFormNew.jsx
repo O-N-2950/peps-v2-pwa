@@ -1132,7 +1132,7 @@ export default function PartnerRegistrationFormNew() {
     const steps = [
         { component: StepEstablishment, label: 'Établissement', fields: ['establishment_name', 'establishment_type', 'category_id'] },
         { component: StepContact, label: 'Contact', fields: ['contact.first_name', 'contact.last_name', 'contact.birth_date', 'contact.gender', 'contact.position', 'contact.email', 'contact.phone'] },
-        { component: StepAddress, label: 'Adresse', fields: ['address.street', 'address.postal_code', 'address.city', 'address.country'] },
+        { component: StepAddress, label: 'Adresse', fields: ['addresses.0.street', 'addresses.0.postal_code', 'addresses.0.city', 'addresses.0.country'] },
         { component: StepPrivilege, label: 'Privilège', fields: ['privilege'] },
         { component: StepLogo, label: 'Logo', fields: ['logo_url'] },
         { component: StepValidation, label: 'Validation', fields: ['password', 'password_confirm', 'terms_accepted'] }
