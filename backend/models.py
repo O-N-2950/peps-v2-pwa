@@ -353,7 +353,6 @@ class Creneau(db.Model):
     capacity = db.Column(db.Integer, default=1)
     booked_count = db.Column(db.Integer, default=0)
     is_available = db.Column(db.Boolean, default=True, index=True)
-    blocked_reason = db.Column(db.String(100))
     bookings = db.relationship('Booking', backref='creneau', lazy='dynamic')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     __table_args__ = (db.Index('idx_partner_start_available', 'partner_id', 'start_datetime', 'is_available'),)
@@ -364,7 +363,7 @@ class Creneau(db.Model):
             'start_datetime': self.start_datetime.isoformat() if self.start_datetime else None,
             'end_datetime': self.end_datetime.isoformat() if self.end_datetime else None,
             'capacity': self.capacity, 'booked_count': self.booked_count,
-            'is_available': self.is_available, 'blocked_reason': self.blocked_reason
+            'is_available': self.is_available
         }
 
 class Booking(db.Model):
