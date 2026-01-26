@@ -826,7 +826,7 @@ const StepPrivilege = ({ control, errors, watch }) => {
                         label="Décrivez votre privilège exclusif *" 
                         icon={Gift}
                         error={errors.privilege?.message}
-                        placeholder="Ex: 10% de réduction sur toute l'addition (hors boissons alcoolisées)"
+                        placeholder="Ex: 20% sur l'addition le mardi soir, Café offert, Dessert offert dès 2 plats"
                         {...field} 
                     />
                 )}
