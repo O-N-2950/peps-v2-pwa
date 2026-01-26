@@ -27,6 +27,19 @@ def validate_phone(phone: str) -> bool:
     return re.match(pattern, phone) is not None
 
 
+def country_name_to_iso(country_name: str) -> str:
+    """Convertit le nom d'un pays en code ISO à 2 lettres"""
+    country_mapping = {
+        'switzerland': 'CH',
+        'suisse': 'CH',
+        'france': 'FR',
+        'belgium': 'BE',
+        'belgique': 'BE',
+        'luxembourg': 'LU'
+    }
+    return country_mapping.get(country_name.lower(), 'CH')  # Par défaut CH
+
+
 def calculate_age(birth_date: date) -> int:
     """Calcule l'âge à partir de la date de naissance"""
     today = date.today()
@@ -172,7 +185,7 @@ def register_partner():
             address_number=primary_address.get('number', ''),
             address_postal_code=primary_address['postal_code'],
             address_city=primary_address['city'],
-            address_country=primary_address['country'].upper(),
+            address_country=country_name_to_iso(primary_address['country']),
             phone=contact_mobile,
             website=data.get('website'),
             status='pending',  # En attente de validation admin
@@ -192,7 +205,7 @@ def register_partner():
                 postal_code=addr_data['postal_code'],
                 city=addr_data['city'],
                 canton=addr_data.get('canton', ''),
-                country=addr_data['country'].upper(),
+                country=country_name_to_iso(addr_data['country']),
                 latitude=lat,
                 longitude=lon,
                 is_primary=(i == 0)  # La première adresse est primaire
