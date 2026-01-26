@@ -98,7 +98,7 @@ def register_partner():
         # Validation de la personne de contact
         contact = data['contact']
         required_contact_fields = ['first_name', 'last_name', 'birth_date', 'gender', 
-                                   'position', 'email', 'phone']
+                                   'position', 'email', 'mobile']
         for field in required_contact_fields:
             if field not in contact or not contact[field]:
                 return jsonify({'success': False, 'error': f'Champ de contact obligatoire manquant: {field}'}), 400
@@ -113,10 +113,15 @@ def register_partner():
         # if existing_user:
         #     return jsonify({'success': False, 'error': 'Cet email est déjà utilisé'}), 400
         
-        # Validation du téléphone du contact
-        contact_phone = contact['phone'].strip()
-        if not validate_phone(contact_phone):
-            return jsonify({'success': False, 'error': 'Format de téléphone du contact invalide'}), 400
+        # Validation du mobile du contact (obligatoire)
+        contact_mobile = contact['mobile'].strip()
+        if not validate_phone(contact_mobile):
+            return jsonify({'success': False, 'error': 'Format de mobile du contact invalide'}), 400
+        
+        # Validation du téléphone fixe du contact (optionnel)
+        contact_phone = contact.get('phone', '').strip()
+        if contact_phone and not validate_phone(contact_phone):
+            return jsonify({'success': False, 'error': 'Format de téléphone fixe du contact invalide'}), 400
         
         # Validation de la date de naissance du contact
         try:

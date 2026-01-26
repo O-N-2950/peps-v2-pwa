@@ -534,10 +534,36 @@ const StepContact = ({ control, errors, watch }) => {
         />
 
         <Controller
+            name="contact.mobile"
+            control={control}
+            rules={{ 
+                required: "Le mobile est requis (pour les notifications)",
+                pattern: {
+                    value: /^(\+|00)?[0-9\s\-\(\)]{8,20}$/,
+                    message: "Format de mobile invalide"
+                }
+            }}
+            render={({ field }) => {
+                const country = watch('country') || 'CH';
+                const countryData = COUNTRIES.find(c => c.code === country);
+                return (
+                    <InputField 
+                        label="Mobile * (pour notifications)" 
+                        icon={Phone}
+                        type="tel"
+                        error={errors.contact?.mobile?.message} 
+                        placeholder={countryData?.phonePlaceholder || '+41 78 123 45 67'}
+                        {...field} 
+                    />
+                );
+            }}
+        />
+
+        <Controller
             name="contact.phone"
             control={control}
             rules={{ 
-                required: "Le téléphone est requis",
+                required: false,
                 pattern: {
                     value: /^(\+|00)?[0-9\s\-\(\)]{8,20}$/,
                     message: "Format de téléphone invalide"
@@ -548,11 +574,11 @@ const StepContact = ({ control, errors, watch }) => {
                 const countryData = COUNTRIES.find(c => c.code === country);
                 return (
                     <InputField 
-                        label="Téléphone *" 
+                        label="Téléphone fixe (recommandé pour les réservations)" 
                         icon={Phone}
                         type="tel"
                         error={errors.contact?.phone?.message} 
-                        placeholder={countryData?.phonePlaceholder || '+41 21 123 45 67'}
+                        placeholder={countryData?.phonePrefix + ' 21 123 45 67' || '+41 21 123 45 67'}
                         {...field} 
                     />
                 );
