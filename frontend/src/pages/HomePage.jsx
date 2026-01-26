@@ -349,7 +349,9 @@ const HomePage = () => {
         }}
       />
     </div>
-   return (
+  );
+
+  return (
     <div ref={ref} className="bg-gray-50">
       {/* Header avec boutons de connexion */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-md">
