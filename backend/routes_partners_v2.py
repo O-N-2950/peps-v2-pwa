@@ -247,8 +247,15 @@ def get_categories():
     }
     """
     try:
-        # categories = get_all_categories()
-        categories = []  # Placeholder
+        import json
+        import os
+        
+        # Charger les catégories depuis le fichier JSON
+        categories_file = os.path.join(os.path.dirname(__file__), 'data', 'categories.json')
+        with open(categories_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            categories = data.get('categories', [])
+        
         return jsonify({'categories': categories}), 200
     
     except Exception as e:
