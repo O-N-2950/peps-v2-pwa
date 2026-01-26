@@ -810,10 +810,28 @@ const AddressForm = ({ index, control, errors, setValue, remove, isFirst, watch 
 const StepAddress = ({ control, errors, setValue, watch }) => {
     const { fields, append, remove } = useFieldArray({
         control,
-        name: "addresses"
+        name: "addresses",
+        shouldUnregister: false
     });
 
     const [hasMultipleAddresses, setHasMultipleAddresses] = useState(false);
+    
+    // Protection : Garantir que fields est toujours un tableau
+    const safeFields = Array.isArray(fields) ? fields : [];
+    
+    // Initialiser la première adresse si vide
+    useEffect(() => {
+        if (safeFields.length === 0) {
+            append({
+                street: '',
+                number: '',
+                postal_code: '',
+                city: '',
+                canton: '',
+                country: 'CH'
+            });
+        }
+    }, []);
 
     return (
         <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
@@ -823,7 +841,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
             </h3>
 
             {/* Afficher toutes les adresses */}
-            {(fields || []).map((field, index) => (
+            {safeFields.map((field, index) => (
                 <AddressForm
                     key={field.id}
                     index={index}
@@ -837,7 +855,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
             ))}
 
             {/* Checkbox "Avez-vous d'autres adresses ?" */}
-            {fields.length === 1 && (
+            {safeFields.length === 1 && (
                 <div className="mb-4">
                     <label className="flex items-center cursor-pointer">
                         <input
@@ -854,7 +872,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
             )}
 
             {/* Bouton "+ Ajouter une adresse" */}
-            {(hasMultipleAddresses || fields.length > 1) && fields.length < 10 && (
+            {(hasMultipleAddresses || safeFields.length > 1) && safeFields.length < 10 && (
                 <button
                     type="button"
                     onClick={() => append({ 
@@ -872,7 +890,7 @@ const StepAddress = ({ control, errors, setValue, watch }) => {
                 </button>
             )}
 
-            {fields.length >= 10 && (
+            {safeFields.length >= 10 && (
                 <p className="text-sm text-gray-500 text-center mt-2">
                     Maximum 10 adresses atteint
                 </p>
