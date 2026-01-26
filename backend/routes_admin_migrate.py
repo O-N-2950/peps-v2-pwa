@@ -76,12 +76,6 @@ def migrate_booking_tables():
             )
             """,
             
-            # Index pour performance
-            """
-            CREATE INDEX IF NOT EXISTS idx_creneaux_partner_datetime 
-            ON creneaux(partner_id, start_datetime, is_available)
-            """,
-            
             # Table Bookings
             """
             CREATE TABLE IF NOT EXISTS bookings (
@@ -129,6 +123,12 @@ def migrate_booking_tables():
                 error_message TEXT,
                 sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
+            """,
+            
+            # Index pour performance (APRÈS création de la table)
+            """
+            CREATE INDEX IF NOT EXISTS idx_creneaux_partner_datetime 
+            ON creneaux(partner_id, start_datetime, is_available)
             """
         ]
         
