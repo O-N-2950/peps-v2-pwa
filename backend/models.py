@@ -86,7 +86,7 @@ class Partner(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     name = db.Column(db.String(100), index=True)
     category = db.Column(db.String(50), index=True)
-    sector_id = db.Column(db.Integer, db.ForeignKey('activity_sectors.id'))
+    # sector_id = db.Column(db.Integer, db.ForeignKey('activity_sectors.id'))  # TODO: Ajouter migration
     city = db.Column(db.String(100), index=True)
     latitude = db.Column(db.Float, index=True)
     longitude = db.Column(db.Float, index=True)
