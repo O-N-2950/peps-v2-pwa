@@ -54,7 +54,9 @@ def register_partner():
             "gender": "male",
             "position": "Gérant",
             "email": "paul@chezpaul.ch",
-            "phone": "+41 21 123 45 67"
+            "mobile": "+41 78 123 45 67",
+            "phone": "+41 21 123 45 67",
+            "show_mobile": true
         },
         "address": {
             "street": "Rue du Commerce",

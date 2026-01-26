@@ -559,6 +559,27 @@ const StepContact = ({ control, errors, watch }) => {
             }}
         />
 
+        <div className="mb-4">
+            <Controller
+                name="contact.show_mobile"
+                control={control}
+                defaultValue={true}
+                render={({ field }) => (
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            {...field}
+                            checked={field.value}
+                            className="form-checkbox h-5 w-5 text-turquoise border-gray-300 rounded focus:ring-turquoise"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                            Afficher mon mobile dans l'application (les membres pourront me contacter directement)
+                        </span>
+                    </label>
+                )}
+            />
+        </div>
+
         <Controller
             name="contact.phone"
             control={control}
