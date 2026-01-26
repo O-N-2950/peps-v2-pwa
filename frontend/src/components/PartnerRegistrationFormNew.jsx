@@ -123,11 +123,11 @@ const LogoUpload = ({ control, errors, watch, setValue }) => {
         <Controller
             name="logo_url"
             control={control}
-            rules={{ required: "Le logo est obligatoire" }}
+            rules={{}}  // Logo optionnel
             render={({ field: { onChange, value } }) => (
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Logo de l'établissement *
+                        Logo de l'établissement (optionnel)
                     </label>
                     <div 
                         className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${
