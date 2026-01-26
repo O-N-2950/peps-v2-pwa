@@ -317,7 +317,7 @@ def get_privilege_suggestions_endpoint():
         category_hints = {
             "Coiffeur": "Privilèges sur les COUPES uniquement (pas sur les produits car marge faible). Ex: 10% sur les coupes, coupe enfant offerte.",
             "Salon de beauté": "Privilèges sur les prestations (pas sur les produits). Ex: 15% sur les soins, manucure offerte.",
-            "Restaurant": "Privilèges sur l'addition, hors boissons alcoolisées si possible. Ex: 10% sur l'addition (hors alcool).",
+            "Restaurant": "Privilèges SIMPLES à appliquer (pas de calculs compliqués). Ex: 10% sur l'addition, café offert, dessert offert dès 2 plats.",
             "Café / Bar": "Privilèges sur les consommations. Ex: Café offert, 2ème boisson à -50%.",
             "Boulangerie": "Privilèges sur les produits. Ex: 6ème croissant offert, sandwich + boisson à prix réduit."
         }
@@ -339,9 +339,10 @@ Critères OBLIGATOIRES:
 6. Tenir compte des marges commerciales (ne pas suggérer de réduction sur les produits à faible marge)
 
 Exemples:
-- "10% sur l'addition (hors boissons alcoolisées)"
+- "10% sur l'addition"
 - "Café offert pour toute formule du midi"
 - "10% sur toutes les coupes" (coiffeur)
+- "Dessert offert dès 2 plats commandés"
 - "Livraison gratuite dès 30 CHF d'achat"
 
 Réponds UNIQUEMENT avec une liste JSON de {limit} suggestions, sans explication.
