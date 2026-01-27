@@ -11,6 +11,68 @@ import re
 flash_offers_bp = Blueprint('flash_offers', __name__)
 
 
+@flash_offers_bp.route('/api/offers/flash', methods=['GET'])
+def get_public_flash_offers():
+    """
+    Récupérer les offres flash disponibles (endpoint public)
+    """
+    try:
+        # Récupérer toutes les offres flash actives et non expirées
+        offers = db.session.execute(text("""
+            SELECT 
+                o.id,
+                o.title,
+                o.description,
+                o.discount_val as discount_percentage,
+                o.stock as total_slots,
+                o.stock - COALESCE(reserved.count, 0) as available_slots,
+                o.start_date as start_time,
+                o.end_date as end_time,
+                p.name as partner_name,
+                p.city as partner_city,
+                p.category as partner_category
+            FROM offers o
+            JOIN partners p ON o.partner_id = p.id
+            LEFT JOIN (
+                SELECT offer_id, COUNT(*) as count
+                FROM flash_reservations
+                WHERE status = 'reserved'
+                GROUP BY offer_id
+            ) reserved ON o.id = reserved.offer_id
+            WHERE o.offer_type = 'flash'
+            AND o.active = TRUE
+            AND o.end_date > NOW()
+            AND o.stock > COALESCE(reserved.count, 0)
+            ORDER BY o.end_date ASC
+        """)).fetchall()
+        
+        result = []
+        for offer in offers:
+            # Extraire le pourcentage de réduction
+            discount_match = re.search(r'(\d+)', offer[3])
+            discount_percentage = int(discount_match.group(1)) if discount_match else 0
+            
+            result.append({
+                'id': offer[0],
+                'title': offer[1],
+                'description': offer[2],
+                'discount_percentage': discount_percentage,
+                'total_slots': offer[4],
+                'available_slots': offer[5],
+                'start_time': offer[6].isoformat() if offer[6] else None,
+                'end_time': offer[7].isoformat() if offer[7] else None,
+                'partner_name': offer[8],
+                'partner_city': offer[9],
+                'partner_category': offer[10]
+            })
+        
+        return jsonify(result), 200
+    
+    except Exception as e:
+        print(f"Erreur get_public_flash_offers: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
 def validate_flash_offer_value(partner_id, flash_value_str):
     """
     Valider qu'une offre flash est supérieure aux privilèges permanents existants
