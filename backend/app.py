@@ -354,6 +354,17 @@ def create_test_member_olivier():
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
+@app.route('/api/reset-olivier-password-temp')
+def reset_olivier_password_temp():
+    """Route temporaire pour changer le mot de passe d'Olivier Neukomm"""
+    user = User.query.filter_by(email='olivier.neukomm@bluewin.ch').first()
+    if user:
+        user.password_hash = generate_password_hash('Cristal4you11++')
+        db.session.commit()
+        return jsonify({"success": True, "message": "Mot de passe Olivier mis à jour"})
+    else:
+        return jsonify({"success": False, "message": "Utilisateur non trouvé"}), 404
+
 @app.route('/api/admin/partners')
 @jwt_required()
 def admin_get_partners():
