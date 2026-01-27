@@ -31,6 +31,7 @@ from routes_partner_dashboard import partner_dashboard_bp
 from routes_migrate_notifications import migrate_notifications_bp
 from routes_favorites import favorites_bp
 from routes_debug_members import debug_members_bp
+from routes_debug_partners import debug_partners_bp
 from routes_flash_offers import flash_offers_bp
 from routes_migrate_flash_reservations import migrate_flash_reservations_bp
 
@@ -77,6 +78,7 @@ app.register_blueprint(partner_dashboard_bp)  # Dashboard Partner V21
 app.register_blueprint(migrate_notifications_bp)  # Migration notifications + offres flash
 app.register_blueprint(favorites_bp)  # Système de favoris
 app.register_blueprint(debug_members_bp)  # Debug membres
+app.register_blueprint(debug_partners_bp)  # Debug partenaires
 app.register_blueprint(flash_offers_bp)  # Offres flash avec validation IA
 app.register_blueprint(migrate_flash_reservations_bp)  # Migration flash_reservations
 
