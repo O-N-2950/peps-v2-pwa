@@ -423,16 +423,17 @@ const HomePage = () => {
           >
             Vos privilèges locaux, partout en <span style={{ color: COLORS.turquoise }}>Suisse</span>, <span style={{ color: COLORS.corail }}>France</span> et <span style={{ color: COLORS.turquoise }}>Belgique</span>.
           </motion.p>
-          <motion.button
+          <motion.a
+            href="/avantages"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.6 }}
-            className="mt-8 px-10 py-4 text-lg font-bold rounded-full shadow-lg transition-all duration-300"
+            className="mt-8 px-10 py-4 text-lg font-bold rounded-full shadow-lg transition-all duration-300 inline-block cursor-pointer"
             style={{ backgroundColor: COLORS.corail, color: 'white' }}
             whileHover={{ scale: 1.05, boxShadow: `0 0 20px rgba(231, 111, 81, 0.6)` }}
           >
             Découvrir les avantages
-          </motion.button>
+          </motion.a>
         </div>
       </section>
 

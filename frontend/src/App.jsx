@@ -13,6 +13,7 @@ import PartnerDetailPage from './pages/PartnerDetailPage';
 import PartnerRegistrationPage from './pages/PartnerRegistrationPage';
 import PartnerBookingDashboard from './pages/PartnerBookingDashboard';
 import MemberBookingPage from './pages/MemberBookingPage';
+import AvantagesPage from './pages/AvantagesPage';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/map" element={<MapPage />} />
         <Route path="/partner/:id" element={<PartnerDetailPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/avantages" element={<AvantagesPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/partner" element={<PartnerRegistrationPage />} />
