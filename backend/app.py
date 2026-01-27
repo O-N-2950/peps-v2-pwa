@@ -30,6 +30,7 @@ from routes_admin_sql import admin_sql_bp
 from routes_partner_dashboard import partner_dashboard_bp
 from routes_migrate_notifications import migrate_notifications_bp
 from routes_favorites import favorites_bp
+from routes_debug_members import debug_members_bp
 
 import os
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'dist'))
@@ -73,6 +74,7 @@ app.register_blueprint(admin_sql_bp)  # Route SQL custom (debug)
 app.register_blueprint(partner_dashboard_bp)  # Dashboard Partner V21
 app.register_blueprint(migrate_notifications_bp)  # Migration notifications + offres flash
 app.register_blueprint(favorites_bp)  # Système de favoris
+app.register_blueprint(debug_members_bp)  # Debug membres
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
