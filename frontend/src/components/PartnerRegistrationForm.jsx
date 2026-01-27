@@ -14,32 +14,83 @@ const COLORS = {
     TEXT_DARK: '#333333',
 };
 
+// Grille tarifaire complète PEP'S (CHF = EUR)
 const PRICING_TIERS = {
-    1: 49, 2: 89, 3: 129, 4: 169, 5: 199,
-    6: 229, 7: 259, 8: 289, 9: 319, 10: 390,
-    15: 525, 20: 700, 30: 900, 40: 1200,
-    50: 1500, 75: 1875, 100: 2500, 150: 3000,
-    200: 3500, 300: 4500, 400: 5500, 500: 7500,
-    750: 9000, 1000: 12000, 1500: 15000, 2000: 18000,
-    3000: 24000, 5000: 40000
+    1: 49, 2: 89, 3: 129, 4: 164, 5: 199,
+    6: 245, 7: 289, 8: 330, 9: 360, 10: 390,
+    12: 460, 15: 550, 20: 700, 25: 850, 30: 1000,
+    40: 1280, 50: 1500, 75: 2000, 100: 2500,
+    150: 3300, 200: 4000, 300: 5400, 400: 7200,
+    500: 7500, 750: 9000, 1000: 12000, 2500: 25000, 5000: 40000
 };
 
-// Fonction utilitaire pour trouver le prix le plus proche
+// Paliers fixes pour la zone 101-109 du slider (accès > 100)
+const LARGE_TIERS = [150, 200, 300, 400, 500, 750, 1000, 2500, 5000];
+
+// Convertir position slider (1-109) en nombre d'accès
+const sliderPositionToAccessCount = (position) => {
+    if (position <= 100) {
+        return position; // Zone 1-100 : valeur directe
+    }
+    // Zone 101-109 : paliers fixes
+    return LARGE_TIERS[position - 101];
+};
+
+// Convertir nombre d'accès en position slider
+const accessCountToSliderPosition = (count) => {
+    if (count <= 100) {
+        return count;
+    }
+    // Trouver l'index dans LARGE_TIERS
+    const index = LARGE_TIERS.indexOf(count);
+    return index !== -1 ? 101 + index : 101; // Par défaut 150 si non trouvé
+};
+
+// Calculer le prix pour un nombre d'accès donné
 const getPriceForAccessCount = (count) => {
-    const tiers = Object.keys(PRICING_TIERS).map(Number).sort((a, b) => a - b);
-    
-    // Si le compte est un palier exact
+    // Si c'est un palier exact dans la grille
     if (PRICING_TIERS[count]) {
         return PRICING_TIERS[count];
     }
-
-    // Sinon, trouver le palier supérieur le plus proche
-    for (const tier of tiers) {
-        if (count < tier) {
+    
+    // Pour les valeurs entre 1 et 100 non définies, interpolation linéaire
+    if (count <= 100) {
+        const tiers = Object.keys(PRICING_TIERS).map(Number).filter(t => t <= 100).sort((a, b) => a - b);
+        
+        // Trouver les paliers encadrants
+        let lowerTier = 1;
+        let upperTier = 100;
+        
+        for (let i = 0; i < tiers.length; i++) {
+            if (tiers[i] <= count) {
+                lowerTier = tiers[i];
+            }
+            if (tiers[i] >= count) {
+                upperTier = tiers[i];
+                break;
+            }
+        }
+        
+        // Interpolation linéaire
+        if (lowerTier === upperTier) {
+            return PRICING_TIERS[lowerTier];
+        }
+        
+        const lowerPrice = PRICING_TIERS[lowerTier];
+        const upperPrice = PRICING_TIERS[upperTier];
+        const ratio = (count - lowerTier) / (upperTier - lowerTier);
+        
+        return Math.round(lowerPrice + (upperPrice - lowerPrice) * ratio);
+    }
+    
+    // Pour les valeurs > 100, utiliser le palier supérieur
+    const largeTiers = [150, 200, 300, 400, 500, 750, 1000, 2500, 5000];
+    for (const tier of largeTiers) {
+        if (count <= tier) {
             return PRICING_TIERS[tier];
         }
     }
-    // Si count > 5000
+    
     return PRICING_TIERS[5000];
 };
 
@@ -226,13 +277,15 @@ const StepContact = ({ control, errors, setValue }) => {
 };
 
 const StepSubscription = ({ control, errors, watch, setValue }) => {
-    const accessCount = watch('accessCount') || 1;
+    const sliderPosition = watch('sliderPosition') || 1;
+    const accessCount = useMemo(() => sliderPositionToAccessCount(sliderPosition), [sliderPosition]);
     const price = useMemo(() => getPriceForAccessCount(accessCount), [accessCount]);
     
-    // Assurez-vous que le prix est mis à jour dans l'état du formulaire
+    // Assurez-vous que le prix et accessCount sont mis à jour dans l'état du formulaire
     React.useEffect(() => {
         setValue('finalPrice', price);
-    }, [price, setValue]);
+        setValue('accessCount', accessCount);
+    }, [price, accessCount, setValue]);
 
     return (
         <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
@@ -252,7 +305,7 @@ const StepSubscription = ({ control, errors, watch, setValue }) => {
                 </div>
 
                 <Controller
-                    name="accessCount"
+                    name="sliderPosition"
                     control={control}
                     rules={{ required: "Le nombre d'accès est requis", min: { value: 1, message: "Minimum 1 accès" } }}
                     defaultValue={1}
@@ -260,7 +313,7 @@ const StepSubscription = ({ control, errors, watch, setValue }) => {
                         <input
                             type="range"
                             min="1"
-                            max="100" // Limité à 100 pour le slider, mais le champ pourrait être un input pour 100+
+                            max="109"
                             step="1"
                             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg accent-turquoise"
                             {...field}
@@ -268,7 +321,15 @@ const StepSubscription = ({ control, errors, watch, setValue }) => {
                         />
                     )}
                 />
-                 {errors.accessCount && <p className="mt-1 text-xs text-corail">{errors.accessCount.message}</p>}
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>1</span>
+                    <span>100</span>
+                    <span>5000</span>
+                </div>
+                 {errors.sliderPosition && <p className="mt-1 text-xs text-corail">{errors.sliderPosition.message}</p>}
+                 
+                 {/* Champ caché pour stocker le nombre d'accès réel */}
+                 <input type="hidden" {...control.register('accessCount')} value={accessCount} />
             </div>
 
             <div className="mb-4">

@@ -36,6 +36,28 @@ const EXACT_PRICING_TIERS = {
   5000: 40000
 };
 
+// Paliers fixes pour la zone 101-109 du slider (accès > 100)
+const LARGE_TIERS = [150, 200, 300, 400, 500, 750, 1000, 2500, 5000];
+
+// Convertir position slider (1-109) en nombre d'accès
+const sliderPositionToAccessCount = (position) => {
+  if (position <= 100) {
+    return position; // Zone 1-100 : valeur directe
+  }
+  // Zone 101-109 : paliers fixes
+  return LARGE_TIERS[position - 101];
+};
+
+// Convertir nombre d'accès en position slider
+const accessCountToSliderPosition = (count) => {
+  if (count <= 100) {
+    return count;
+  }
+  // Trouver l'index dans LARGE_TIERS
+  const index = LARGE_TIERS.indexOf(count);
+  return index !== -1 ? 101 + index : 101; // Par défaut 150 si non trouvé
+};
+
 // ✅ FONCTION DE CALCUL pour les quantités intermédiaires
 // Interpolation linéaire entre les paliers définis
 const calculatePrice = (qty) => {
@@ -84,8 +106,11 @@ const DISPLAY_TIERS = [
 
 const PricingPage = () => {
   const [selectedAccess, setSelectedAccess] = useState(1);
-  const [customAmount, setCustomAmount] = useState(5);
+  const [sliderPosition, setSliderPosition] = useState(5); // Position initiale du slider (5 accès)
   const [loading, setLoading] = useState(false);
+  
+  // Calculer le nombre d'accès réel à partir de la position du slider
+  const customAmount = sliderPositionToAccessCount(sliderPosition);
 
   // Utiliser la fonction de calcul définie plus haut
   const getPrice = calculatePrice;
@@ -132,15 +157,15 @@ const PricingPage = () => {
             <input 
               type="range" 
               min="1" 
-              max="100" 
-              value={customAmount} 
-              onChange={(e) => setCustomAmount(parseInt(e.target.value))}
+              max="109" 
+              value={sliderPosition} 
+              onChange={(e) => setSliderPosition(parseInt(e.target.value))}
               className="h-3 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-teal-600"
             />
             <div className="mt-2 flex justify-between text-xs text-gray-500">
               <span>1</span>
-              <span>50</span>
-              <span>100+</span>
+              <span>100</span>
+              <span>5000</span>
             </div>
           </div>
 
@@ -178,7 +203,7 @@ const PricingPage = () => {
               </button>
             ) : (
               <a 
-                href="mailto:contact@peps-jura.ch?subject=Demande de devis pour +5000 accès"
+                href="mailto:contact@peps.swiss?subject=Demande de devis pour +5000 accès"
                 className="rounded-lg bg-teal-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-teal-700 text-center"
               >
                 Nous contacter
@@ -246,7 +271,7 @@ const PricingPage = () => {
         <div className="mt-16 rounded-2xl bg-gray-900 p-8 text-center text-white">
           <h3 className="mb-2 text-2xl font-bold">Besoin de plus de 500 accès ?</h3>
           <p className="mb-6 text-gray-400">Pour les grandes collectivités ou revendeurs, contactez-nous pour une offre sur mesure.</p>
-          <a href="mailto:contact@peps-jura.ch" className="inline-flex items-center rounded-lg bg-white px-6 py-3 font-bold text-gray-900 hover:bg-gray-100">
+          <a href="mailto:contact@peps.swiss" className="inline-flex items-center rounded-lg bg-white px-6 py-3 font-bold text-gray-900 hover:bg-gray-100">
             Contacter l'équipe commerciale
           </a>
         </div>
