@@ -11,25 +11,14 @@ COPY frontend/ ./
 RUN pnpm run build
 RUN ls -la dist/ && echo "✅ Frontend build réussi - dist/ existe"
 
-# Stage 2: Setup backend
+# Stage 2: Setup backend (ULTRA SIMPLIFIÉ - SANS GCC)
 FROM python:3.11-slim
 WORKDIR /app
 
-# Install system dependencies with optimization
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gcc \
-        libffi-dev \
-        libssl-dev \
-        build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy backend requirements and install
+# NO MORE GCC! Toutes les dépendances Python sont pré-compilées (psycopg2-binary, etc.)
+# Copy backend requirements and install directly
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
-
-# Clean up build dependencies to save memory and space
-RUN apt-get purge -y --auto-remove gcc build-essential libffi-dev libssl-dev
 
 # Copy backend code
 COPY backend/ ./backend/
@@ -45,5 +34,5 @@ WORKDIR /app/backend
 ENV PORT 5000
 EXPOSE 5000
 
-# Start command (optimized)
+# Start command
 CMD ["sh", "-c", "gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} --timeout 300 app:app"]
