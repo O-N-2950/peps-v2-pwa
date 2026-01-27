@@ -28,6 +28,7 @@ from routes_booking import booking_bp
 from routes_admin_migrate import admin_migrate_bp
 from routes_admin_sql import admin_sql_bp
 from routes_partner_dashboard import partner_dashboard_bp
+from routes_migrate_notifications import migrate_notifications_bp
 
 import os
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'dist'))
@@ -69,6 +70,7 @@ app.register_blueprint(booking_bp)  # Routes de réservation
 app.register_blueprint(admin_migrate_bp)  # Route de migration
 app.register_blueprint(admin_sql_bp)  # Route SQL custom (debug)
 app.register_blueprint(partner_dashboard_bp)  # Dashboard Partner V21
+app.register_blueprint(migrate_notifications_bp)  # Migration notifications + offres flash
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
