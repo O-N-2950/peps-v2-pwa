@@ -317,7 +317,37 @@ def create_test_member_olivier():
         # Vérifier si l'utilisateur existe déjà
         existing_user = User.query.filter_by(email='olivier.neukomm@bluewin.ch').first()
         if existing_user:
-            return jsonify({"success": False, "message": "Utilisateur déjà existant"}), 400
+            # Vérifier si le membre existe
+            existing_member = db.session.execute(text("""
+                SELECT id FROM members WHERE user_id = :user_id
+            """), {"user_id": existing_user.id}).fetchone()
+            
+            if existing_member:
+                return jsonify({"success": False, "message": "Membre déjà existant"}), 400
+            
+            # Créer uniquement le membre
+            db.session.execute(text("""
+                INSERT INTO members (user_id, first_name, last_name, phone, address, zip_code, city, dob, created_at)
+                VALUES (:user_id, :first_name, :last_name, :phone, :address, :zip_code, :city, :dob, NOW())
+            """), {
+                'user_id': existing_user.id,
+                'first_name': 'Olivier',
+                'last_name': 'Neukomm',
+                'phone': '079 579 25 00',
+                'address': 'Bellevue 7',
+                'zip_code': '2950',
+                'city': 'Courgenay',
+                'dob': '1980-01-01'
+            })
+            db.session.commit()
+            
+            return jsonify({
+                "success": True,
+                "message": "Membre Olivier Neukomm créé avec succès",
+                "user_id": existing_user.id,
+                "email": "olivier.neukomm@bluewin.ch",
+                "password": "Cristal4you11++"
+            }), 201
         
         # Créer le User
         new_user = User(
