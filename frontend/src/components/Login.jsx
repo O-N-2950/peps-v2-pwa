@@ -27,20 +27,20 @@ export default function Login() {
         if (data.is_both) localStorage.setItem('is_both', 'true');
         else localStorage.removeItem('is_both');
         
-        // 2. REDIRECTION STRICTE SELON LE RÔLE (Le Bug était ici)
+        // 2. REDIRECTION STRICTE SELON LE RÔLE
         switch(data.role) {
             case 'admin':
                 window.location.href = '/admin';
                 break;
             case 'partner':
-                window.location.href = '/partner';
+                window.location.href = '/partner-dashboard';
                 break;
             case 'company_admin':
                 window.location.href = '/company';
                 break;
             case 'member':
             default:
-                window.location.href = '/'; // Dashboard Membre par défaut
+                window.location.href = '/member-dashboard';
                 break;
         }
       } else {
