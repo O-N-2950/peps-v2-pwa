@@ -1,5 +1,5 @@
 import os
-import requests
+import stripe
 from datetime import timedelta
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
