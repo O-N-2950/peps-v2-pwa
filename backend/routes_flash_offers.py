@@ -26,11 +26,11 @@ def validate_flash_offer_value(partner_id, flash_value_str):
         
         # Récupérer tous les privilèges permanents du partenaire
         privileges = db.session.execute(text("""
-            SELECT id, title, value, description
+            SELECT id, title, discount_val, description
             FROM offers
             WHERE partner_id = :partner_id 
-            AND (is_flash = FALSE OR is_flash IS NULL)
-            AND status = 'active'
+            AND (is_permanent = TRUE OR is_permanent IS NULL)
+            AND active = TRUE
         """), {"partner_id": partner_id}).fetchall()
         
         if not privileges:
@@ -42,7 +42,7 @@ def validate_flash_offer_value(partner_id, flash_value_str):
         conflicting_privilege = None
         
         for priv in privileges:
-            priv_value_str = priv[2]  # value column
+            priv_value_str = priv[2]  # discount_val column
             priv_match = re.search(r'(\d+)', priv_value_str)
             if priv_match:
                 priv_value = int(priv_match.group(1))
@@ -107,24 +107,24 @@ def create_flash_offer():
         # Créer l'offre flash
         result = db.session.execute(text("""
             INSERT INTO offers (
-                partner_id, title, value, description, 
-                is_flash, total_stock, current_stock, 
-                validity_start, validity_end, status, created_at
+                partner_id, title, discount_val, description, 
+                offer_type, stock, active, is_permanent,
+                valid_from, valid_until, created_at
             )
             VALUES (
-                :partner_id, :title, :value, :description,
-                TRUE, :total_stock, :total_stock,
-                :validity_start, :validity_end, 'active', NOW()
+                :partner_id, :title, :discount_val, :description,
+                'flash', :stock, TRUE, FALSE,
+                :valid_from, :valid_until, NOW()
             )
             RETURNING id
         """), {
             "partner_id": partner_id,
             "title": title,
-            "value": value,
+            "discount_val": value,
             "description": description,
-            "total_stock": total_stock,
-            "validity_start": validity_start,
-            "validity_end": validity_end
+            "stock": total_stock,
+            "valid_from": validity_start,
+            "valid_until": validity_end
         })
         
         offer_id = result.fetchone()[0]
@@ -176,16 +176,16 @@ def get_available_flash_offers():
         # Critères : (Partenaire en favori OU dans un rayon de 10km) ET stock > 0 ET pas encore expiré
         query = """
             SELECT 
-                o.id, o.title, o.value, o.description,
-                o.total_stock, o.current_stock, o.validity_start, o.validity_end,
+                o.id, o.title, o.discount_val, o.description,
+                o.stock, o.stock as current_stock, o.valid_from, o.valid_until,
                 p.id as partner_id, p.name as partner_name, p.city, p.category,
                 p.latitude, p.longitude
             FROM offers o
             JOIN partners p ON o.partner_id = p.id
-            WHERE o.is_flash = TRUE
-            AND o.status = 'active'
-            AND o.current_stock > 0
-            AND o.validity_end > NOW()
+            WHERE o.offer_type = 'flash'
+            AND o.active = TRUE
+            AND o.stock > 0
+            AND o.valid_until > NOW()
         """
         
         # Filtrer par favoris OU proximité
@@ -258,13 +258,13 @@ def reserve_flash_offer(offer_id):
         
         # Vérifier que l'offre existe et est disponible (AVEC LOCK FOR UPDATE pour éviter les race conditions)
         offer = db.session.execute(text("""
-            SELECT id, partner_id, title, value, current_stock, validity_end
+            SELECT id, partner_id, title, discount_val, stock, valid_until
             FROM offers
             WHERE id = :offer_id
-            AND is_flash = TRUE
-            AND status = 'active'
-            AND current_stock > 0
-            AND validity_end > NOW()
+            AND offer_type = 'flash'
+            AND active = TRUE
+            AND stock > 0
+            AND valid_until > NOW()
             FOR UPDATE
         """), {"offer_id": offer_id}).fetchone()
         
@@ -293,7 +293,7 @@ def reserve_flash_offer(offer_id):
         # Décrémenter le stock de manière atomique
         db.session.execute(text("""
             UPDATE offers
-            SET current_stock = current_stock - 1
+            SET stock = stock - 1
             WHERE id = :offer_id
         """), {"offer_id": offer_id})
         
@@ -407,12 +407,12 @@ def get_partner_flash_offers():
         # Récupérer les offres flash avec le nombre de réservations
         result = db.session.execute(text("""
             SELECT 
-                o.id, o.title, o.value, o.description,
-                o.total_stock, o.current_stock, o.validity_start, o.validity_end, o.status,
+                o.id, o.title, o.discount_val, o.description,
+                o.stock, o.stock as current_stock, o.valid_from, o.valid_until, o.active,
                 COUNT(b.id) as reservations_count
             FROM offers o
             LEFT JOIN bookings b ON o.id = b.offer_id
-            WHERE o.partner_id = :partner_id AND o.is_flash = TRUE
+            WHERE o.partner_id = :partner_id AND o.offer_type = 'flash'
             GROUP BY o.id
             ORDER BY o.created_at DESC
         """), {"partner_id": partner_id}).fetchall()
