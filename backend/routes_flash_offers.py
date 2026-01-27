@@ -280,8 +280,8 @@ def reserve_flash_offer(offer_id):
         
         # Vérifier que le membre n'a pas déjà réservé cette offre
         existing = db.session.execute(text("""
-            SELECT id FROM bookings
-            WHERE member_id = :member_id AND offer_id = :offer_id
+            SELECT id FROM flash_reservations
+            WHERE member_id = :member_id AND offer_id = :offer_id AND status != 'cancelled'
         """), {"member_id": member_id, "offer_id": offer_id}).fetchone()
         
         if existing:
@@ -297,15 +297,13 @@ def reserve_flash_offer(offer_id):
             WHERE id = :offer_id
         """), {"offer_id": offer_id})
         
-        # Créer la réservation (booking)
+        # Créer la réservation flash
         result = db.session.execute(text("""
-            INSERT INTO bookings (
-                member_id, partner_id, offer_id,
-                service_id, date, time_slot, status, created_at
+            INSERT INTO flash_reservations (
+                member_id, partner_id, offer_id, status, created_at
             )
             VALUES (
-                :member_id, :partner_id, :offer_id,
-                NULL, CURRENT_DATE, '00:00', 'confirmed', NOW()
+                :member_id, :partner_id, :offer_id, 'confirmed', NOW()
             )
             RETURNING id
         """), {
@@ -314,7 +312,7 @@ def reserve_flash_offer(offer_id):
             "offer_id": offer_id
         })
         
-        booking_id = result.fetchone()[0]
+        reservation_id = result.fetchone()[0]
         db.session.commit()
         
         # TODO: Envoyer une notification au partenaire
@@ -322,7 +320,7 @@ def reserve_flash_offer(offer_id):
         return jsonify({
             "success": True,
             "message": f"Offre flash '{offer_title}' réservée avec succès !",
-            "booking_id": booking_id,
+            "reservation_id": reservation_id,
             "offer": {
                 "title": offer_title,
                 "value": offer_value
@@ -334,9 +332,9 @@ def reserve_flash_offer(offer_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-@flash_offers_bp.route('/api/partner/bookings/<int:booking_id>/validate', methods=['POST'])
+@flash_offers_bp.route('/api/partner/flash-reservations/<int:reservation_id>/validate', methods=['POST'])
 @jwt_required()
-def validate_booking(booking_id):
+def validate_flash_reservation(reservation_id):
     """
     Valider qu'un membre a bien utilisé son offre flash
     """
@@ -354,24 +352,24 @@ def validate_booking(booking_id):
         partner_id = partner[0]
         
         # Vérifier que la réservation appartient à ce partenaire
-        booking = db.session.execute(text("""
+        reservation = db.session.execute(text("""
             SELECT id, member_id, offer_id, status
-            FROM bookings
-            WHERE id = :booking_id AND partner_id = :partner_id
-        """), {"booking_id": booking_id, "partner_id": partner_id}).fetchone()
+            FROM flash_reservations
+            WHERE id = :reservation_id AND partner_id = :partner_id
+        """), {"reservation_id": reservation_id, "partner_id": partner_id}).fetchone()
         
-        if not booking:
+        if not reservation:
             return jsonify({"success": False, "error": "Réservation non trouvée"}), 404
         
-        if booking[3] == 'used':
+        if reservation[3] == 'used':
             return jsonify({"success": False, "error": "Cette réservation a déjà été utilisée"}), 400
         
         # Marquer la réservation comme utilisée
         db.session.execute(text("""
-            UPDATE bookings
-            SET status = 'used', updated_at = NOW()
-            WHERE id = :booking_id
-        """), {"booking_id": booking_id})
+            UPDATE flash_reservations
+            SET status = 'used', used_at = NOW(), updated_at = NOW()
+            WHERE id = :reservation_id
+        """), {"reservation_id": reservation_id})
         
         db.session.commit()
         
@@ -409,9 +407,9 @@ def get_partner_flash_offers():
             SELECT 
                 o.id, o.title, o.discount_val, o.description,
                 o.stock, o.stock as current_stock, o.valid_from, o.valid_until, o.active,
-                COUNT(b.id) as reservations_count
+                COUNT(fr.id) as reservations_count
             FROM offers o
-            LEFT JOIN bookings b ON o.id = b.offer_id
+            LEFT JOIN flash_reservations fr ON o.id = fr.offer_id AND fr.status != 'cancelled'
             WHERE o.partner_id = :partner_id AND o.offer_type = 'flash'
             GROUP BY o.id
             ORDER BY o.created_at DESC
