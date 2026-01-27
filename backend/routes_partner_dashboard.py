@@ -80,15 +80,23 @@ def get_privileges():
     
     offers = Offer.query.filter_by(partner_id=partner.id).all()
     
-    return jsonify([{
-        'id': offer.id,
-        'title': offer.title,
-        'description': offer.description,
-        'offer_type': offer.offer_type,
-        'active': offer.active,
-        'discount_val': offer.discount_val,
-        'created_at': offer.created_at.isoformat() if offer.created_at else None
-    } for offer in offers])
+    result = []
+    for offer in offers:
+        # Compter les utilisations
+        total_uses = PrivilegeUsage.query.filter_by(offer_id=offer.id).count()
+        
+        result.append({
+            'id': offer.id,
+            'title': offer.title,
+            'description': offer.description,
+            'offer_type': offer.offer_type,
+            'active': offer.active,
+            'discount_val': offer.discount_val,
+            'total_uses': total_uses,
+            'created_at': offer.created_at.isoformat() if offer.created_at else None
+        })
+    
+    return jsonify(result)
 
 @partner_dashboard_bp.route('/privileges', methods=['POST'])
 @jwt_required()
