@@ -31,7 +31,8 @@ def get_member_favorites():
         # Récupérer les favoris avec les informations des partenaires
         result = db.session.execute(text("""
             SELECT 
-                p.id, p.name, p.category, p.city, p.address, 
+                p.id, p.name, p.category, p.city, 
+                p.address_street, p.address_number, p.address_postal_code,
                 p.phone, p.website, p.latitude, p.longitude,
                 mf.created_at as favorited_at
             FROM member_favorites mf
@@ -42,17 +43,28 @@ def get_member_favorites():
         
         favorites = []
         for row in result:
+            # Construire l'adresse complète
+            address_parts = []
+            if row[4]:  # address_street
+                address_parts.append(row[4])
+            if row[5]:  # address_number
+                address_parts.append(row[5])
+            if row[6]:  # address_postal_code
+                address_parts.append(row[6])
+            if row[3]:  # city
+                address_parts.append(row[3])
+            
             favorites.append({
                 "id": row[0],
                 "name": row[1],
                 "category": row[2],
                 "city": row[3],
-                "address": row[4],
-                "phone": row[5],
-                "website": row[6],
-                "latitude": float(row[7]) if row[7] else None,
-                "longitude": float(row[8]) if row[8] else None,
-                "favorited_at": row[9].isoformat() if row[9] else None
+                "address": ", ".join(address_parts) if address_parts else None,
+                "phone": row[7],
+                "website": row[8],
+                "latitude": float(row[9]) if row[9] else None,
+                "longitude": float(row[10]) if row[10] else None,
+                "favorited_at": row[11].isoformat() if row[11] else None
             })
         
         return jsonify({
