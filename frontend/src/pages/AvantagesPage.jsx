@@ -140,7 +140,7 @@ const AvantagesPage = () => {
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {[
               { icon: Gift, title: 'Privilèges Exclusifs', desc: 'Réductions, cadeaux et services gratuits chez tous nos partenaires' },
-              { icon: MapPin, title: 'Partout près de toi', desc: 'En Suisse, France et bientôt Belgique' },
+              { icon: MapPin, title: 'Partout près de toi', desc: 'En Suisse, France et Belgique' },
               { icon: Sparkles, title: 'Activation Magique', desc: 'Un clic et des étoiles multicolores pour valider ton privilège' },
               { icon: Heart, title: 'Soutien Local', desc: 'Chaque privilège utilisé soutient l\'économie locale' },
             ].map((item, i) => (
