@@ -1,6 +1,6 @@
 import os
-import stripe
 import requests
+from datetime import timedelta
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
@@ -289,7 +289,7 @@ def login():
     d = request.json
     u = User.query.filter_by(email=d.get('email')).first()
     if u and check_password_hash(u.password_hash, d.get('password')):
-        return jsonify(token=create_access_token(identity=str(u.id), additional_claims={'role': u.role}), role=u.role)
+        return jsonify(token=create_access_token(identity=str(u.id), additional_claims={'role': u.role}, expires_delta=timedelta(hours=24)), role=u.role)
     return jsonify(error="Incorrect"), 401
 
 # --- ADMIN ROUTES ---
