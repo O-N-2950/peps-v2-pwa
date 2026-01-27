@@ -9,6 +9,7 @@ COPY frontend/package.json frontend/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY frontend/ ./
 RUN pnpm run build
+RUN ls -la dist/ && echo "✅ Frontend build réussi - dist/ existe"
 
 # Stage 2: Setup backend
 FROM python:3.11-slim
@@ -30,6 +31,7 @@ COPY backend/ ./backend/
 
 # Copy built frontend from stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+RUN ls -la /app/frontend/dist/ && echo "✅ Frontend copié dans /app/frontend/dist"
 
 # Set working directory to backend
 WORKDIR /app/backend
