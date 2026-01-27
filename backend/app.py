@@ -28,7 +28,8 @@ from routes_booking import booking_bp
 from routes_admin_migrate import admin_migrate_bp
 from routes_admin_sql import admin_sql_bp
 
-app = Flask(__name__, static_folder='../frontend/dist')
+import os
+app = Flask(__name__, static_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'dist'))
 CORS(app)
 
 app.config['SECRET_KEY'] = 'peps_v20_world_final'
