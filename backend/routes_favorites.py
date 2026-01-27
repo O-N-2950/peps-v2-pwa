@@ -16,7 +16,17 @@ def get_member_favorites():
     Récupérer la liste des partenaires favoris d'un membre
     """
     try:
-        member_id = get_jwt_identity()
+        user_id = get_jwt_identity()
+        
+        # Récupérer le member_id à partir du user_id
+        member_result = db.session.execute(text("""
+            SELECT id FROM members WHERE user_id = :user_id
+        """), {"user_id": user_id}).fetchone()
+        
+        if not member_result:
+            return jsonify({"success": False, "error": "Membre non trouvé"}), 404
+        
+        member_id = member_result[0]
         
         # Récupérer les favoris avec les informations des partenaires
         result = db.session.execute(text("""
@@ -62,7 +72,17 @@ def add_favorite(partner_id):
     Ajouter un partenaire aux favoris
     """
     try:
-        member_id = get_jwt_identity()
+        user_id = get_jwt_identity()
+        
+        # Récupérer le member_id à partir du user_id
+        member_result = db.session.execute(text("""
+            SELECT id FROM members WHERE user_id = :user_id
+        """), {"user_id": user_id}).fetchone()
+        
+        if not member_result:
+            return jsonify({"success": False, "error": "Membre non trouvé"}), 404
+        
+        member_id = member_result[0]
         
         # Vérifier que le partenaire existe
         partner = Partner.query.get(partner_id)
@@ -107,7 +127,17 @@ def remove_favorite(partner_id):
     Retirer un partenaire des favoris
     """
     try:
-        member_id = get_jwt_identity()
+        user_id = get_jwt_identity()
+        
+        # Récupérer le member_id à partir du user_id
+        member_result = db.session.execute(text("""
+            SELECT id FROM members WHERE user_id = :user_id
+        """), {"user_id": user_id}).fetchone()
+        
+        if not member_result:
+            return jsonify({"success": False, "error": "Membre non trouvé"}), 404
+        
+        member_id = member_result[0]
         
         # Supprimer des favoris
         result = db.session.execute(text("""
@@ -142,7 +172,17 @@ def check_favorite(partner_id):
     Vérifier si un partenaire est dans les favoris
     """
     try:
-        member_id = get_jwt_identity()
+        user_id = get_jwt_identity()
+        
+        # Récupérer le member_id à partir du user_id
+        member_result = db.session.execute(text("""
+            SELECT id FROM members WHERE user_id = :user_id
+        """), {"user_id": user_id}).fetchone()
+        
+        if not member_result:
+            return jsonify({"success": False, "error": "Membre non trouvé"}), 404
+        
+        member_id = member_result[0]
         
         result = db.session.execute(text("""
             SELECT id FROM member_favorites 
