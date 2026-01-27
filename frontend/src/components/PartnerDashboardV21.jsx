@@ -213,17 +213,38 @@ const PartnerDashboardV21 = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {privileges.map((privilege) => (
-                      <PrivilegeCard
-                        key={privilege.id}
-                        privilege={privilege}
-                        onEdit={() => {
-                          setEditingPrivilege(privilege);
-                          setShowModal(true);
-                        }}
-                        onDelete={() => handleDeletePrivilege(privilege.id)}
-                      />
-                    ))}
+                    {privileges && privileges.length > 0 ? (
+                      privileges.map((privilege) => (
+                        <PrivilegeCard
+                          key={privilege.id}
+                          privilege={privilege}
+                          onEdit={() => {
+                            setEditingPrivilege(privilege);
+                            setShowModal(true);
+                          }}
+                          onDelete={() => handleDeletePrivilege(privilege.id)}
+                        />
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-12">
+                        <div className="text-6xl mb-4">🎁</div>
+                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                          Aucun privilège pour le moment
+                        </h3>
+                        <p className="text-gray-500 mb-6">
+                          Créez votre premier privilège pour commencer à attirer des membres !
+                        </p>
+                        <button
+                          onClick={() => {
+                            setEditingPrivilege(null);
+                            setShowModal(true);
+                          }}
+                          className="px-8 py-4 bg-gradient-to-r from-[#00BFA5] to-[#FF6B6B] text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+                        >
+                          ➕ Créer mon premier privilège
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
