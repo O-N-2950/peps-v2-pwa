@@ -15,7 +15,7 @@ const FlashOffersWidget = () => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const response = await axios.get('https://www.peps.swiss/api/member/offers/flash');
+        const response = await axios.get('https://www.peps.swiss/api/offers/flash');
         setOffers(response.data || []);
       } catch (error) {
         console.error('Erreur chargement offres flash:', error);
