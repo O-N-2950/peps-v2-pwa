@@ -86,7 +86,7 @@ def get_privileges():
         'description': offer.description,
         'offer_type': offer.offer_type,
         'active': offer.active,
-        'image_url': offer.image_url,
+        'discount_val': offer.discount_val,
         'created_at': offer.created_at.isoformat() if offer.created_at else None
     } for offer in offers])
 
@@ -104,9 +104,9 @@ def create_privilege():
         partner_id=partner.id,
         title=data.get('title'),
         description=data.get('description'),
-        offer_type=data.get('offer_type', 'permanent'),
+        discount_val=data.get('value'),
+        offer_type=data.get('type', 'permanent'),
         active=True,
-        image_url=data.get('image_url'),
         created_at=datetime.utcnow()
     )
     
@@ -138,8 +138,8 @@ def update_privilege(offer_id):
         offer.description = data['description']
     if 'active' in data:
         offer.active = data['active']
-    if 'image_url' in data:
-        offer.image_url = data['image_url']
+    if 'discount_val' in data:
+        offer.discount_val = data['discount_val']
     
     db.session.commit()
     
