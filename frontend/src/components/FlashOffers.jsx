@@ -23,7 +23,7 @@ const FlashOffers = () => {
       }
 
       const response = await axios.get('/api/member/offers/flash', {
-        headers: { Authorization: \`Bearer \${token}\` }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.data.success) {
