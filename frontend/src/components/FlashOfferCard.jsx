@@ -16,14 +16,14 @@ const FlashOfferCard = ({ offer, onReserve }) => {
       }
 
       const response = await axios.post(
-        \`/api/member/offers/flash/\${offer.id}/reserve\`,
+        `/api/member/offers/flash/${offer.id}/reserve`,
         {},
-        { headers: { Authorization: \`Bearer \${token}\` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.success) {
         setReserved(true);
-        alert(\`✅ \${response.data.message}\`);
+        alert(`✅ ${response.data.message}`);
         if (onReserve) onReserve(offer.id);
       }
     } catch (error) {
@@ -44,8 +44,8 @@ const FlashOfferCard = ({ offer, onReserve }) => {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     
-    if (hours > 0) return \`\${hours}h \${minutes}min\`;
-    return \`\${minutes}min\`;
+    if (hours > 0) return `${hours}h ${minutes}min`;
+    return `${minutes}min`;
   };
 
   const stockPercentage = (offer.current_stock / offer.total_stock) * 100;
@@ -155,7 +155,7 @@ const FlashOfferCard = ({ offer, onReserve }) => {
           overflow: 'hidden'
         }}>
           <div style={{
-            width: \`\${stockPercentage}%\`,
+            width: `${stockPercentage}%`,
             height: '100%',
             background: isLowStock ? '#ff6b6b' : '#4ade80',
             transition: 'width 0.5s ease',

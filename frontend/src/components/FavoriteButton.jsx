@@ -15,7 +15,7 @@ const FavoriteButton = ({ partnerId, partnerName }) => {
       if (!token) return;
 
       const response = await axios.get('/api/member/favorites', {
-        headers: { Authorization: \`Bearer \${token}\` }
+        headers: { Authorization: `Bearer \${token}` }
       });
 
       if (response.data.success) {
@@ -38,14 +38,14 @@ const FavoriteButton = ({ partnerId, partnerName }) => {
       }
 
       if (isFavorite) {
-        await axios.delete(\`/api/member/favorites/\${partnerId}\`, {
-          headers: { Authorization: \`Bearer \${token}\` }
+        await axios.delete(`/api/member/favorites/\${partnerId}`, {
+          headers: { Authorization: `Bearer \${token}` }
         });
         setIsFavorite(false);
       } else {
         await axios.post('/api/member/favorites', 
           { partner_id: partnerId },
-          { headers: { Authorization: \`Bearer \${token}\` } }
+          { headers: { Authorization: `Bearer \${token}` } }
         );
         setIsFavorite(true);
       }
