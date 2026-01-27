@@ -306,6 +306,54 @@ def reset_winwin_password_temp():
     else:
         return jsonify({"success": False, "message": "Utilisateur non trouvé"}), 404
 
+@app.route('/api/create-test-member-olivier')
+def create_test_member_olivier():
+    """Route temporaire pour créer le membre test Olivier Neukomm"""
+    try:
+        # Vérifier si l'utilisateur existe déjà
+        existing_user = User.query.filter_by(email='olivier.neukomm@bluewin.ch').first()
+        if existing_user:
+            return jsonify({"success": False, "message": "Utilisateur déjà existant"}), 400
+        
+        # Créer le User
+        new_user = User(
+            email='olivier.neukomm@bluewin.ch',
+            password_hash='scrypt:32768:8:1$W2oZXEk9ZSkUjss7$4bd2fcb81c89e56a50b7955669a26d970944fa5d19a75313f33dc78e3c75dd8d51f101bc6031925e42d819a9e9fc3476c346f42659fdd6991584d5b8ef1da3a3',
+            role='member',
+            country='CH',
+            currency='CHF'
+        )
+        db.session.add(new_user)
+        db.session.flush()  # Pour obtenir l'ID
+        
+        # Créer le Member avec SQL brut (car le modèle ne correspond pas)
+        db.session.execute(text("""
+            INSERT INTO members (user_id, first_name, last_name, phone, address, zip_code, city, dob, created_at)
+            VALUES (:user_id, :first_name, :last_name, :phone, :address, :zip_code, :city, :dob, NOW())
+        """), {
+            'user_id': new_user.id,
+            'first_name': 'Olivier',
+            'last_name': 'Neukomm',
+            'phone': '079 579 25 00',
+            'address': 'Bellevue 7',
+            'zip_code': '2950',
+            'city': 'Courgenay',
+            'dob': '1980-01-01'
+        })
+        
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Membre test Olivier Neukomm créé avec succès",
+            "user_id": new_user.id,
+            "email": "olivier.neukomm@bluewin.ch",
+            "password": "Test1234++"
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @app.route('/api/admin/partners')
 @jwt_required()
 def admin_get_partners():
