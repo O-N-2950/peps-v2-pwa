@@ -4,6 +4,7 @@ import { User, Store, Building, ChevronDown, CheckCircle, Heart, DollarSign, Map
 import MapViewWahoo from '../components/MapViewWahoo';
 import PWAInstallGuide from '../components/PWAInstallGuide';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
+import FlashOffersWidget from '../components/FlashOffersWidget';
 import axios from 'axios';
 
 // --- COULEURS OFFICIELLES PEP'S ---
@@ -445,6 +446,9 @@ const HomePage = () => {
           <AnimatedCounter endValue={20} label="Villes Couvertes" />
         </div>
       </section>
+
+      {/* 2.5 WIDGET OFFRES FLASH */}
+      <FlashOffersWidget />
 
       {/* 3. SECTION CHOISISSEZ VOTRE OPTION (Stagger + Glassmorphism) */}
       <section className="py-24 relative overflow-hidden">
