@@ -9,7 +9,7 @@
 ### Informations de connexion
 - **URL de connexion :** https://www.peps.swiss/login
 - **Email :** olivier.neukomm@bluewin.ch
-- **Mot de passe :** Test1234++
+- **Mot de passe :** Cristal4you11++
 - **Rôle :** Member (membre)
 - **User ID :** 7
 
@@ -91,9 +91,15 @@
   "message": "Membre test Olivier Neukomm créé avec succès",
   "user_id": 7,
   "email": "olivier.neukomm@bluewin.ch",
-  "password": "Test1234++"
+  "password": "Cristal4you11++"
 }
 ```
+
+### 3. Changement mot de passe Olivier
+- **Endpoint :** `/api/reset-olivier-password-temp`
+- **Méthode :** GET
+- **Description :** Change le mot de passe d'olivier.neukomm@bluewin.ch à "Cristal4you11++"
+- **Usage :** `curl https://www.peps.swiss/api/reset-olivier-password-temp`
 
 ---
 
