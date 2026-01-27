@@ -296,6 +296,16 @@ def reset_admin_password_temp():
         db.session.commit()
         return jsonify({"success": True, "message": "Compte admin créé"})
 
+@app.route('/api/reset-winwin-password-temp')
+def reset_winwin_password_temp():
+    user = User.query.filter_by(email='contact@winwin.swiss').first()
+    if user:
+        user.password_hash = generate_password_hash('Cristal4you11++')
+        db.session.commit()
+        return jsonify({"success": True, "message": "Mot de passe WIN WIN réinitialisé"})
+    else:
+        return jsonify({"success": False, "message": "Utilisateur non trouvé"}), 404
+
 @app.route('/api/admin/partners')
 @jwt_required()
 def admin_get_partners():
