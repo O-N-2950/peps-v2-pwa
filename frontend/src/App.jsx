@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import Login from './components/Login';
 import Register from './components/Register';
 import PartnerDashboard from './components/PartnerDashboard';
+import PartnerDashboardV21 from './components/PartnerDashboardV21';
 import MemberDashboard from './components/MemberDashboard';
 import CompanyDashboard from './components/CompanyDashboard';
 import HomeWahoo from './components/HomeWahoo';
@@ -48,8 +49,8 @@ export default function App() {
         
         {/* Protected Routes */}
         <Route element={<ProtectedRoute role="partner" />}>
-          <Route path="/partner" element={<PartnerDashboard />} />
-          <Route path="/partner/bookings" element={<PartnerBookingDashboard partnerId={1} />} />
+         <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+          <Route path="/dashboard-v21" element={<PartnerDashboardV21 />} />  <Route path="/partner/bookings" element={<PartnerBookingDashboard partnerId={1} />} />
         </Route>
         
         <Route element={<ProtectedRoute role="member" />}>
