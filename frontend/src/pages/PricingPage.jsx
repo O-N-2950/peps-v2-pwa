@@ -3,20 +3,71 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Info, CreditCard, Star, Shield } from 'lucide-react';
 import axios from 'axios';
 
-// ✅ TABLE DE PRIX EXACTE (Exemple basé sur la logique dégressive)
-// Dans la réalité, remplacez ceci par les données venant de votre API /api/pricing
+// ✅ TABLE DE PRIX EXACTE - GRILLE TARIFAIRE OFFICIELLE PEPS COMPLÈTE
+// Source : Grille tarifaire complète fournie par le client (tous les paliers de 1 à 5000)
 const EXACT_PRICING_TIERS = {
   1: 49,
   2: 89,
-  3: 129, // Exemple
+  3: 129,
+  4: 164,
   5: 199,
+  6: 245,
+  7: 289,
+  8: 330,
+  9: 360,
   10: 390,
+  12: 460,
+  15: 550,
   20: 700,
+  25: 850,
+  30: 1000,  // ⭐ IMPORTANT : 30 accès = 1000 CHF (demande client spécifique)
+  40: 1280,
   50: 1500,
+  75: 2000,
   100: 2500,
-  200: 4500,
-  500: 7500
-  // Ajoutez vos 28 paliers ici
+  150: 3300,
+  200: 4000,
+  300: 5400,
+  400: 7200,
+  500: 7500,
+  750: 9000,
+  1000: 12000,
+  2500: 25000,
+  5000: 40000
+};
+
+// ✅ FONCTION DE CALCUL pour les quantités intermédiaires
+// Interpolation linéaire entre les paliers définis
+const calculatePrice = (qty) => {
+  // Si c'est un palier exact, retourner directement
+  if (EXACT_PRICING_TIERS[qty]) return EXACT_PRICING_TIERS[qty];
+  
+  // Sinon, interpoler entre les deux paliers les plus proches
+  const tiers = Object.keys(EXACT_PRICING_TIERS).map(Number).sort((a, b) => a - b);
+  
+  // Trouver le palier inférieur et supérieur
+  let lowerTier = 1;
+  let upperTier = 5000;
+  
+  for (let i = 0; i < tiers.length - 1; i++) {
+    if (qty > tiers[i] && qty < tiers[i + 1]) {
+      lowerTier = tiers[i];
+      upperTier = tiers[i + 1];
+      break;
+    }
+  }
+  
+  // Si qty > 5000, retourner null pour afficher "sur devis"
+  if (qty > 5000) {
+    return null; // Sera géré dans l'affichage pour montrer "Sur devis"
+  }
+  
+  // Interpolation linéaire
+  const priceLower = EXACT_PRICING_TIERS[lowerTier];
+  const priceUpper = EXACT_PRICING_TIERS[upperTier];
+  const ratio = (qty - lowerTier) / (upperTier - lowerTier);
+  
+  return Math.round(priceLower + (priceUpper - priceLower) * ratio);
 };
 
 // ✅ CARDS À AFFICHER (Sélection stratégique)
@@ -36,21 +87,8 @@ const PricingPage = () => {
   const [customAmount, setCustomAmount] = useState(5);
   const [loading, setLoading] = useState(false);
 
-  // Fonction pour obtenir le prix exact (soit direct, soit interpolé/paliers)
-  const getPrice = (qty) => {
-    if (EXACT_PRICING_TIERS[qty]) return EXACT_PRICING_TIERS[qty];
-    
-    // Logique de repli si la quantité n'est pas un palier exact (ex: 7)
-    // On prend le prix du palier inférieur le plus proche + le coût unitaire de ce palier pour le reste
-    const tiers = Object.keys(EXACT_PRICING_TIERS).map(Number).sort((a, b) => a - b);
-    const lowerTier = tiers.reverse().find(t => t <= qty) || 1;
-    const priceLower = EXACT_PRICING_TIERS[lowerTier];
-    
-    // Calcul simpliste pour l'exemple (à affiner selon votre algorythme 28 paliers)
-    // Ici : Prix de base + (différence * prix unitaire moyen du palier)
-    const unitPrice = priceLower / lowerTier;
-    return Math.round(priceLower + ((qty - lowerTier) * unitPrice));
-  };
+  // Utiliser la fonction de calcul définie plus haut
+  const getPrice = calculatePrice;
 
   const handleCheckout = async (qty, price) => {
     setLoading(true);
@@ -117,20 +155,35 @@ const PricingPage = () => {
 
             <div className="mb-4 text-center sm:mb-0 sm:text-right">
                <span className="block text-sm font-semibold uppercase tracking-wide text-teal-600">Total estimé</span>
-               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-extrabold text-gray-900">{getPrice(customAmount)}</span>
-                <span className="text-lg font-medium text-gray-600">CHF</span>
-              </div>
-              <span className="text-xs text-gray-500">soit {Math.round(getPrice(customAmount)/customAmount)} CHF / accès</span>
+               {getPrice(customAmount) !== null ? (
+                 <>
+                   <div className="flex items-baseline gap-2">
+                     <span className="text-4xl font-extrabold text-gray-900">{getPrice(customAmount)}</span>
+                     <span className="text-lg font-medium text-gray-600">CHF</span>
+                   </div>
+                   <span className="text-xs text-gray-500">soit {Math.round(getPrice(customAmount)/customAmount)} CHF / accès</span>
+                 </>
+               ) : (
+                 <div className="text-2xl font-bold text-teal-700">Sur devis</div>
+               )}
             </div>
 
-            <button 
-              onClick={() => handleCheckout(customAmount, getPrice(customAmount))}
-              disabled={loading}
-              className="rounded-lg bg-teal-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-teal-700 disabled:opacity-70"
-            >
-              {loading ? '...' : 'Commander'}
-            </button>
+            {getPrice(customAmount) !== null ? (
+              <button 
+                onClick={() => handleCheckout(customAmount, getPrice(customAmount))}
+                disabled={loading}
+                className="rounded-lg bg-teal-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-teal-700 disabled:opacity-70"
+              >
+                {loading ? '...' : 'Commander'}
+              </button>
+            ) : (
+              <a 
+                href="mailto:contact@peps-jura.ch?subject=Demande de devis pour +5000 accès"
+                className="rounded-lg bg-teal-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-teal-700 text-center"
+              >
+                Nous contacter
+              </a>
+            )}
           </div>
         </div>
 
