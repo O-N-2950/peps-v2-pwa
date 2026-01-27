@@ -41,7 +41,7 @@ def create_test_partner_winwin():
             hashed_password = generate_password_hash('Cristal4you11++')
             db.session.execute(text("""
                 UPDATE users 
-                SET password = :password, role = 'partner'
+                SET password_hash = :password, role = 'partner'
                 WHERE id = :user_id
             """), {"password": hashed_password, "user_id": user_id})
             
@@ -67,7 +67,7 @@ def create_test_partner_winwin():
             # Créer un nouveau user
             hashed_password = generate_password_hash('Cristal4you11++')
             result = db.session.execute(text("""
-                INSERT INTO users (email, password, role)
+                INSERT INTO users (email, password_hash, role)
                 VALUES ('contact@winwin.swiss', :password, 'partner')
                 RETURNING id
             """), {"password": hashed_password})
@@ -106,7 +106,7 @@ def reset_winwin_password():
         hashed_password = generate_password_hash('Cristal4you11++')
         result = db.session.execute(text("""
             UPDATE users 
-            SET password = :password
+            SET password_hash = :password
             WHERE email = 'contact@winwin.swiss'
             RETURNING id, email, role
         """), {"password": hashed_password})
