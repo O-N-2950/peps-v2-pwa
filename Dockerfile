@@ -1,10 +1,14 @@
 # Stage 1: Build frontend
 FROM node:18-alpine AS frontend-builder
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
+
+# Install pnpm
+RUN npm install -g pnpm
+
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY frontend/ ./
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Setup backend
 FROM python:3.11-slim
