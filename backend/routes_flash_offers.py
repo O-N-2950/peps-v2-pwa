@@ -26,8 +26,8 @@ def get_public_flash_offers():
                 o.discount_val as discount_percentage,
                 o.stock as total_slots,
                 o.stock - COALESCE(reserved.count, 0) as available_slots,
-                o.start_date as start_time,
-                o.end_date as end_time,
+                o.valid_from as start_time,
+                o.valid_until as end_time,
                 p.name as partner_name,
                 p.city as partner_city,
                 p.category as partner_category
@@ -41,9 +41,9 @@ def get_public_flash_offers():
             ) reserved ON o.id = reserved.offer_id
             WHERE o.offer_type = 'flash'
             AND o.active = TRUE
-            AND o.end_date > NOW()
+            AND o.valid_until > NOW()
             AND o.stock > COALESCE(reserved.count, 0)
-            ORDER BY o.end_date ASC
+            ORDER BY o.valid_until ASC
         """)).fetchall()
         
         result = []
