@@ -87,11 +87,15 @@ export default function PartnerDashboard() {
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm">
                     <h3 className="font-bold mb-4 text-sm">Top Privilèges</h3>
-                    {stats.top_offers.map((o, i) => (
-                        <div key={i} className="flex justify-between py-2 border-b last:border-0 text-sm">
-                            <span>{o.title}</span><span className="font-bold text-[#3D9A9A]">{o.count}</span>
-                        </div>
-                    ))}
+                    {stats.top_offers && stats.top_offers.length > 0 ? (
+                        stats.top_offers.map((o, i) => (
+                            <div key={i} className="flex justify-between py-2 border-b last:border-0 text-sm">
+                                <span>{o.title}</span><span className="font-bold text-[#3D9A9A]">{o.count}</span>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center text-gray-400 py-4 text-sm">Aucune donnée disponible</div>
+                    )}
                 </div>
             </div>
         )}
@@ -102,15 +106,23 @@ export default function PartnerDashboard() {
                     <Plus/> CRÉER {tab === 'flash' ? 'PUSH' : 'PRIVILÈGE'}
                 </button>
                 <div className="space-y-3">
-                    {(tab === 'flash' ? offers : privileges).map(p => (
-                        <div key={p.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
-                            <div>
-                                <h3 className="font-bold text-gray-800">{p.title}</h3>
-                                <div className="text-xs text-gray-500">{p.type} • {tab==='flash' ? `Stock: ${p.stock}` : `Utilisé ${p.total_uses}x`}</div>
+                    {(tab === 'flash' ? offers : privileges) && (tab === 'flash' ? offers : privileges).length > 0 ? (
+                        (tab === 'flash' ? offers : privileges).map(p => (
+                            <div key={p.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
+                                <div>
+                                    <h3 className="font-bold text-gray-800">{p.title}</h3>
+                                    <div className="text-xs text-gray-500">{p.type} • {tab==='flash' ? `Stock: ${p.stock}` : `Utilisé ${p.total_uses}x`}</div>
+                                </div>
+                                <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">ACTIF</span>
                             </div>
-                            <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">ACTIF</span>
+                        ))
+                    ) : (
+                        <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+                            <div className="text-5xl mb-3">🎁</div>
+                            <h3 className="font-bold text-gray-700 mb-2">Aucun {tab === 'flash' ? 'push' : 'privilège'} pour le moment</h3>
+                            <p className="text-sm text-gray-500">Créez votre premier {tab === 'flash' ? 'push' : 'privilège'} pour commencer !</p>
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
         )}
