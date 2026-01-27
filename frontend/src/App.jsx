@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import PartnerDashboard from './components/PartnerDashboard';
 import PartnerDashboardV21 from './components/PartnerDashboardV21';
+import FlashOffers from './components/FlashOffers';
 import MemberDashboard from './components/MemberDashboard';
 import CompanyDashboard from './components/CompanyDashboard';
 import HomeWahoo from './components/HomeWahoo';
@@ -55,6 +56,7 @@ export default function App() {
         
         <Route element={<ProtectedRoute role="member" />}>
           <Route path="/dashboard" element={<StripeHandler />} />
+          <Route path="/flash-offers" element={<FlashOffers />} />
           <Route path="/book/:partnerId" element={<MemberBookingPage memberId={1} />} />
         </Route>
         
