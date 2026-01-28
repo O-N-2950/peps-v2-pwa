@@ -193,6 +193,7 @@ def submit_feedback():
         activation_id = data['activation_id']
         rating = data['rating']
         comment = data.get('comment', '')
+        savings_amount = data.get('savings_amount')
         
         # Valider le rating
         if not isinstance(rating, int) or rating < 1 or rating > 5:
@@ -222,6 +223,10 @@ def submit_feedback():
         activation.feedback_submitted_at = datetime.utcnow()
         activation.feedback_points_awarded = 10  # +10 points PEP's
         
+        # Enregistrer l'économie réalisée (optionnel)
+        if savings_amount is not None:
+            activation.savings_amount = float(savings_amount)
+        
         db.session.commit()
         
         return jsonify({
@@ -231,6 +236,7 @@ def submit_feedback():
             'feedback': {
                 'rating': rating,
                 'comment': comment,
+                'savings_amount': activation.savings_amount,
                 'submitted_at': activation.feedback_submitted_at.isoformat()
             }
         }), 200

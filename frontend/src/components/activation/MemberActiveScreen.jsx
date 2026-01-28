@@ -17,6 +17,7 @@ export default function MemberActiveScreen({ activation, partner, onClose, onFee
   const [showFeedback, setShowFeedback] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [savingsAmount, setSavingsAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // Horloge temps réel (mise à jour chaque seconde)
@@ -79,12 +80,14 @@ export default function MemberActiveScreen({ activation, partner, onClose, onFee
       await onFeedbackSubmit({
         activation_id: activation.id,
         rating,
-        comment: comment.trim() || null
+        comment: comment.trim() || null,
+        savings_amount: savingsAmount ? parseFloat(savingsAmount) : null
       });
 
       setShowFeedback(false);
       setRating(0);
       setComment('');
+      setSavingsAmount('');
     } catch (error) {
       console.error('Erreur soumission feedback:', error);
       alert('Erreur lors de l\'envoi du feedback');
@@ -202,6 +205,30 @@ export default function MemberActiveScreen({ activation, partner, onClose, onFee
                   />
                 </button>
               ))}
+            </div>
+
+            {/* Saisie de l'économie réalisée */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                💰 Combien avez-vous économisé ? (optionnel)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={savingsAmount}
+                  onChange={(e) => setSavingsAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full border-2 border-purple-300 rounded-lg p-3 pr-16 text-lg font-semibold text-gray-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">
+                  CHF
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Indiquez le montant que vous avez économisé grâce à ce privilège
+              </p>
             </div>
 
             {/* Commentaire optionnel */}
