@@ -356,40 +356,43 @@ const HomePage = () => {
     <div ref={ref} className="bg-gray-50">
       {/* Header avec boutons de connexion */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <div className="text-3xl font-bold bg-gradient-to-r from-[#38B2AC] to-[#F26D7D] bg-clip-text text-transparent">
               PEP'S
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {/* Bouton Connexion Membre - Style moderne avec icône */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Bouton Connexion Membre - Responsive */}
             <a
               href="/login/member"
-              className="group relative px-6 py-3 bg-gradient-to-r from-[#38B2AC] to-[#2A9D8F] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+              className="group relative px-3 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#38B2AC] to-[#2A9D8F] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-1 md:gap-2 text-xs md:text-base"
             >
-              <User className="w-5 h-5" />
-              <span>Connexion Membre</span>
+              <User className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Connexion Membre</span>
+              <span className="sm:hidden">Membre</span>
               <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-xl transition-opacity"></div>
             </a>
             
-            {/* Bouton Connexion Partenaire - Style moderne avec icône */}
+            {/* Bouton Connexion Partenaire - Responsive */}
             <a
               href="/login/partner"
-              className="group relative px-6 py-3 bg-gradient-to-r from-[#F26D7D] to-[#E76F51] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+              className="group relative px-3 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#F26D7D] to-[#E76F51] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-1 md:gap-2 text-xs md:text-base"
             >
-              <Store className="w-5 h-5" />
-              <span>Connexion Partenaire</span>
+              <Store className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Connexion Partenaire</span>
+              <span className="sm:hidden">Partenaire</span>
               <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-xl transition-opacity"></div>
             </a>
             
-            {/* Lien Admin - Discret (petit texte gris) */}
+            {/* Bouton Admin - Discret mais visible (icône uniquement sur mobile) */}
             <a
               href="/admin"
-              className="px-3 py-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="px-2 py-2 md:px-3 md:py-1 text-xs text-gray-400 hover:text-gray-600 transition-colors flex items-center gap-1"
               title="Administration"
             >
-              Admin
+              <span className="text-base md:text-xs">⚙️</span>
+              <span className="hidden md:inline">Admin</span>
             </a>
           </div>
         </div>
