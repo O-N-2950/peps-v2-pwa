@@ -10,7 +10,7 @@ export default function SecondaryNav({ role = 'member' }) {
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/member-dashboard' },
     { id: 'map', label: 'Carte', icon: '🗺️', path: '/map' },
     { id: 'flash', label: 'Offres Flash', icon: '⚡', path: '/flash-offers' },
-    { id: 'favorites', label: 'Favoris', icon: '⭐', path: '/favorites' },
+    { id: 'favorites', label: 'Favoris', icon: '⭐', path: '/map' },
   ];
 
   // Tabs pour les partenaires
@@ -47,6 +47,7 @@ export default function SecondaryNav({ role = 'member' }) {
             <button
               key={tab.id}
               onClick={() => handleTabClick(tab.path)}
+              title={tab.label}
               className={`flex items-center space-x-2 px-3 py-4 border-b-2 transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'text-purple-700 border-purple-700 font-semibold'
