@@ -477,12 +477,10 @@ def serve_uploads(filename):
     uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads')
     return send_from_directory(uploads_dir, filename)
 
-# Route pour servir les vidéos Pepi du dossier frontend/public/videos/
-# Route vidéos désactivée : Flask sert déjà dist/ qui contient les vidéos copiées par Vite
-# @app.route('/videos/<path:filename>')
-# def serve_videos(filename):
-#     videos_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'public', 'videos')
-#     return send_from_directory(videos_dir, filename)
+# Route pour servir les vidéos Pepi depuis dist/videos/ (copiées par Vite lors du build)
+@app.route('/videos/<path:filename>')
+def serve_videos(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'videos'), filename)
 
 @app.route('/')
 def index():
