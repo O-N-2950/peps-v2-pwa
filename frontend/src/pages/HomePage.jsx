@@ -369,8 +369,8 @@ const HomePage = () => {
               className="group relative px-3 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#38B2AC] to-[#2A9D8F] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-1 md:gap-2 text-xs md:text-base"
             >
               <User className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Connexion Membre</span>
-              <span className="sm:hidden">Membre</span>
+              <span className="hidden sm:inline">Accès Membre</span>
+              <span className="sm:hidden">Accès Membre</span>
               <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-xl transition-opacity"></div>
             </a>
             
@@ -380,8 +380,8 @@ const HomePage = () => {
               className="group relative px-3 py-2 md:px-6 md:py-3 bg-gradient-to-r from-[#F26D7D] to-[#E76F51] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-1 md:gap-2 text-xs md:text-base"
             >
               <Store className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Connexion Partenaire</span>
-              <span className="sm:hidden">Partenaire</span>
+              <span className="hidden sm:inline">Accès Partenaire</span>
+              <span className="sm:hidden">Accès Partenaire</span>
               <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-xl transition-opacity"></div>
             </a>
             
@@ -420,7 +420,7 @@ const HomePage = () => {
         />
         
         {/* Vidéo Pepi Bienvenue */}
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="absolute top-20 sm:top-24 left-1/2 transform -translate-x-1/2 z-20">
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
