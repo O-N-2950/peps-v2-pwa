@@ -30,21 +30,35 @@ export default function MemberDashboardNew() {
       const profileData = await profileRes.json();
       
       if (profileData.success) {
-        setProfile(profileData.profile);
+        const p = profileData.profile;
+        setProfile(p);
+        
+        // Calculer le prochain grade
+        let nextGrade = null;
+        let progressToNext = 100;
+        if (p.grade.name === 'Bronze') {
+          nextGrade = 'Argent';
+          progressToNext = (p.activations_count / 20) * 100;
+        } else if (p.grade.name === 'Argent') {
+          nextGrade = 'Or';
+          progressToNext = ((p.activations_count - 20) / 30) * 100;
+        } else if (p.grade.name === 'Or') {
+          nextGrade = 'Diamant';
+          progressToNext = ((p.activations_count - 50) / 50) * 100;
+        }
+        
+        setStats({
+          grade: p.grade.name,
+          gradeIcon: p.grade.emoji,
+          points: p.points,
+          activations: p.activations_count,
+          savings: p.total_savings,
+          partnersVisited: p.favorites.length,
+          streakWeeks: Math.floor(p.streak / 7),
+          nextGrade,
+          progressToNext: Math.min(progressToNext, 100),
+        });
       }
-
-      // Charger les statistiques (simulées pour l'instant)
-      setStats({
-        grade: 'Diamant',
-        gradeIcon: '💎',
-        points: 1250,
-        activations: 125,
-        savings: 1250,
-        partnersVisited: 25,
-        streakWeeks: 15,
-        nextGrade: null,
-        progressToNext: 100,
-      });
 
       setLoading(false);
     } catch (error) {
