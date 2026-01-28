@@ -95,7 +95,8 @@ app.register_blueprint(gamification_bp)  # Système de gamification membres
 app.register_blueprint(activation_bp)  # Système de tracking activations + feedback
 app.register_blueprint(cancellation_bp)  # Résiliation abonnement + suppression compte
 app.register_blueprint(followers_bp)  # Système de followers partenaires
-app.register_blueprint(ai_coach_bp)  # IA Coach Gemini Flash pour suggestions business
+app.register_blueprint(ai_coach_bp, url_prefix='/api/ai-coach')  # IA Coach Gemini Flash pour suggestions business
+  # IA Coach Gemini Flash pour suggestions business
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
