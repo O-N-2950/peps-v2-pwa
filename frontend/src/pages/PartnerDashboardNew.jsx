@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SecondaryNav from '../components/SecondaryNav';
 import QuickActions from '../components/QuickActions';
+import PartnerBookingDashboard from './PartnerBookingDashboard';
 import toast, { Toaster } from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -179,10 +180,8 @@ export default function PartnerDashboardNew() {
 
         {/* Onglet Agenda */}
         {activeTab === 'agenda' && (
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Agenda des Réservations</h2>
-            {/* Contenu de l'agenda */}
-            <p className="text-gray-600">Vos réservations à venir...</p>
+          <div>
+            <PartnerBookingDashboard partnerId={partner?.id || 2} />
           </div>
         )}
       </div>

@@ -10,7 +10,16 @@ export default function PartnerBookingDashboard({ partnerId }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [newBooking, setNewBooking] = useState({
+    member_email: '',
+    service_id: '',
+    booking_date: '',
+    booking_time: '',
+    number_of_people: 1,
+    notes: ''
+  });
 
   useEffect(() => {
     loadData();
@@ -174,7 +183,16 @@ export default function PartnerBookingDashboard({ partnerId }) {
             {/* Tab: Réservations */}
             {activeTab === 'bookings' && (
               <div>
-                <h2 className="text-xl font-bold mb-4">Réservations à venir</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold">Réservations à venir</h2>
+                  <button
+                    onClick={() => setShowBookingModal(true)}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    <Plus size={20} />
+                    Créer un rendez-vous
+                  </button>
+                </div>
                 {bookings.length === 0 ? (
                   <div className="text-center py-12 text-gray-500">
                     <Calendar size={48} className="mx-auto mb-4 opacity-50" />
@@ -388,6 +406,29 @@ export default function PartnerBookingDashboard({ partnerId }) {
           }}
         />
       )}
+
+      {/* Modal Création Rendez-vous */}
+      {showBookingModal && (
+        <BookingModal
+          isOpen={showBookingModal}
+          services={services}
+          onClose={() => setShowBookingModal(false)}
+          onSave={async (bookingData) => {
+            const res = await fetch(`${API_URL}/api/partner/${partnerId}/bookings/manual`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(bookingData)
+            });
+            const data = await res.json();
+            if (data.success) {
+              alert('✅ Rendez-vous créé avec succès !');
+              loadBookings();
+            } else {
+              throw new Error(data.error || 'Erreur création');
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -549,6 +590,165 @@ function ServiceModal({ service, partnerId, onClose, onSave }) {
             </div>
           </form>
         </div>
+      </div>
+    </div>
+  );
+}
+
+
+// Modal de création de rendez-vous manuel
+function BookingModal({ isOpen, onClose, services, onSave }) {
+  const [formData, setFormData] = useState({
+    member_email: '',
+    service_id: '',
+    booking_date: '',
+    booking_time: '',
+    number_of_people: 1,
+    notes: ''
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await onSave(formData);
+      onClose();
+      setFormData({
+        member_email: '',
+        service_id: '',
+        booking_date: '',
+        booking_time: '',
+        number_of_people: 1,
+        notes: ''
+      });
+    } catch (error) {
+      console.error('Erreur création RDV:', error);
+      alert('❌ Erreur lors de la création du rendez-vous');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">Créer un rendez-vous</h2>
+          <p className="text-gray-600 mt-1">Créer manuellement un rendez-vous pour un client</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email du membre *
+            </label>
+            <input
+              type="email"
+              required
+              value={formData.member_email}
+              onChange={(e) => setFormData({ ...formData, member_email: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="membre@example.com"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Le membre recevra une confirmation par email
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Service *
+            </label>
+            <select
+              required
+              value={formData.service_id}
+              onChange={(e) => setFormData({ ...formData, service_id: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Sélectionner un service</option>
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name} - {service.duration_minutes} min - {service.price} CHF
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date *
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.booking_date}
+                onChange={(e) => setFormData({ ...formData, booking_date: e.target.value })}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Heure *
+              </label>
+              <input
+                type="time"
+                required
+                value={formData.booking_time}
+                onChange={(e) => setFormData({ ...formData, booking_time: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre de personnes
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={formData.number_of_people}
+              onChange={(e) => setFormData({ ...formData, number_of_people: parseInt(e.target.value) })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notes
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Informations complémentaires..."
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Création...' : 'Créer le rendez-vous'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
