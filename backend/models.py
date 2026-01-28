@@ -69,8 +69,8 @@ class Member(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     first_name = db.Column(db.String(50))
     stripe_customer_id = db.Column(db.String(100), index=True)
-    subscription_status = db.Column(db.String(20), default='inactive')
-    current_period_end = db.Column(db.DateTime)
+    # subscription_status = db.Column(db.String(20), default='inactive')  # Deprecated: Use Subscription table
+    # current_period_end = db.Column(db.DateTime)  # Deprecated: Use Subscription table
     referral_code = db.Column(db.String(20), unique=True)
     referred_by = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=True)
     firestore_id = db.Column(db.String(100), index=True) # Migration
