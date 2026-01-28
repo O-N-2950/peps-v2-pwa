@@ -362,22 +362,32 @@ const HomePage = () => {
               PEP'S
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {/* Bouton Connexion Membre - Style moderne avec icône */}
             <a
               href="/login/member"
-              className="px-4 py-2 text-gray-700 hover:text-[#38B2AC] font-semibold transition-colors"
+              className="group relative px-6 py-3 bg-gradient-to-r from-[#38B2AC] to-[#2A9D8F] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
             >
-              Connexion Membre
+              <User className="w-5 h-5" />
+              <span>Connexion Membre</span>
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-xl transition-opacity"></div>
             </a>
+            
+            {/* Bouton Connexion Partenaire - Style moderne avec icône */}
             <a
               href="/login/partner"
-              className="px-4 py-2 text-gray-700 hover:text-[#F26D7D] font-semibold transition-colors"
+              className="group relative px-6 py-3 bg-gradient-to-r from-[#F26D7D] to-[#E76F51] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
             >
-              Connexion Partenaire
+              <Store className="w-5 h-5" />
+              <span>Connexion Partenaire</span>
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-xl transition-opacity"></div>
             </a>
+            
+            {/* Lien Admin - Discret (petit texte gris) */}
             <a
               href="/admin"
-              className="px-4 py-2 bg-gradient-to-r from-[#38B2AC] to-[#F26D7D] text-white rounded-full font-bold hover:scale-105 transition-transform"
+              className="px-3 py-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              title="Administration"
             >
               Admin
             </a>

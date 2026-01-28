@@ -55,7 +55,7 @@ const PepiWidget = () => {
 
     try {
       // 2. Appel à l'API IA Coach
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/ai-coach/chat`, {
+      const response = await fetch('/api/ai-coach/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
