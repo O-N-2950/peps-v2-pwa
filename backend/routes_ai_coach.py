@@ -280,25 +280,32 @@ def chat():
         if not user_message:
             return jsonify({'error': 'Message vide'}), 400
         
-        # Rechercher des partenaires si la demande concerne une catégorie/activité
+        # Rechercher des partenaires si la demande concerne une catégorie/activité/localisation
         partners_context = ""
-        keywords = ['partenaire', 'commerçant', 'assurance', 'restaurant', 'coiffeur', 'boulangerie', 'gym', 'spa', 'hôtel', 'café', 'bar', 'boutique', 'magasin', 'salon', 'garage', 'pharmacie', 'opticien', 'bijouterie', 'fleuriste', 'librairie']
+        keywords = ['partenaire', 'commerçant', 'assurance', 'restaurant', 'coiffeur', 'boulangerie', 'gym', 'spa', 'hôtel', 'café', 'bar', 'boutique', 'magasin', 'salon', 'garage', 'pharmacie', 'opticien', 'bijouterie', 'fleuriste', 'librairie', 'village', 'ville', 'localité', 'à', 'dans']
         
         if any(keyword in user_message.lower() for keyword in keywords):
-            # Rechercher dans la base de données
+            # Rechercher dans la base de données (catégorie, nom, description, adresse, ville)
             search_term = user_message.lower()
             partners = Partner.query.filter(
                 db.or_(
                     Partner.business_name.ilike(f'%{search_term}%'),
                     Partner.description.ilike(f'%{search_term}%'),
-                    Partner.category.ilike(f'%{search_term}%')
+                    Partner.category.ilike(f'%{search_term}%'),
+                    Partner.address.ilike(f'%{search_term}%'),
+                    Partner.city.ilike(f'%{search_term}%'),
+                    Partner.postal_code.ilike(f'%{search_term}%')
                 )
-            ).filter_by(is_active=True).limit(5).all()
+            ).filter_by(is_active=True).limit(10).all()
             
             if partners:
-                partners_context = "\n\nPartenaires trouvés dans la base de données :\n"
+                partners_context = f"\n\nPartenaires trouvés ({len(partners)}) :\n"
                 for p in partners:
-                    partners_context += f"- **{p.business_name}** ({p.category}) : {p.description}\n"
+                    partners_context += f"- **{p.business_name}** ({p.category})\n"
+                    if p.description:
+                        partners_context += f"  {p.description}\n"
+                    if p.city:
+                        partners_context += f"  Ville : {p.city}\n"
                     if p.address:
                         partners_context += f"  Adresse : {p.address}\n"
         
