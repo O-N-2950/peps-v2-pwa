@@ -470,4 +470,4 @@ En attendant, puis-je t'aider avec autre chose ?"
 
 **FIN DU PROMPT - VERSION 1.0**
 
-> ⚠️ **À VALIDER PAR OLIVIER AVANT INTÉGRATION DANS LE CODE**
+> ⚠️ **À VALIDER PAR OLIVIER NEUKOMM AVANT INTÉGRATION DANS LE CODE**
