@@ -23,6 +23,7 @@ import PartnerDashboardNew from './pages/PartnerDashboardNew';
 import ActivationPage from './pages/ActivationPage';
 import MemberSettings from './pages/MemberSettings';
 import PartnerSettings from './pages/PartnerSettings';
+import PepiWidget from './components/PepiWidget';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -98,6 +99,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      <PepiWidget />
     </BrowserRouter>
   );
 }

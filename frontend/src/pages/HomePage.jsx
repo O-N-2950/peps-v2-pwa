@@ -406,8 +406,27 @@ const HomePage = () => {
           }}
         />
         
+        {/* Vidéo Pepi Bienvenue */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="w-32 h-32 md:w-40 md:h-40"
+          >
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-contain drop-shadow-2xl"
+              src="/videos/pepi-01-bienvenue-bonjour.mp4"
+            />
+          </motion.div>
+        </div>
+        
         {/* Contenu du Hero */}
-        <div className="relative z-10 text-center p-8 backdrop-blur-sm bg-black bg-opacity-30 rounded-xl">
+        <div className="relative z-10 text-center p-8 backdrop-blur-sm bg-black bg-opacity-30 rounded-xl mt-24">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
