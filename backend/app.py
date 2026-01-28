@@ -17,6 +17,7 @@ except ImportError:
 from stripe_service import sync_v20_products, create_checkout_v20, handle_webhook_v20
 from migrate_v20_auto import run_migration
 from migrate_partner_addresses import run_migration as run_partner_addresses_migration
+from migrate_tracking_feedback import run_migration as run_tracking_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20_fixed import admin_bp_fixed as admin_bp
 from routes_stripe import stripe_bp
@@ -35,6 +36,7 @@ from routes_debug_partners import debug_partners_bp
 from routes_flash_offers import flash_offers_bp
 from routes_migrate_flash_reservations import migrate_flash_reservations_bp
 from routes_gamification import gamification_bp
+from routes_activation import activation_bp
 
 import os
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'dist'))
@@ -59,6 +61,7 @@ jwt = JWTManager(app)
 with app.app_context():
     run_migration()
     run_partner_addresses_migration()
+    run_tracking_migration()
     db.create_all()
 
 # ==========================================
@@ -83,6 +86,7 @@ app.register_blueprint(debug_partners_bp)  # Debug partenaires
 app.register_blueprint(flash_offers_bp)  # Offres flash avec validation IA
 app.register_blueprint(migrate_flash_reservations_bp)  # Migration flash_reservations
 app.register_blueprint(gamification_bp)  # Système de gamification membres
+app.register_blueprint(activation_bp)  # Système de tracking activations + feedback
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
