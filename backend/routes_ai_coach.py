@@ -280,15 +280,39 @@ def chat():
         if not user_message:
             return jsonify({'error': 'Message vide'}), 400
         
-        # Appel à Gemini Flash
+        # Rechercher des partenaires si la demande concerne une catégorie/activité
+        partners_context = ""
+        keywords = ['partenaire', 'commerçant', 'assurance', 'restaurant', 'coiffeur', 'boulangerie', 'gym', 'spa', 'hôtel', 'café', 'bar', 'boutique', 'magasin', 'salon', 'garage', 'pharmacie', 'opticien', 'bijouterie', 'fleuriste', 'librairie']
+        
+        if any(keyword in user_message.lower() for keyword in keywords):
+            # Rechercher dans la base de données
+            search_term = user_message.lower()
+            partners = Partner.query.filter(
+                db.or_(
+                    Partner.business_name.ilike(f'%{search_term}%'),
+                    Partner.description.ilike(f'%{search_term}%'),
+                    Partner.category.ilike(f'%{search_term}%')
+                )
+            ).filter_by(is_active=True).limit(5).all()
+            
+            if partners:
+                partners_context = "\n\nPartenaires trouvés dans la base de données :\n"
+                for p in partners:
+                    partners_context += f"- **{p.business_name}** ({p.category}) : {p.description}\n"
+                    if p.address:
+                        partners_context += f"  Adresse : {p.address}\n"
+        
+        # Appel à Gemini Flash avec contexte enrichi
         from openai import OpenAI
         client = OpenAI()
+        
+        full_message = user_message + partners_context
         
         response = client.chat.completions.create(
             model="gemini-2.5-flash",
             messages=[
                 {"role": "system", "content": PEPI_SYSTEM_PROMPT},
-                {"role": "user", "content": user_message}
+                {"role": "user", "content": full_message}
             ],
             max_tokens=1500,
             temperature=0.7
