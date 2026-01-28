@@ -10,6 +10,16 @@ from datetime import datetime, timedelta
 import os
 import json
 
+# Charger le prompt Pepi complet depuis le fichier
+PEPI_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'PEPI_PROMPT.md')
+try:
+    with open(PEPI_PROMPT_PATH, 'r', encoding='utf-8') as f:
+        PEPI_SYSTEM_PROMPT = f.read()
+    print("[AI_COACH] Prompt Pepi chargé avec succès")
+except Exception as e:
+    print(f"[AI_COACH] ERREUR chargement prompt: {e}")
+    PEPI_SYSTEM_PROMPT = "Tu es Pepi, l'assistant IA de PEP's. Tu aides les utilisateurs à découvrir des privilèges locaux en Suisse, France et Belgique. Sois amical, concis et utilise le tutoiement."
+
 ai_coach_bp = Blueprint('ai_coach', __name__, url_prefix='/api/ai-coach')
 
 def get_partner_from_token():
@@ -276,10 +286,10 @@ def chat():
         response = client.chat.completions.create(
             model="gemini-2.5-flash",
             messages=[
-                {"role": "system", "content": "Tu es Pepi, l'assistant IA de PEP's. Tu aides les utilisateurs à découvrir des privilèges locaux en Suisse, France et Belgique. Sois amical, concis et utilise le tutoiement."},
+                {"role": "system", "content": PEPI_SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
-            max_tokens=500,
+            max_tokens=1500,
             temperature=0.7
         )
         
