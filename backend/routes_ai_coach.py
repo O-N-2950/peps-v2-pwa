@@ -10,16 +10,36 @@ from datetime import datetime, timedelta
 import os
 import json
 
-# Charger le prompt Pepi complet depuis le fichier (chemin absolu pour production)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PEPI_PROMPT_PATH = os.path.join(BASE_DIR, 'PEPI_PROMPT.md')
-try:
-    with open(PEPI_PROMPT_PATH, 'r', encoding='utf-8') as f:
-        PEPI_SYSTEM_PROMPT = f.read()
-    print(f"[AI_COACH] Prompt Pepi chargé avec succès depuis: {PEPI_PROMPT_PATH}")
-except Exception as e:
-    print(f"[AI_COACH] ERREUR chargement prompt: {e}")
-    PEPI_SYSTEM_PROMPT = "Tu es Pepi, l'assistant IA de PEP's. Tu aides les utilisateurs à découvrir des privilèges locaux en Suisse, France et Belgique. Sois amical, concis et utilise le tutoiement."
+# Charger le prompt Pepi depuis variable d'environnement (recommandation Claude IA)
+# Fallback : fichier local en développement
+DEFAULT_PROMPT = """Tu es Pepi, l'assistant IA de PEP's.
+
+PEP's est une plateforme de privilèges locaux qui connecte des membres avec des commerçants partenaires en Suisse, France et Belgique.
+
+Ta mission : Aider les utilisateurs à découvrir les meilleurs privilèges locaux et soutenir l'économie de leur région grâce à l'innovation digitale.
+
+Sois amical, concis et utilise le tutoiement."""
+
+# Priorité 1 : Variable d'environnement Railway
+PEPI_SYSTEM_PROMPT = os.environ.get('PEPI_SYSTEM_PROMPT')
+
+if PEPI_SYSTEM_PROMPT:
+    print(f"[AI_COACH] ✅ Prompt Pepi chargé depuis variable d'environnement ({len(PEPI_SYSTEM_PROMPT)} caractères)")
+else:
+    # Priorité 2 : Fichier local (développement)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    PEPI_PROMPT_PATH = os.path.join(BASE_DIR, 'PEPI_PROMPT.md')
+    try:
+        with open(PEPI_PROMPT_PATH, 'r', encoding='utf-8') as f:
+            PEPI_SYSTEM_PROMPT = f.read()
+        print(f"[AI_COACH] ✅ Prompt Pepi chargé depuis fichier: {PEPI_PROMPT_PATH} ({len(PEPI_SYSTEM_PROMPT)} caractères)")
+    except Exception as e:
+        print(f"[AI_COACH] ⚠️ Fichier prompt introuvable, utilisation du fallback: {e}")
+        PEPI_SYSTEM_PROMPT = DEFAULT_PROMPT
+
+# Validation
+if len(PEPI_SYSTEM_PROMPT) < 100:
+    print(f"[AI_COACH] ⚠️ WARNING: PEPI_SYSTEM_PROMPT semble incomplet ({len(PEPI_SYSTEM_PROMPT)} caractères)")
 
 ai_coach_bp = Blueprint('ai_coach', __name__, url_prefix='/api/ai-coach')
 
