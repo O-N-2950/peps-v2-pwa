@@ -18,6 +18,7 @@ import MemberBookingPage from './pages/MemberBookingPage';
 import AvantagesPage from './pages/AvantagesPage';
 import MemberDashboardNew from './pages/MemberDashboardNew';
 import PartnerDashboardNew from './pages/PartnerDashboardNew';
+import ActivationPage from './pages/ActivationPage';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="/dashboard" element={<StripeHandler />} />
           <Route path="/flash-offers" element={<FlashOffers />} />
           <Route path="/book/:partnerId" element={<MemberBookingPage memberId={1} />} />
+          <Route path="/activate/:partnerId" element={<ActivationPage />} />
         </Route>
         
         {/* Routes Admin V20 */}
