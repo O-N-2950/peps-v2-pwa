@@ -29,17 +29,16 @@ def check_subscription():
         if not member:
             return jsonify({'error': 'Membre non trouvé'}), 404
         
-        # Vérifier si l'abonnement est actif
+        # Vérifier si l'abonnement est actif via la table subscriptions
         subscription = Subscription.query.filter_by(
-            member_id=member.id,
-            status='active'
-        ).first()
+            member_id=member.id
+        ).order_by(Subscription.created_at.desc()).first()
         
-        if not subscription:
+        if not subscription or subscription.status != 'active':
             return jsonify({
                 'active': False,
-                'status': 'expired',
-                'message': 'Votre abonnement a expiré',
+                'status': 'expired' if subscription else 'no_subscription',
+                'message': 'Votre abonnement a expiré' if subscription else 'Aucun abonnement actif',
                 'renewal_required': True
             }), 200
         
