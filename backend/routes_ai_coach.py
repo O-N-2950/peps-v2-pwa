@@ -107,12 +107,12 @@ model = None
 if GEMINI_SDK_AVAILABLE and GOOGLE_API_KEY:
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash-exp",  # Version stable recommandée
+            model_name="gemini-2.0-flash",  # Version stable recommandée
             generation_config=generation_config,
             safety_settings=safety_settings,
             system_instruction=PEPI_SYSTEM_PROMPT
         )
-        print(f"[AI_COACH] ✅ Modèle Gemini initialisé : gemini-2.0-flash-exp")
+        print(f"[AI_COACH] ✅ Modèle Gemini initialisé : gemini-2.0-flash")
     except Exception as e:
         print(f"[AI_COACH] ❌ Erreur initialisation modèle Gemini: {e}")
         model = None
@@ -201,7 +201,7 @@ def call_gemini_flash(prompt):
     try:
         # Créer un modèle temporaire pour les suggestions (sans system_instruction)
         temp_model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash-exp",
+            model_name="gemini-2.0-flash",
             generation_config=generation_config,
             safety_settings=safety_settings
         )
