@@ -11,11 +11,10 @@ def run_migration():
     
     try:
         # Vérifier si la table privilege_activations existe déjà
-        result = db.session.execute(text("""
-            SELECT name FROM sqlite_master 
-            WHERE type='table' AND name='privilege_activations'
-        """))
-        exists = result.scalar()
+        # Détection compatible PostgreSQL et SQLite
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        exists = 'privilege_activations' in inspector.get_table_names()
         
         if not exists:
             print("📊 Création de la table privilege_activations...")
