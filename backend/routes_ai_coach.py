@@ -256,3 +256,37 @@ def generate_fallback_suggestions(stats):
     
     # Retourner maximum 3 suggestions
     return suggestions[:3]
+
+@ai_coach_bp.route('/chat', methods=['POST'])
+def chat():
+    """
+    Endpoint de chat avec Pepi (Gemini Flash)
+    """
+    try:
+        data = request.get_json()
+        user_message = data.get('message', '').strip()
+        
+        if not user_message:
+            return jsonify({'error': 'Message vide'}), 400
+        
+        # Appel à Gemini Flash
+        from openai import OpenAI
+        client = OpenAI()
+        
+        response = client.chat.completions.create(
+            model="gemini-2.5-flash",
+            messages=[
+                {"role": "system", "content": "Tu es Pepi, l'assistant IA de PEP's. Tu aides les utilisateurs à découvrir des privilèges locaux en Suisse, France et Belgique. Sois amical, concis et utilise le tutoiement."},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        
+        assistant_response = response.choices[0].message.content
+        
+        return jsonify({'response': assistant_response}), 200
+        
+    except Exception as e:
+        print(f"Erreur chat Pepi: {str(e)}")
+        return jsonify({'error': 'Erreur serveur'}), 500
