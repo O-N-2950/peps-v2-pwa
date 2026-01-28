@@ -1,13 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png', 'videos/*.mp4'],
       manifest: {
         name: "PEP's - Privilèges Exclusifs",
         short_name: "PEP's",
@@ -31,8 +30,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,mp4}'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.origin === 'https://www.peps.swiss',
@@ -55,6 +54,17 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
+          },
+          {
+            urlPattern: /\.(?:mp4|webm)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'videos-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              }
+            }
           }
         ]
       }
@@ -66,7 +76,7 @@ export default defineConfig({
     }
   },
   build: {
-    minify: false,  // Désactiver la minification pour debug
-    sourcemap: true  // Activer les sourcemaps
+    minify: false,
+    sourcemap: true
   }
 })

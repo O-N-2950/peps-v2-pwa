@@ -60,7 +60,7 @@ const PepiWidget = () => {
         headers: {
           'Content-Type': 'application/json',
           // NOTE: Vérifier si le token est toujours nécessaire pour le chat public/widget
-          'Authorization': `Bearer ${localStorage.getItem('token')}` 
+          // Pas d'auth nécessaire pour chatbot public 
         },
         body: JSON.stringify({
           // Utilisation de la valeur capturée
