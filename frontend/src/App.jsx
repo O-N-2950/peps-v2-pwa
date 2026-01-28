@@ -21,6 +21,8 @@ import AvantagesPage from './pages/AvantagesPage';
 import MemberDashboardNew from './pages/MemberDashboardNew';
 import PartnerDashboardNew from './pages/PartnerDashboardNew';
 import ActivationPage from './pages/ActivationPage';
+import MemberSettings from './pages/MemberSettings';
+import PartnerSettings from './pages/PartnerSettings';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -61,6 +63,7 @@ function AnimatedRoutes() {
           <Route path="/partner-dashboard-old" element={<PartnerDashboard />} />
           <Route path="/dashboard-v21" element={<PartnerDashboardV21 />} />
           <Route path="/partner/bookings" element={<PartnerBookingDashboard partnerId={1} />} />
+          <Route path="/partner-settings" element={<PartnerSettings />} />
         </Route>
         
         <Route element={<ProtectedRoute role="member" />}>
@@ -69,6 +72,7 @@ function AnimatedRoutes() {
           <Route path="/flash-offers" element={<FlashOffers />} />
           <Route path="/book/:partnerId" element={<MemberBookingPage memberId={1} />} />
           <Route path="/activate/:partnerId" element={<ActivationPage />} />
+          <Route path="/settings" element={<MemberSettings />} />
         </Route>
         
         {/* Routes Admin V20 */}

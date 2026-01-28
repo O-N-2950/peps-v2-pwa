@@ -39,6 +39,7 @@ from routes_flash_offers import flash_offers_bp
 from routes_migrate_flash_reservations import migrate_flash_reservations_bp
 from routes_gamification import gamification_bp
 from routes_activation import activation_bp
+from routes_cancellation import cancellation_bp
 
 import os
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'dist'))
@@ -90,6 +91,7 @@ app.register_blueprint(flash_offers_bp)  # Offres flash avec validation IA
 app.register_blueprint(migrate_flash_reservations_bp)  # Migration flash_reservations
 app.register_blueprint(gamification_bp)  # Système de gamification membres
 app.register_blueprint(activation_bp)  # Système de tracking activations + feedback
+app.register_blueprint(cancellation_bp)  # Résiliation abonnement + suppression compte
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
