@@ -18,6 +18,7 @@ from stripe_service import sync_v20_products, create_checkout_v20, handle_webhoo
 from migrate_v20_auto import run_migration
 from migrate_partner_addresses import run_migration as run_partner_addresses_migration
 from migrate_tracking_feedback import run_migration as run_tracking_migration
+from migrate_members_columns import run_members_columns_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20_fixed import admin_bp_fixed as admin_bp
 from routes_stripe import stripe_bp
@@ -61,6 +62,7 @@ jwt = JWTManager(app)
 with app.app_context():
     run_migration()
     run_partner_addresses_migration()
+    run_members_columns_migration()
     run_tracking_migration()
     db.create_all()
 
