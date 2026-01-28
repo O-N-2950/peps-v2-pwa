@@ -10,12 +10,13 @@ from datetime import datetime, timedelta
 import os
 import json
 
-# Charger le prompt Pepi complet depuis le fichier
-PEPI_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'PEPI_PROMPT.md')
+# Charger le prompt Pepi complet depuis le fichier (chemin absolu pour production)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PEPI_PROMPT_PATH = os.path.join(BASE_DIR, 'PEPI_PROMPT.md')
 try:
     with open(PEPI_PROMPT_PATH, 'r', encoding='utf-8') as f:
         PEPI_SYSTEM_PROMPT = f.read()
-    print("[AI_COACH] Prompt Pepi chargé avec succès")
+    print(f"[AI_COACH] Prompt Pepi chargé avec succès depuis: {PEPI_PROMPT_PATH}")
 except Exception as e:
     print(f"[AI_COACH] ERREUR chargement prompt: {e}")
     PEPI_SYSTEM_PROMPT = "Tu es Pepi, l'assistant IA de PEP's. Tu aides les utilisateurs à découvrir des privilèges locaux en Suisse, France et Belgique. Sois amical, concis et utilise le tutoiement."
