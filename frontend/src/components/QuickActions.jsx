@@ -57,29 +57,69 @@ export default function QuickActions({ role = 'member' }) {
     },
   ];
 
-  // Actions pour les partenaires
+  // Actions pour les partenaires (redesignées selon specs)
   const partnerActions = [
     {
-      id: 'map',
-      icon: '🗺️',
-      title: 'VOIR MA POSITION',
-      description: 'Visualisez votre emplacement sur la carte interactive',
-      path: '/map',
-      buttonText: 'Ouvrir la carte',
-      buttonClass: 'bg-purple-600 hover:bg-purple-700 text-white',
+      id: 'create-flash',
+      icon: '⚡',
+      title: 'CRÉER OFFRE FLASH',
+      description: 'Boostez votre visibilité en 2 clics',
+      action: () => {
+        // TODO: Ouvrir modal de création d'offre flash
+        navigate('/partner-dashboard?tab=push');
+      },
+      buttonText: 'Créer maintenant',
+      buttonClass: 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold',
+      priority: 'high'
     },
     {
-      id: 'flash',
-      icon: '⚡',
-      title: 'OFFRES FLASH',
-      description: `${flashOffersCount} offre${flashOffersCount > 1 ? 's' : ''} flash active${flashOffersCount > 1 ? 's' : ''}`,
-      path: '/flash-offers',
-      buttonText: 'Voir toutes les offres',
-      buttonClass: 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white',
+      id: 'manage-privileges',
+      icon: '🎁',
+      title: 'GÉRER PRIVILÈGES',
+      description: 'Créer, modifier ou supprimer vos offres',
+      action: () => {
+        navigate('/partner-dashboard?tab=privileges');
+      },
+      buttonText: 'Voir mes privilèges',
+      buttonClass: 'bg-teal-600 hover:bg-teal-700 text-white',
+      priority: 'medium'
+    },
+    {
+      id: 'send-notification',
+      icon: '📣',
+      title: 'NOTIFICATION PUSH',
+      description: 'Alertez vos followers instantanément',
+      action: () => {
+        // TODO: Ouvrir modal d'envoi de notification
+        navigate('/partner-dashboard?tab=push');
+      },
+      buttonText: 'Envoyer notification',
+      buttonClass: 'bg-purple-600 hover:bg-purple-700 text-white',
+      priority: 'medium'
+    },
+    {
+      id: 'view-bookings',
+      icon: '📅',
+      title: 'AGENDA & RÉSERVATIONS',
+      description: 'Gérer vos rendez-vous et réservations',
+      action: () => {
+        navigate('/partner-dashboard?tab=agenda');
+      },
+      buttonText: 'Voir l\'agenda',
+      buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white',
+      priority: 'low'
     },
   ];
 
   const actions = role === 'partner' ? partnerActions : memberActions;
+
+  const handleAction = (action) => {
+    if (action.action) {
+      action.action();
+    } else if (action.path) {
+      navigate(action.path);
+    }
+  };
 
   return (
     <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 mb-6">
@@ -91,7 +131,7 @@ export default function QuickActions({ role = 'member' }) {
         {actions.map((action) => (
           <div
             key={action.id}
-            onClick={() => navigate(action.path)}
+            onClick={() => handleAction(action)}
             className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
@@ -99,6 +139,10 @@ export default function QuickActions({ role = 'member' }) {
               {action.badge ? (
                 <span className="text-xs text-red-600 font-bold animate-pulse bg-red-100 px-2 py-1 rounded">
                   {action.badge}
+                </span>
+              ) : action.priority === 'high' ? (
+                <span className="text-xs text-red-600 font-bold bg-red-100 px-2 py-1 rounded">
+                  PRIORITÉ
                 </span>
               ) : (
                 <span className="text-sm text-purple-600 font-semibold group-hover:translate-x-1 transition-transform">

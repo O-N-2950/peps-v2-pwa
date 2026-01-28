@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-export default function SecondaryNav({ role = 'member' }) {
+export default function SecondaryNav({ role = 'member', hasMemberSubscription = false }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,15 +13,14 @@ export default function SecondaryNav({ role = 'member' }) {
     { id: 'favorites', label: 'Favoris', icon: '⭐', path: '/map' },
   ];
 
-  // Tabs pour les partenaires
+  // Tabs pour les partenaires (nettoyées selon specs)
   const partnerTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/partner-dashboard' },
-    { id: 'stats', label: 'Stats', icon: '📈', path: '/partner-dashboard?tab=stats' },
     { id: 'privileges', label: 'Privilèges', icon: '🎁', path: '/partner-dashboard?tab=privileges' },
     { id: 'push', label: 'Push', icon: '📣', path: '/partner-dashboard?tab=push' },
     { id: 'agenda', label: 'Agenda', icon: '📅', path: '/partner-dashboard?tab=agenda' },
-    { id: 'map', label: 'Ma Position', icon: '🗺️', path: '/map' },
-    { id: 'flash', label: 'Offres Flash', icon: '⚡', path: '/flash-offers' },
+    // "Offres Flash" visible uniquement si le partenaire a aussi un abonnement membre payant
+    ...(hasMemberSubscription ? [{ id: 'flash', label: 'Offres Flash', icon: '⚡', path: '/flash-offers' }] : []),
   ];
 
   const tabs = role === 'partner' ? partnerTabs : memberTabs;
@@ -29,6 +28,15 @@ export default function SecondaryNav({ role = 'member' }) {
   // Déterminer l'onglet actif basé sur l'URL
   const getActiveTab = () => {
     const path = location.pathname;
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+    
+    // Si on a un paramètre tab dans l'URL, l'utiliser
+    if (tabParam) {
+      return tabParam;
+    }
+    
+    // Sinon, chercher par path
     const tab = tabs.find(t => t.path.split('?')[0] === path);
     return tab ? tab.id : 'dashboard';
   };

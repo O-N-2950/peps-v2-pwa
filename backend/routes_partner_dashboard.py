@@ -63,11 +63,56 @@ def get_statistics():
             'activations': count
         })
     
+    # Nombre de followers
+    followers_count = len(partner.followers_list)
+    
+    # Top 5 offres les plus utilisées
+    top_offers_query = db.session.query(
+        Offer.title,
+        func.count(PrivilegeUsage.id).label('count')
+    ).join(PrivilegeUsage).filter(
+        Offer.partner_id == partner.id
+    ).group_by(Offer.id, Offer.title).order_by(func.count(PrivilegeUsage.id).desc()).limit(5)
+    
+    top_offers = [{'title': title, 'count': count} for title, count in top_offers_query]
+    
+    # Activations du mois en cours
+    today = datetime.utcnow()
+    month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    month_activations = PrivilegeUsage.query.join(Offer).filter(
+        Offer.partner_id == partner.id,
+        PrivilegeUsage.used_at >= month_start
+    ).count()
+    
+    # Activations aujourd'hui
+    today_start = today.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_activations = PrivilegeUsage.query.join(Offer).filter(
+        Offer.partner_id == partner.id,
+        PrivilegeUsage.used_at >= today_start
+    ).count()
+    
+    # Formater les données du graphique pour le frontend
+    chart_data = []
+    for stat in daily_stats:
+        day_name = datetime.strptime(stat['date'], '%Y-%m-%d').strftime('%a')  # Lun, Mar, etc.
+        chart_data.append({
+            'name': day_name,
+            'uses': stat['activations']
+        })
+    
     return jsonify({
         'total_activations': total_activations,
         'recent_activations': recent_activations,
         'active_offers': active_offers,
-        'daily_stats': daily_stats
+        'followers_count': followers_count,
+        'month_activations': month_activations,
+        'today_activations': today_activations,
+        'daily_stats': daily_stats,
+        'chart': chart_data,
+        'top_offers': top_offers,
+        'total_month': month_activations,
+        'today': today_activations
     })
 
 @partner_dashboard_bp.route('/privileges', methods=['GET'])
