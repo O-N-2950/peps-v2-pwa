@@ -149,3 +149,177 @@
 ---
 
 **Dernière mise à jour:** 2026-01-27 12:42 GMT+1
+
+
+---
+
+## 🔴 NOUVELLES PRIORITÉS (Ajouté le 2026-01-28 00:45)
+
+### **SYSTÈME DE TRACKING + FEEDBACK + CLASSEMENT**
+
+#### **Backend**
+- [ ] Créer la table `privilege_activations` (id, member_id, partner_id, privilege_id, activated_at, feedback_rating, feedback_comment, feedback_submitted_at)
+- [ ] Endpoint `/api/member/check-subscription` : Vérifier le statut de l'abonnement
+- [ ] Endpoint `/api/member/activate-privilege` : Activer un privilège (avec vérification abonnement)
+- [ ] Endpoint `/api/member/submit-feedback` : Soumettre un feedback (5 étoiles + texte optionnel)
+- [ ] Endpoint `/api/admin/activations` : Liste des activations pour l'admin
+- [ ] Endpoint `/api/admin/partner-ratings` : Notes et classement des commerçants
+- [ ] Endpoint `/api/admin/send-warning` : Envoyer un avertissement à un commerçant
+- [ ] Endpoint `/api/admin/exclude-partner` : Exclure un commerçant
+- [ ] Système d'alertes "Triple Strike" automatique
+- [ ] Webhook Stripe `/api/webhooks/stripe` : Gérer les renouvellements d'abonnement
+
+#### **Frontend Membre - DCI (Détection Contextuelle Intelligente)**
+- [ ] Géolocalisation en temps réel (GPS + Wi-Fi + Cellulaire)
+- [ ] Pré-chargement des commerces à proximité (500m en arrière-plan)
+- [ ] Détection automatique du commerce le plus proche (< 50m)
+- [ ] Affichage du gros bouton "ACTIVER CHEZ [NOM]" sur la home page
+- [ ] Gestion des cas limites :
+  - [ ] Plusieurs commerces proches (< 50m) → Afficher la liste
+  - [ ] Aucun commerce détecté → Afficher la liste des commerces à 500m
+  - [ ] Commerce fermé → Griser le bouton et afficher les horaires
+
+#### **Frontend Membre - Écran d'activation "MEMBRE ACTIF"**
+- [ ] Animation d'étoiles (Lottie) pendant 1.5s
+- [ ] Fond gradient vert/violet PEP's
+- [ ] Texte géant "MEMBRE ACTIF ✅"
+- [ ] Photo + Nom du membre
+- [ ] Grade (💎 Diamant, 🥇 Or, 🥈 Argent, 🥉 Bronze)
+- [ ] **Date et heure en temps réel** (mise à jour chaque seconde) - ANTI-SCREENSHOT
+- [ ] Nom du privilège activé
+- [ ] Expiration après 2 minutes (écran devient gris)
+- [ ] Vibration haptique du téléphone
+
+#### **Frontend Membre - Gestion abonnement expiré**
+- [ ] Vérifier le statut de l'abonnement AVANT activation
+- [ ] Si expiré : Afficher l'écran rouge "ABONNEMENT EXPIRÉ"
+- [ ] Bouton "RENOUVELER MAINTENANT (CHF XX/an)"
+- [ ] Redirection vers Stripe Checkout
+- [ ] Après paiement confirmé :
+  - [ ] Activation automatique du privilège en attente
+  - [ ] Prolongation automatique de l'abonnement (+1 an)
+  - [ ] Affichage de l'écran "MEMBRE ACTIF"
+
+#### **Frontend Membre - Feedback optionnel**
+- [ ] Notification push 5 minutes après l'activation
+- [ ] Formulaire simple :
+  - [ ] 5 étoiles cliquables (note obligatoire)
+  - [ ] Champ texte optionnel pour commentaire
+  - [ ] Boutons "Envoyer" et "Plus tard"
+- [ ] Récompense : +10 points PEP's si feedback laissé
+- [ ] Lien du feedback avec l'activation (date, heure, commerce, privilège)
+
+#### **Frontend Commerçant**
+- [ ] Écran "MEMBRE EN ATTENTE" pendant le paiement (si abonnement expiré)
+- [ ] Écran "MEMBRE ACTIF ✅" après validation
+- [ ] NE PAS afficher la note moyenne du commerçant (seulement l'admin la voit)
+
+#### **Dashboard Admin - Activations en temps réel**
+- [ ] Table des activations :
+  - [ ] Colonnes : Date & Heure | Membre | Commerce | Privilège | Note | Commentaire | Actions
+  - [ ] Filtres : Par commerce, par membre, par date, par note
+  - [ ] Tri : Par date (plus récent en premier)
+- [ ] Voir tous les feedbacks avec leurs activations liées
+
+#### **Dashboard Admin - Classement des Commerçants**
+- [ ] Podium Top 3 (🥇🥈🥉) avec photos et médailles
+- [ ] Liste complète triable par :
+  - [ ] Note moyenne (⭐)
+  - [ ] Taux de conformité (%)
+  - [ ] Volume d'avis (#)
+  - [ ] Score de négativité (🔴)
+- [ ] Métriques par commerçant :
+  - [ ] ✅ Taux de conformité : % de "Oui" à "Privilège appliqué ?"
+  - [ ] ⭐ Note moyenne (30 derniers jours)
+  - [ ] 📈 Volume d'avis
+  - [ ] 🔴 Score de négativité (nombre d'alertes)
+
+#### **Dashboard Admin - Système d'alertes "Triple Strike"**
+- [ ] 🟡 **Alerte 1** : 3 avis "Non appliqué" consécutifs OU Note < 2.0/5
+  - [ ] Email automatique au commerçant
+  - [ ] Notification Slack à l'admin
+  - [ ] Mise sous surveillance
+- [ ] 🟠 **Alerte 2** : 2 Alertes Rouges en 30 jours
+  - [ ] **Suspension temporaire** de l'offre
+  - [ ] Appel obligatoire de l'admin
+  - [ ] Message : "Offre en maintenance"
+- [ ] 🔴 **Alerte 3** : 3 Alertes Rouges en 90 jours
+  - [ ] **EXCLUSION DÉFINITIVE** de PEP's
+  - [ ] Rupture de contrat
+- [ ] Bouton "Envoyer un avertissement" pour chaque commerçant
+- [ ] Bouton "Exclure le commerçant" pour exclusion manuelle
+
+#### **Dashboard Admin - Recommandations IA (Gemini Flash)**
+- [ ] Section "Recommandations IA"
+- [ ] Analyse automatique des notes et tendances
+- [ ] 🚨 Alertes prioritaires : "3 commerçants nécessitent une intervention urgente"
+- [ ] 📉 Tendances négatives : "Le Café du Coin a perdu 1.2 étoiles ce mois-ci"
+- [ ] 📈 Opportunités : "5 commerçants ont un taux de conformité > 95%, mettez-les en avant"
+- [ ] 💡 Suggestions : "Envoyez un email de félicitations aux Top 10"
+
+---
+
+### **MODE VISITEUR (Inscription progressive)**
+
+#### **Concept**
+- Visiteur peut explorer l'app SANS PAYER :
+  - Voir tous les commerçants partenaires
+  - Voir la carte interactive
+  - Voir les privilèges disponibles
+  - Voir les offres flash
+- S'inscrire (nom, email, adresse) → Compte "Membre Visiteur" (inactif)
+- Quand il veut activer un privilège → Paiement Stripe
+- Après paiement → "Membre Actif" (toutes les infos déjà saisies !)
+
+#### **À faire**
+- [ ] Consulter Gemini sur l'UX du mode Visiteur
+- [ ] Créer le bouton "Mode Visiteur" ou "Explorer sans compte" sur la home page
+- [ ] Créer le formulaire d'inscription (sans paiement)
+  - [ ] Nom, Prénom, Email, Adresse, Téléphone
+  - [ ] Acceptation des CGV
+  - [ ] Bouton "S'inscrire gratuitement"
+- [ ] Créer le statut "visitor" dans la table `users`
+- [ ] Limiter les fonctionnalités pour les visiteurs :
+  - [ ] Pas d'activation de privilège (bouton "Devenir membre actif")
+  - [ ] Pas d'accès aux favoris
+  - [ ] Pas d'accès à l'historique
+- [ ] Afficher un CTA "Devenir membre actif" sur chaque page visiteur
+- [ ] Lors de la première tentative d'activation → Redirection vers paiement Stripe
+- [ ] Après paiement → Upgrade automatique "visitor" → "member"
+
+---
+
+### **NAVIGATION ET UX**
+
+#### **Navigation principale (Bottom Tab Bar)**
+- [ ] 🏠 **Accueil** : DCI + Quick Actions + Dashboard
+- [ ] ⚡ **Activer** : Liste des commerces à proximité + Recherche
+- [ ] 🗺️ **Carte** : Carte interactive pour découverte
+- [ ] ⭐ **Favoris** : Commerces favoris
+- [ ] 👤 **Profil** : Compte membre
+
+#### **Dashboard Membre - Simplification**
+- [ ] **Réduire le nombre d'icônes** (trop d'icônes actuellement)
+- [ ] Afficher le prénom du membre au lieu de "Membre"
+- [ ] Connecter les vraies données du backend gamification
+
+---
+
+### **TEMPS ESTIMÉ**
+
+| Tâche | Temps |
+|-------|-------|
+| Backend tracking + feedback + abonnement | 4h |
+| UX activation (DCI + étoiles + horloge) | 3h |
+| Gestion abonnement expiré + Stripe | 2h |
+| Feedback optionnel (formulaire + notification) | 2h |
+| Dashboard Admin (classement + alertes) | 3h |
+| Recommandations IA (Gemini Flash) | 2h |
+| Mode Visiteur (conception + implémentation) | 4h |
+| Navigation (5 onglets + simplification) | 2h |
+| Tests end-to-end | 2h |
+| **TOTAL** | **24h** |
+
+---
+
+**Dernière mise à jour:** 2026-01-28 00:45 GMT+1

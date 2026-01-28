@@ -26,3 +26,142 @@ html, body, #root {
   margin: 0;
   padding: 0;
 }
+
+/* ========================================
+   DESIGN SYSTEM APP-LIKE
+   ======================================== */
+
+/* Safe areas iOS (notch, home indicator) */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Typographie native (iOS/Android) */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+               'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 
+               'Fira Sans', 'Droid Sans', 'Helvetica Neue', 
+               sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Désactiver le tap highlight (look web) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling natif */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Boutons natifs */
+.btn-native {
+  @apply w-full py-4 px-6 rounded-xl;
+  @apply font-semibold text-center;
+  @apply active:scale-95 transition-transform duration-150;
+  @apply shadow-lg active:shadow-md;
+  touch-action: manipulation;
+}
+
+.btn-primary {
+  @apply btn-native;
+  @apply bg-gradient-to-r from-purple-600 to-pink-600;
+  @apply text-white;
+}
+
+.btn-secondary {
+  @apply btn-native;
+  @apply bg-white border-2 border-purple-600;
+  @apply text-purple-600;
+}
+
+.btn-success {
+  @apply btn-native;
+  @apply bg-gradient-to-r from-green-500 to-emerald-600;
+  @apply text-white;
+}
+
+.btn-danger {
+  @apply btn-native;
+  @apply bg-gradient-to-r from-red-500 to-rose-600;
+  @apply text-white;
+}
+
+/* Cards natives */
+.card-native {
+  @apply bg-white rounded-2xl p-6;
+  @apply shadow-[0_8px_30px_rgb(0,0,0,0.12)];
+  @apply active:shadow-[0_4px_20px_rgb(0,0,0,0.08)];
+  @apply transition-shadow duration-150;
+}
+
+/* Input natifs */
+.input-native {
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply border-2 border-gray-200;
+  @apply focus:border-purple-600 focus:ring-4 focus:ring-purple-100;
+  @apply transition-all duration-150;
+  @apply text-base;
+}
+
+/* Animations natives */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Pull-to-refresh indicator */
+.ptr-indicator {
+  @apply absolute top-0 left-1/2 -translate-x-1/2;
+  @apply text-purple-600 text-2xl;
+  @apply transition-transform duration-300;
+}
+
+/* Skeleton loading */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Toast notifications */
+.toast {
+  @apply fixed bottom-20 left-4 right-4;
+  @apply bg-white rounded-2xl p-4 shadow-2xl;
+  @apply flex items-center gap-3;
+  @apply animate-fade-in;
+  z-index: 9999;
+}
+
+/* Backdrop blur (iOS-style) */
+.backdrop-blur-native {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Disable text selection on buttons/cards */
+button, .card-native, .btn-native {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Enable text selection on inputs */
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}

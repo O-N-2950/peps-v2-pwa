@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SecondaryNav from '../components/SecondaryNav';
 import QuickActions from '../components/QuickActions';
+import { useHaptics } from '../hooks/useHaptics';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function MemberDashboardNew() {
   const navigate = useNavigate();
+  const haptics = useHaptics();
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
