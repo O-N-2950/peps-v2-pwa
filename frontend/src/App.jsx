@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/PageTransition';
 import Login from './components/Login';
 import Register from './components/Register';
 import PartnerDashboard from './components/PartnerDashboard';
@@ -37,10 +39,12 @@ const StripeHandler = () => {
     return <MemberDashboard />;
 };
 
-export default function App() {
+function AnimatedRoutes() {
+  const location = useLocation();
+  
   return (
-    <BrowserRouter>
-      <Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
         <Route path="/home" element={<HomeWahoo />} />
         <Route path="/map" element={<MapPage />} />
@@ -82,6 +86,14 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+    </AnimatePresence>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AnimatedRoutes />
     </BrowserRouter>
   );
 }
