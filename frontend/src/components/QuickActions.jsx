@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function QuickActions({ role = 'member' }) {
+export default function QuickActions({ role = 'member', onOpenFlashModal, onOpenNotificationModal }) {
   const navigate = useNavigate();
   const [flashOffersCount, setFlashOffersCount] = useState(0);
   const [newPartnersCount, setNewPartnersCount] = useState(0);
@@ -65,8 +65,11 @@ export default function QuickActions({ role = 'member' }) {
       title: 'CRÉER OFFRE FLASH',
       description: 'Boostez votre visibilité en 2 clics',
       action: () => {
-        // TODO: Ouvrir modal de création d'offre flash
-        navigate('/partner-dashboard?tab=push');
+        if (onOpenFlashModal) {
+          onOpenFlashModal();
+        } else {
+          navigate('/partner-dashboard?tab=push');
+        }
       },
       buttonText: 'Créer maintenant',
       buttonClass: 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold',
@@ -90,8 +93,11 @@ export default function QuickActions({ role = 'member' }) {
       title: 'NOTIFICATION PUSH',
       description: 'Alertez vos followers instantanément',
       action: () => {
-        // TODO: Ouvrir modal d'envoi de notification
-        navigate('/partner-dashboard?tab=push');
+        if (onOpenNotificationModal) {
+          onOpenNotificationModal();
+        } else {
+          navigate('/partner-dashboard?tab=push');
+        }
       },
       buttonText: 'Envoyer notification',
       buttonClass: 'bg-purple-600 hover:bg-purple-700 text-white',

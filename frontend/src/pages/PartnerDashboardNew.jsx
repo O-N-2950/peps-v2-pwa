@@ -5,6 +5,9 @@ import SecondaryNav from '../components/SecondaryNav';
 import QuickActions from '../components/QuickActions';
 import PartnerBookingDashboard from './PartnerBookingDashboard';
 import AICoachWidget from '../components/AICoachWidget';
+import PrivilegesManager from '../components/PrivilegesManager';
+import CreateFlashOfferModal from '../components/CreateFlashOfferModal';
+import SendNotificationModal from '../components/SendNotificationModal';
 import toast, { Toaster } from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -21,6 +24,10 @@ export default function PartnerDashboardNew() {
   const [bookings, setBookings] = useState([]);
   const [hasMemberSubscription, setHasMemberSubscription] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // États pour les modals
+  const [showFlashOfferModal, setShowFlashOfferModal] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   useEffect(() => {
     loadPartnerData();
@@ -116,7 +123,11 @@ export default function PartnerDashboardNew() {
         </div>
 
         {/* Quick Actions */}
-        <QuickActions role="partner" />
+        <QuickActions 
+          role="partner" 
+          onOpenFlashModal={() => setShowFlashOfferModal(true)}
+          onOpenNotificationModal={() => setShowNotificationModal(true)}
+        />
 
         {/* IA Coach Widget */}
         {activeTab === 'dashboard' && (
@@ -249,11 +260,7 @@ export default function PartnerDashboardNew() {
 
         {/* Onglet Privilèges */}
         {activeTab === 'privileges' && (
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Mes Privilèges</h2>
-            {/* Contenu des privilèges */}
-            <p className="text-gray-600">Liste des privilèges permanents...</p>
-          </div>
+          <PrivilegesManager />
         )}
 
         {/* Onglet Push */}
@@ -272,6 +279,24 @@ export default function PartnerDashboardNew() {
           </div>
         )}
       </div>
+      
+      {/* Modals */}
+      <CreateFlashOfferModal 
+        isOpen={showFlashOfferModal}
+        onClose={() => setShowFlashOfferModal(false)}
+        onSuccess={() => {
+          loadPartnerData();
+          toast.success('✨ Offre flash créée et envoyée à vos followers !');
+        }}
+      />
+      
+      <SendNotificationModal 
+        isOpen={showNotificationModal}
+        onClose={() => setShowNotificationModal(false)}
+        onSuccess={() => {
+          toast.success('📣 Notification envoyée avec succès !');
+        }}
+      />
     </div>
   );
 }
