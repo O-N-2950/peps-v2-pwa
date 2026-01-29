@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SecondaryNav from '../components/SecondaryNav';
 import QuickActions from '../components/QuickActions';
+import FavoritesSection from '../components/FavoritesSection';
 import { useHaptics } from '../hooks/useHaptics';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -216,6 +217,11 @@ export default function MemberDashboardNew() {
               <span className="text-gray-600 font-bold">+25 points</span>
             </div>
           </div>
+        </div>
+
+        {/* Mes Favoris */}
+        <div className="mb-6">
+          <FavoritesSection />
         </div>
 
         {/* Mes Badges */}

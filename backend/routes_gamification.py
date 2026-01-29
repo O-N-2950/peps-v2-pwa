@@ -44,8 +44,9 @@ def get_member_profile():
         
         # Récupérer les informations du membre
         cur.execute("""
-            SELECT u.id, u.email, u.created_at
+            SELECT u.id, u.email, u.created_at, m.first_name
             FROM users u
+            LEFT JOIN members m ON m.user_id = u.id
             WHERE u.id = %s AND u.role = 'member'
         """, (member_id,))
         member = cur.fetchone()
@@ -138,6 +139,8 @@ def get_member_profile():
             'profile': {
                 'id': member['id'],
                 'email': member['email'],
+                'first_name': member.get('first_name'),
+                'name': member.get('first_name'),  # Alias pour compatibilité
                 'member_since': member['created_at'].isoformat() if member['created_at'] else None,
                 'grade': grade,
                 'points': points,

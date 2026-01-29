@@ -753,3 +753,125 @@ def submit_privilege_feedback():
         db.session.rollback()
         print(f"Erreur lors de la soumission du feedback: {str(e)}")
         return jsonify({'success': False, 'error': f'Erreur serveur: {str(e)}'}), 500
+
+
+@app.route('/api/partners/nearby', methods=['GET'])
+def get_nearby_partners():
+    """
+    Récupère les partenaires triés par distance depuis la position du membre
+    Utilise la formule Haversine pour calculer la distance
+    
+    Query params:
+    - lat: Latitude du membre (obligatoire)
+    - lng: Longitude du membre (obligatoire)
+    - radius: Rayon de recherche en km (optionnel, défaut: 50km)
+    - limit: Nombre maximum de résultats (optionnel, défaut: 50)
+    """
+    try:
+        # Récupérer les paramètres
+        user_lat = request.args.get('lat', type=float)
+        user_lng = request.args.get('lng', type=float)
+        radius_km = request.args.get('radius', default=50, type=int)
+        limit = request.args.get('limit', default=50, type=int)
+        
+        if not user_lat or not user_lng:
+            return jsonify({
+                'success': False,
+                'error': 'Paramètres lat et lng requis'
+            }), 400
+        
+        # Formule Haversine pour calculer la distance
+        # Distance en km entre deux points GPS
+        query = text("""
+            SELECT 
+                p.id,
+                p.name,
+                p.category,
+                p.city,
+                p.latitude,
+                p.longitude,
+                p.image_url,
+                p.address_street,
+                p.address_number,
+                p.address_postal_code,
+                p.address_city,
+                p.phone,
+                p.website,
+                p.status,
+                (
+                    6371 * acos(
+                        cos(radians(:user_lat)) 
+                        * cos(radians(p.latitude)) 
+                        * cos(radians(p.longitude) - radians(:user_lng)) 
+                        + sin(radians(:user_lat)) 
+                        * sin(radians(p.latitude))
+                    )
+                ) AS distance_km,
+                (
+                    SELECT COUNT(*) 
+                    FROM offers o 
+                    WHERE o.partner_id = p.id AND o.active = TRUE
+                ) AS offers_count
+            FROM partners p
+            WHERE p.latitude IS NOT NULL 
+                AND p.longitude IS NOT NULL
+                AND p.status = 'active'
+            HAVING distance_km <= :radius_km
+            ORDER BY distance_km ASC
+            LIMIT :limit
+        """)
+        
+        result = db.session.execute(query, {
+            'user_lat': user_lat,
+            'user_lng': user_lng,
+            'radius_km': radius_km,
+            'limit': limit
+        }).fetchall()
+        
+        partners = []
+        for row in result:
+            # Construire l'adresse complète
+            address_parts = []
+            if row.address_number:
+                address_parts.append(row.address_number)
+            if row.address_street:
+                address_parts.append(row.address_street)
+            if row.address_postal_code:
+                address_parts.append(row.address_postal_code)
+            if row.address_city:
+                address_parts.append(row.address_city)
+            
+            partners.append({
+                'id': row.id,
+                'name': row.name,
+                'category': row.category,
+                'city': row.city,
+                'latitude': float(row.latitude) if row.latitude else None,
+                'longitude': float(row.longitude) if row.longitude else None,
+                'image_url': row.image_url,
+                'address': ' '.join(address_parts) if address_parts else None,
+                'phone': row.phone,
+                'website': row.website,
+                'status': row.status,
+                'distance_km': round(float(row.distance_km), 2),
+                'distance_m': int(float(row.distance_km) * 1000),
+                'offers_count': row.offers_count
+            })
+        
+        return jsonify({
+            'success': True,
+            'partners': partners,
+            'count': len(partners),
+            'user_location': {
+                'lat': user_lat,
+                'lng': user_lng
+            },
+            'radius_km': radius_km
+        }), 200
+    
+    except Exception as e:
+        print(f"Erreur get_nearby_partners: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Erreur serveur: {str(e)}'
+        }), 500

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, Circle } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,7 @@ import CountUp from 'react-countup';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../styles/MapPage.css'; // Pour les styles personnalisés (glassmorphism, clustering)
+import PartnersList from './PartnersList';
 
 // --- CONFIGURATION ET COULEURS PEP'S ---
 const PEP_COLORS = {
@@ -438,6 +439,13 @@ export default function MapPage() {
           start={0}
         />
       </motion.div>
+
+      {/* Liste des partenaires à proximité */}
+      {userLocation && (
+        <div className="mt-4">
+          <PartnersList userLocation={userLocation} />
+        </div>
+      )}
     </div>
   );
 }
