@@ -5,7 +5,7 @@ import { User, Store, Building, ChevronDown, CheckCircle, Heart, DollarSign, Map
 import PWAInstallGuide from '../components/PWAInstallGuide';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import FlashOffersWidget from '../components/FlashOffersWidget';
-import MapPage from '../components/MapPage';
+import MapViewWahoo from '../components/MapViewWahoo';
 import axios from 'axios';
 
 // --- COULEURS OFFICIELLES PEP'S ---
@@ -628,7 +628,7 @@ const HomePage = () => {
               className="rounded-2xl overflow-hidden shadow-2xl"
               style={{ height: '600px' }}
             >
-              <MapPage />
+              <MapViewWahoo />
             </motion.div>
           )}
 
