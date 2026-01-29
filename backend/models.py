@@ -63,6 +63,31 @@ class Subscription(db.Model):
     slots = db.relationship('AccessSlot', backref='subscription', lazy=True, cascade="all, delete-orphan")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class SubscriptionMember(db.Model):
+    """Table pour gérer les membres d'un abonnement multi-accès"""
+    __tablename__ = 'subscription_members'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    subscription_id = db.Column(db.Integer, db.ForeignKey('subscriptions.id'), nullable=False, index=True)
+    member_id = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=True, index=True)
+    
+    # Invitation
+    email = db.Column(db.String(120), nullable=False, index=True)
+    invitation_token = db.Column(db.String(100), unique=True)
+    invitation_sent_at = db.Column(db.DateTime)
+    
+    # Statut
+    status = db.Column(db.String(20), default='pending', index=True)  # pending, active, revoked
+    activated_at = db.Column(db.DateTime)
+    
+    # Métadonnées
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relations
+    subscription = db.relationship('Subscription', backref='members', lazy=True)
+    member = db.relationship('Member', backref='subscription_memberships', lazy=True)
+
 class Member(db.Model):
     __tablename__ = 'members'
     id = db.Column(db.Integer, primary_key=True)
