@@ -71,13 +71,13 @@ def run_create_missing_users_migration():
                 
                 # Insérer l'utilisateur
                 insert_user_query = text("""
-                    INSERT INTO users (email, password, created_at)
-                    VALUES (:email, :password, CURRENT_TIMESTAMP)
+                    INSERT INTO users (email, password_hash, created_at)
+                    VALUES (:email, :password_hash, CURRENT_TIMESTAMP)
                     RETURNING id;
                 """)
                 result = db.session.execute(insert_user_query, {
                     'email': contact_email,
-                    'password': hashed_password
+                    'password_hash': hashed_password
                 })
                 user_id = result.fetchone()[0]
                 
