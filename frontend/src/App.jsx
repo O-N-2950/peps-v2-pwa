@@ -25,6 +25,9 @@ import MemberSettings from './pages/MemberSettings';
 import PartnerSettings from './pages/PartnerSettings';
 import FavoritesPage from './pages/FavoritesPage';
 import PepiWidget from './components/PepiWidget';
+import Pricing from './pages/Pricing';
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import CheckoutCancel from './pages/CheckoutCancel';
 
 // Admin Components V20
 import AdminLayout from './components/AdminLayout';
@@ -54,6 +57,9 @@ function AnimatedRoutes() {
         <Route path="/map" element={<MapPage />} />
         <Route path="/partner/:id" element={<PartnerDetailPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/pricing-new" element={<Pricing />} />
+        <Route path="/checkout/success" element={<CheckoutSuccess />} />
+        <Route path="/checkout/cancel" element={<CheckoutCancel />} />
         <Route path="/avantages" element={<AvantagesPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
