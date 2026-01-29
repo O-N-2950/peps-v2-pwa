@@ -783,40 +783,42 @@ def get_nearby_partners():
         # Formule Haversine pour calculer la distance
         # Distance en km entre deux points GPS
         query = text("""
-            SELECT 
-                p.id,
-                p.name,
-                p.category,
-                p.city,
-                p.latitude,
-                p.longitude,
-                p.image_url,
-                p.address_street,
-                p.address_number,
-                p.address_postal_code,
-                p.address_city,
-                p.phone,
-                p.website,
-                p.status,
-                (
-                    6371 * acos(
-                        cos(radians(:user_lat)) 
-                        * cos(radians(p.latitude)) 
-                        * cos(radians(p.longitude) - radians(:user_lng)) 
-                        + sin(radians(:user_lat)) 
-                        * sin(radians(p.latitude))
-                    )
-                ) AS distance_km,
-                (
-                    SELECT COUNT(*) 
-                    FROM offers o 
-                    WHERE o.partner_id = p.id AND o.active = TRUE
-                ) AS offers_count
-            FROM partners p
-            WHERE p.latitude IS NOT NULL 
-                AND p.longitude IS NOT NULL
-                AND p.status = 'active'
-            HAVING distance_km <= :radius_km
+            SELECT * FROM (
+                SELECT 
+                    p.id,
+                    p.name,
+                    p.category,
+                    p.city,
+                    p.latitude,
+                    p.longitude,
+                    p.image_url,
+                    p.address_street,
+                    p.address_number,
+                    p.address_postal_code,
+                    p.address_city,
+                    p.phone,
+                    p.website,
+                    p.status,
+                    (
+                        6371 * acos(
+                            cos(radians(:user_lat)) 
+                            * cos(radians(p.latitude)) 
+                            * cos(radians(p.longitude) - radians(:user_lng)) 
+                            + sin(radians(:user_lat)) 
+                            * sin(radians(p.latitude))
+                        )
+                    ) AS distance_km,
+                    (
+                        SELECT COUNT(*) 
+                        FROM offers o 
+                        WHERE o.partner_id = p.id AND o.active = TRUE
+                    ) AS offers_count
+                FROM partners p
+                WHERE p.latitude IS NOT NULL 
+                    AND p.longitude IS NOT NULL
+                    AND p.status = 'active'
+            ) AS partners_with_distance
+            WHERE distance_km <= :radius_km
             ORDER BY distance_km ASC
             LIMIT :limit
         """)
