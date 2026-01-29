@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, MapPin, Phone, Globe, Clock, Navigation, Heart, Sparkles, TrendingUp } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Clock, Navigation, Heart, Sparkles, TrendingUp, Calendar } from 'lucide-react';
 import SecondaryNav from '../components/SecondaryNav';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -326,29 +326,44 @@ export default function FavoritesPage() {
                     </p>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/partner/${favorite.id}`);
-                        }}
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-lg font-semibold text-sm"
-                      >
-                        Voir détails
-                      </motion.button>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/partner/${favorite.id}`);
+                          }}
+                          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-lg font-semibold text-sm"
+                        >
+                          Voir détails
+                        </motion.button>
+                        
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNavigate(favorite.latitude, favorite.longitude);
+                          }}
+                          className="bg-blue-500 text-white p-2 rounded-lg"
+                        >
+                          <Navigation size={18} />
+                        </motion.button>
+                      </div>
                       
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleNavigate(favorite.latitude, favorite.longitude);
+                          navigate(`/book/${favorite.id}`);
                         }}
-                        className="bg-blue-500 text-white p-2 rounded-lg"
+                        className="w-full bg-gradient-to-r from-teal-500 to-green-500 text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
                       >
-                        <Navigation size={18} />
+                        <Calendar size={16} />
+                        Prendre rendez-vous
                       </motion.button>
                     </div>
                   </div>
