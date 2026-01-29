@@ -74,11 +74,13 @@ def run_user_roles_migration():
         logger.info("✅ Rôles 'member' ajoutés depuis la table members")
         
         # Si un utilisateur a un profil Partner, ajouter le rôle 'partner'
+        # IMPORTANT: Ignorer les partenaires sans user_id (user_id IS NULL)
         add_partner_roles_query = text("""
             INSERT INTO user_roles (user_id, role)
             SELECT DISTINCT p.user_id, 'partner'
             FROM partners p
-            WHERE NOT EXISTS (
+            WHERE p.user_id IS NOT NULL
+            AND NOT EXISTS (
                 SELECT 1 FROM user_roles ur 
                 WHERE ur.user_id = p.user_id AND ur.role = 'partner'
             )
