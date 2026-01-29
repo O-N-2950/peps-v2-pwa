@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, Circle } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Search, MapPin, Filter, X, Zap } from 'lucide-react';
@@ -413,6 +413,9 @@ export default function MapPage() {
               icon={createCustomIcon(p.category)}
               // Animation bounce (implémentée via CSS sur la classe 'custom-marker:hover')
             >
+              <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
+                <strong>{p.name}</strong>
+              </Tooltip>
               <Popup>
                 <PartnerPopup partner={p} />
               </Popup>

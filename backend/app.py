@@ -508,3 +508,248 @@ def not_found(e):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+
+
+# ==========================================
+# ROUTES API PUBLIQUES POUR PARTENAIRES
+# ==========================================
+
+@app.route('/api/partners/<int:partner_id>', methods=['GET'])
+def get_partner_detail(partner_id):
+    """
+    Récupère les détails complets d'un partenaire par son ID
+    """
+    try:
+        partner = Partner.query.get(partner_id)
+        if not partner:
+            return jsonify({'success': False, 'error': 'Partenaire introuvable'}), 404
+        
+        # Récupérer les offres actives du partenaire
+        active_offers = Offer.query.filter_by(partner_id=partner_id, active=True).order_by(Offer.priority.desc()).all()
+        
+        return jsonify({
+            'success': True,
+            'partner': {
+                'id': partner.id,
+                'name': partner.name,
+                'category': partner.category,
+                'city': partner.city,
+                'latitude': partner.latitude,
+                'longitude': partner.longitude,
+                'image_url': partner.image_url,
+                'logo': partner.image_url,  # Alias pour compatibilité frontend
+                'address': f"{partner.address_number} {partner.address_street}".strip() if partner.address_street else None,
+                'address_street': partner.address_street,
+                'address_number': partner.address_number,
+                'address_postal_code': partner.address_postal_code,
+                'address_city': partner.address_city,
+                'address_country': partner.address_country,
+                'phone': partner.phone,
+                'website': partner.website,
+                'opening_hours': partner.opening_hours,
+                'status': partner.status,
+                'offers_count': len(active_offers)
+            },
+            'offers': [{
+                'id': offer.id,
+                'title': offer.title,
+                'description': offer.description,
+                'offer_type': offer.offer_type,
+                'discount_val': offer.discount_val,
+                'conditions': offer.conditions,
+                'valid_from': offer.valid_from.isoformat() if offer.valid_from else None,
+                'valid_until': offer.valid_until.isoformat() if offer.valid_until else None,
+                'max_uses_per_member': offer.max_uses_per_member,
+                'is_permanent': offer.is_permanent,
+                'stock': offer.stock,
+                'active': offer.active
+            } for offer in active_offers]
+        }), 200
+    
+    except Exception as e:
+        print(f"Erreur lors de la récupération du partenaire {partner_id}: {str(e)}")
+        return jsonify({'success': False, 'error': f'Erreur serveur: {str(e)}'}), 500
+
+
+@app.route('/api/partners/<int:partner_id>/offers', methods=['GET'])
+def get_partner_offers(partner_id):
+    """
+    Récupère toutes les offres actives d'un partenaire
+    """
+    try:
+        partner = Partner.query.get(partner_id)
+        if not partner:
+            return jsonify({'success': False, 'error': 'Partenaire introuvable'}), 404
+        
+        # Récupérer les offres actives triées par priorité
+        offers = Offer.query.filter_by(
+            partner_id=partner_id,
+            active=True
+        ).order_by(Offer.priority.desc(), Offer.created_at.desc()).all()
+        
+        return jsonify({
+            'success': True,
+            'partner_name': partner.name,
+            'offers': [{
+                'id': offer.id,
+                'title': offer.title,
+                'description': offer.description,
+                'offer_type': offer.offer_type,
+                'discount_val': offer.discount_val,
+                'conditions': offer.conditions,
+                'valid_from': offer.valid_from.isoformat() if offer.valid_from else None,
+                'valid_until': offer.valid_until.isoformat() if offer.valid_until else None,
+                'max_uses_per_member': offer.max_uses_per_member,
+                'is_permanent': offer.is_permanent,
+                'stock': offer.stock
+            } for offer in offers]
+        }), 200
+    
+    except Exception as e:
+        print(f"Erreur lors de la récupération des offres du partenaire {partner_id}: {str(e)}")
+        return jsonify({'success': False, 'error': f'Erreur serveur: {str(e)}'}), 500
+
+
+@app.route('/api/privileges/activate', methods=['POST'])
+@jwt_required()
+def activate_privilege():
+    """
+    Active un privilège pour un membre
+    Vérifie le statut d'abonnement et enregistre l'activation
+    """
+    try:
+        user = get_user()
+        if not user or not user.member_profile:
+            return jsonify({'success': False, 'error': 'Profil membre introuvable'}), 401
+        
+        data = request.get_json()
+        partner_id = data.get('partner_id')
+        offer_id = data.get('offer_id')
+        
+        if not partner_id or not offer_id:
+            return jsonify({'success': False, 'error': 'partner_id et offer_id requis'}), 400
+        
+        # Vérifier que le partenaire existe
+        partner = Partner.query.get(partner_id)
+        if not partner:
+            return jsonify({'success': False, 'error': 'Partenaire introuvable'}), 404
+        
+        # Vérifier que l'offre existe et est active
+        offer = Offer.query.get(offer_id)
+        if not offer or not offer.active:
+            return jsonify({'success': False, 'error': 'Offre introuvable ou inactive'}), 404
+        
+        # Vérifier le statut d'abonnement du membre
+        member = user.member_profile
+        subscription = Subscription.query.filter_by(member_id=member.id, status='active').first()
+        
+        if not subscription:
+            return jsonify({
+                'success': False,
+                'error': 'Abonnement inactif',
+                'message': 'Vous devez avoir un abonnement actif pour utiliser ce privilège'
+            }), 403
+        
+        # Vérifier si le membre a déjà utilisé ce privilège (limite par membre)
+        if offer.max_uses_per_member:
+            usage_count = PrivilegeUsage.query.filter_by(
+                member_id=member.id,
+                offer_id=offer_id
+            ).count()
+            
+            if usage_count >= offer.max_uses_per_member:
+                return jsonify({
+                    'success': False,
+                    'error': 'Limite atteinte',
+                    'message': f'Vous avez déjà utilisé ce privilège {usage_count} fois (maximum: {offer.max_uses_per_member})'
+                }), 403
+        
+        # Générer un code de validation unique
+        import random
+        import string
+        validation_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
+        # Enregistrer l'activation du privilège
+        privilege_usage = PrivilegeUsage(
+            member_id=member.id,
+            partner_id=partner_id,
+            offer_id=offer_id,
+            validation_code=validation_code,
+            offer_title=offer.title
+        )
+        db.session.add(privilege_usage)
+        
+        # Décrémenter le stock si l'offre n'est pas permanente
+        if not offer.is_permanent and offer.stock is not None:
+            offer.stock -= 1
+            if offer.stock <= 0:
+                offer.active = False
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Privilège activé avec succès !',
+            'activation': {
+                'id': privilege_usage.id,
+                'validation_code': validation_code,
+                'partner_name': partner.name,
+                'offer_title': offer.title,
+                'used_at': privilege_usage.used_at.isoformat()
+            }
+        }), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erreur lors de l'activation du privilège: {str(e)}")
+        return jsonify({'success': False, 'error': f'Erreur serveur: {str(e)}'}), 500
+
+
+@app.route('/api/privileges/feedback', methods=['POST'])
+@jwt_required()
+def submit_privilege_feedback():
+    """
+    Soumet un feedback après l'activation d'un privilège (optionnel)
+    """
+    try:
+        user = get_user()
+        if not user or not user.member_profile:
+            return jsonify({'success': False, 'error': 'Profil membre introuvable'}), 401
+        
+        data = request.get_json()
+        partner_id = data.get('partner_id')
+        offer_id = data.get('offer_id')
+        rating = data.get('rating')  # 1-5 étoiles
+        comment = data.get('comment', '')
+        experience_type = data.get('experience_type', 'privilege_granted')
+        savings_amount = data.get('savings_amount')  # Montant économisé (optionnel)
+        
+        if not partner_id or not rating:
+            return jsonify({'success': False, 'error': 'partner_id et rating requis'}), 400
+        
+        # Valider le rating
+        if not isinstance(rating, int) or rating < 1 or rating > 5:
+            return jsonify({'success': False, 'error': 'Le rating doit être entre 1 et 5'}), 400
+        
+        # Créer le feedback
+        feedback = PartnerFeedback(
+            member_id=user.member_profile.id,
+            partner_id=partner_id,
+            offer_id=offer_id,
+            rating=rating,
+            comment=comment,
+            experience_type=experience_type
+        )
+        db.session.add(feedback)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Merci pour votre feedback !',
+            'feedback_id': feedback.id
+        }), 201
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erreur lors de la soumission du feedback: {str(e)}")
+        return jsonify({'success': False, 'error': f'Erreur serveur: {str(e)}'}), 500
