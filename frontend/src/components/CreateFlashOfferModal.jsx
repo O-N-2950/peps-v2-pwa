@@ -30,7 +30,7 @@ export default function CreateFlashOfferModal({ isOpen, onClose, onSuccess }) {
         formDataToSend.append('image', formData.image);
       }
 
-      const response = await fetch(`${API_URL}/api/partner/flash-offer`, {
+      const response = await fetch(`${API_URL}/api/partner/offers/flash`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
