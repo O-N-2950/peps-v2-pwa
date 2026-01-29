@@ -19,7 +19,7 @@ def run_create_missing_users_migration():
         
         # 1. Identifier les partenaires sans user_id
         check_query = text("""
-            SELECT id, business_name, contact_email, contact_phone
+            SELECT id, name, phone, website
             FROM partners
             WHERE user_id IS NULL
             ORDER BY id;
@@ -36,12 +36,13 @@ def run_create_missing_users_migration():
         # 2. Créer un compte utilisateur pour chaque partenaire
         created_count = 0
         for partner in partners_without_user:
-            partner_id, business_name, contact_email, contact_phone = partner
+            partner_id, name, phone, website = partner
             
-            # Générer un email si manquant
-            if not contact_email or contact_email.strip() == '':
+            # Générer un email (toujours, car la table partners n'a pas de colonne email)
+            contact_email = None
+            if not contact_email:
                 # Utiliser le nom du commerce pour générer un email
-                safe_name = business_name.lower().replace(' ', '_').replace("'", '').replace('"', '')[:30]
+                safe_name = name.lower().replace(' ', '_').replace("'", '').replace('"', '')[:30]
                 contact_email = f"{safe_name}@peps-partner-temp.ch"
             
             # Vérifier si l'email existe déjà
@@ -60,7 +61,7 @@ def run_create_missing_users_migration():
                     'user_id': user_id,
                     'partner_id': partner_id
                 })
-                logger.info(f"✅ Partenaire #{partner_id} ({business_name}) lié à l'utilisateur existant #{user_id}")
+                logger.info(f"✅ Partenaire #{partner_id} ({name}) lié à l'utilisateur existant #{user_id}")
                 created_count += 1
             else:
                 # Créer un nouveau compte utilisateur
@@ -97,7 +98,7 @@ def run_create_missing_users_migration():
                 """)
                 db.session.execute(insert_role_query, {'user_id': user_id})
                 
-                logger.info(f"✅ Compte créé pour partenaire #{partner_id} ({business_name}) - Email: {contact_email}")
+                logger.info(f"✅ Compte créé pour partenaire #{partner_id} ({name}) - Email: {contact_email}")
                 created_count += 1
         
         db.session.commit()
