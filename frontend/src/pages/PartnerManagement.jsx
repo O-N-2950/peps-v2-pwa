@@ -9,6 +9,7 @@ export default function PartnerManagement() {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
+    // V2.1 - Fix déploiement Railway - Force rebuild cache
     axios.get('/api/partners/search_v2?q=')
       .then(res => setPartners(Array.isArray(res.data) ? res.data : res.data.partners || []))
       .catch(err => console.error('Erreur chargement partenaires:', err));
