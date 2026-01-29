@@ -68,6 +68,23 @@ STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 db.init_app(app)
 jwt = JWTManager(app)
 
+# Gestionnaires d'erreurs JWT pour retourner du JSON au lieu de HTML
+@jwt.unauthorized_loader
+def unauthorized_callback(callback):
+    return jsonify({"msg": "Missing Authorization Header or Token", "error": "unauthorized"}), 401
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({"msg": "The token has expired", "error": "token_expired"}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({"msg": "Invalid token", "error": "invalid_token"}), 401
+
+@jwt.revoked_token_loader
+def revoked_token_callback(jwt_header, jwt_payload):
+    return jsonify({"msg": "The token has been revoked", "error": "token_revoked"}), 401
+
 # V20 ADMIN - Exécuter la migration automatique au démarrage
 # BOOKING SYSTEM - Tables de réservation activées
 with app.app_context():
