@@ -11,12 +11,13 @@ from .geocoding import (
     geocoding_service
 )
 
-from .privilege_suggestions import (
-    PrivilegeSuggestionService,
-    get_privilege_suggestions,
-    get_all_categories,
-    privilege_suggestion_service
-)
+# TEMPORAIREMENT DÉSACTIVÉ - Nécessite openai dans requirements.txt
+# from .privilege_suggestions import (
+#     PrivilegeSuggestionService,
+#     get_privilege_suggestions,
+#     get_all_categories,
+#     privilege_suggestion_service
+# )
 
 __all__ = [
     # Géocodage
@@ -26,9 +27,9 @@ __all__ = [
     'reverse_geocode',
     'geocoding_service',
     
-    # Suggestions de privilèges
-    'PrivilegeSuggestionService',
-    'get_privilege_suggestions',
-    'get_all_categories',
-    'privilege_suggestion_service',
+    # Suggestions de privilèges (DÉSACTIVÉ)
+    # 'PrivilegeSuggestionService',
+    # 'get_privilege_suggestions',
+    # 'get_all_categories',
+    # 'privilege_suggestion_service',
 ]
