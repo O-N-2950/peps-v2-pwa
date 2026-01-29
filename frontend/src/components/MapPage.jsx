@@ -295,7 +295,8 @@ export default function MapPage() {
           const { latitude, longitude } = position.coords;
           const newLocation = [latitude, longitude];
           setUserLocation(newLocation);
-          setMapCenter(newLocation);
+          // Force le recentrage même si la position est déjà connue
+          setMapCenter([...newLocation]); // Créer un nouveau tableau pour forcer le re-render
           setMapZoom(13); // Zoom plus proche
         },
         (err) => {

@@ -433,7 +433,7 @@ const HomePage = () => {
               muted
               playsInline
               className="w-full h-full object-contain drop-shadow-2xl"
-              src="/videos/pepi-01-bienvenue-bonjour.mp4"
+              src="/pepi-hero.mov"
             />
           </motion.div>
         </div>
