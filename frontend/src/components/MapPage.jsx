@@ -1,452 +1,282 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, Circle } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Search, MapPin, Filter, X, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
-import CountUp from 'react-countup';
-import L from 'leaflet';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
+import { Navigation, MapPin, Filter, Search, Locate } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
-import '../styles/MapPage.css'; // Pour les styles personnalisés (glassmorphism, clustering)
-import PartnersList from './PartnersList';
+import L from 'leaflet';
 
-// --- CONFIGURATION ET COULEURS PEP'S ---
-const PEP_COLORS = {
-  TURQUOISE: '#2A9D8F',
-  CORAL: '#E76F51',
-  GREY_DARK: '#264653',
-};
+// Fix icônes Leaflet
+import iconMarker from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+const DefaultIcon = L.icon({ iconUrl: iconMarker, shadowUrl: iconShadow, iconSize: [25, 41], iconAnchor: [12, 41] });
+L.Marker.prototype.options.icon = DefaultIcon;
 
-// Mock de données de catégories (à remplacer par un appel API réel)
-const MOCK_CATEGORIES = [
-  'Restaurants', 'Hôtels', 'Beauté & Bien-être', 'Sports & Loisirs',
-  'Mode & Accessoires', 'Services', 'Artisanat', 'Automobile',
-  'Épiceries fines', 'Santé', 'Autres'
-];
-
-// Fonction utilitaire pour générer des couleurs de marqueur basées sur la catégorie
-const getCategoryColor = (category) => {
-  const hash = category.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-  const colorIndex = Math.abs(hash) % 5;
-  const colors = [PEP_COLORS.TURQUOISE, PEP_COLORS.CORAL, '#F4A261', '#E9C46A', '#264653'];
-  return colors[colorIndex];
-};
-
-// Icône de marqueur personnalisé (SVG pour un meilleur rendu)
-const createCustomIcon = (category) => {
-  const color = getCategoryColor(category);
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `
-      <div style="background-color: ${color};" class="marker-pin"></div>
-      <svg width="30" height="30" viewBox="0 0 100 100" class="marker-shadow">
-        <circle cx="50" cy="50" r="30" fill="${color}" opacity="0.8"/>
-      </svg>
-    `,
-    iconSize: [30, 42],
-    iconAnchor: [15, 42],
-    popupAnchor: [0, -35]
-  });
-};
-
-// Icône de l'utilisateur (bleu pour la géolocalisation)
-const userIcon = L.divIcon({
-  className: 'user-marker',
-  html: `<div class="user-pin"></div>`,
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
+// Icône personnalisée pulsante (Turquoise)
+const PulseIcon = (category) => L.divIcon({
+  className: 'custom-pulse-marker',
+  html: `
+    <div class="relative">
+      <div class="absolute inset-0 bg-[#38B2AC] rounded-full animate-ping opacity-75"></div>
+      <div class="relative bg-[#38B2AC] rounded-full w-8 h-8 flex items-center justify-center text-white font-bold shadow-lg border-2 border-white">
+        ${getCategoryEmoji(category)}
+      </div>
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16]
 });
 
-// --- HOOK ET UTILITAIRES ---
+// Icône utilisateur
+const UserIcon = L.icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#F26D7D" stroke="white" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="3" fill="white"/>
+    </svg>
+  `),
+  iconSize: [40, 40],
+  iconAnchor: [20, 20]
+});
 
-/**
- * Hook personnalisé pour le debounce
- * @param {function} func - La fonction à débouncer
- * @param {number} delay - Le délai en ms
- */
-const useDebounce = (func, delay) => {
-  const timeoutRef = useRef();
-
-  return useCallback((...args) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      func(...args);
-    }, delay);
-  }, [func, delay]);
-};
-
-// --- COMPOSANTS DE LA CARTE ---
-
-/**
- * Gère le zoom et le centrage de la carte
- */
-const MapController = ({ center, zoom }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.flyTo(center, zoom || map.getZoom());
-    }
-  }, [center, zoom, map]);
-  return null;
-};
-
-/**
- * Barre de recherche et filtres (Glassmorphism)
- */
-const SearchBar = ({ onSearch, onGeolocate, partnersCount, onFilterChange, selectedCategory }) => {
-  const [query, setQuery] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const debouncedSearch = useDebounce(onSearch, 300);
-
-  const handleInputChange = (e) => {
-    const newQuery = e.target.value;
-    setQuery(newQuery);
-    debouncedSearch(newQuery);
+function getCategoryEmoji(category) {
+  const emojis = {
+    'Boulangerie / Pâtisserie': '🥖',
+    'Restaurant': '🍽️',
+    'Coiffure': '✂️',
+    'Mode': '👗',
+    'Beauté': '💄',
+    'Sport': '⚽',
+    'Santé': '🏥',
+    'Services': '🔧',
+    'Loisirs': '🎭',
+    'Alimentation': '🛒'
   };
+  return emojis[category] || '🏪';
+}
+
+function MapRecenter({ lat, lng }) {
+  const map = useMap();
+  useEffect(() => { 
+    if (lat && lng) {
+      map.flyTo([lat, lng], 13, { duration: 1.5 });
+    }
+  }, [lat, lng, map]);
+  return null;
+}
+
+export default function MapViewWahoo({ partners = [], onPartnerClick, showFilters = true }) {
+  const [userPos, setUserPos] = useState(null);
+  const [geoError, setGeoError] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setUserPos({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error('Erreur géolocalisation:', error);
+          setGeoError(true);
+          // Fallback sur Courgenay (premier partenaire)
+          setUserPos({ lat: 47.4088, lng: 7.1124 });
+        }
+      );
+    } else {
+      setGeoError(true);
+      setUserPos({ lat: 47.4088, lng: 7.1124 });
+    }
+  }, []);
+
+  // Extraire les catégories uniques
+  const categories = ['all', ...new Set(partners.map(p => p.category).filter(Boolean))];
+
+  // Filtrer les partenaires
+  const filteredPartners = partners.filter(p => {
+    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesSearch = !searchQuery || 
+      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.city?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const defaultCenter = [47.4088, 7.1124];
+  const mapCenter = userPos ? [userPos.lat, userPos.lng] : defaultCenter;
 
   return (
-    <motion.div
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 100, delay: 0.2 }}
-      className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[95%] max-w-2xl p-3 backdrop-blur-md bg-white/50 rounded-xl shadow-2xl border border-white/30 flex flex-col gap-2"
-    >
-      <div className="flex items-center gap-2">
-        <div className="relative flex-grow">
-          <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Rechercher partenaire, ville, catégorie..."
-            value={query}
-            onChange={handleInputChange}
-            className="w-full py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-turq focus:border-turq transition-all"
-            aria-label="Champ de recherche"
-          />
-          {query && (
-            <button onClick={() => { setQuery(''); onSearch(''); }} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-coral transition-colors" aria-label="Effacer la recherche">
-              <X size={18} />
+    <div className="relative w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border-4 border-[#38B2AC]">
+      {/* Header avec titre et compteur */}
+      <div className="absolute top-0 left-0 right-0 z-[1000] bg-gradient-to-r from-[#38B2AC] to-[#F26D7D] text-white p-4 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold">🗺️ Carte Interactive PEP'S</h3>
+            <p className="text-sm opacity-90">
+              {filteredPartners.length} partenaire{filteredPartners.length > 1 ? 's' : ''} actif{filteredPartners.length > 1 ? 's' : ''}
+            </p>
+          </div>
+          {showFilters && (
+            <button
+              onClick={() => setShowFilterPanel(!showFilterPanel)}
+              className="bg-white text-[#38B2AC] px-4 py-2 rounded-full font-bold hover:scale-105 transition-transform flex items-center gap-2"
+            >
+              <Filter size={20} />
+              Filtres
             </button>
           )}
         </div>
-
-        <button
-          onClick={onGeolocate}
-          className="p-3 bg-white text-coral rounded-lg shadow-md hover:bg-coral hover:text-white transition-colors flex items-center justify-center"
-          aria-label="Me localiser"
-        >
-          <MapPin size={20} />
-        </button>
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className={`p-3 rounded-lg shadow-md transition-colors flex items-center justify-center ${isFilterOpen ? 'bg-coral text-white' : 'bg-white text-turq hover:bg-turq hover:text-white'}`}
-          aria-label="Ouvrir les filtres"
-        >
-          <Filter size={20} />
-        </button>
       </div>
 
-      {isFilterOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="p-2 pt-0"
-        >
-          <select
-            value={selectedCategory}
-            onChange={(e) => onFilterChange(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-turq focus:border-turq"
-            aria-label="Filtrer par catégorie"
-          >
-            <option value="">Toutes les catégories</option>
-            {MOCK_CATEGORIES.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </motion.div>
-      )}
-
-      {/* Compteur de partenaires */}
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="absolute top-4 right-4 translate-x-[110%] md:translate-x-full lg:translate-x-[100%] xl:translate-x-[100%] p-2 bg-turq text-white rounded-full text-sm font-bold shadow-lg whitespace-nowrap hidden sm:block"
-      >
-        <Zap size={16} className="inline mr-1" />
-        <CountUp
-          end={partnersCount}
-          duration={2.5}
-          separator=" "
-          suffix=" partenaires actifs"
-          start={0}
-        />
-      </motion.div>
-    </motion.div>
-  );
-};
-
-/**
- * Popup enrichie stylisée
- */
-const PartnerPopup = ({ partner }) => (
-  <motion.div
-    initial={{ scale: 0.8, opacity: 0 }}
-    animate={{ scale: 1, opacity: 1 }}
-    className="w-64 font-sans"
-  >
-    <div className="flex items-center gap-3 border-b pb-2 mb-2 border-gray-200">
-      <img
-        src={partner.logo_url || 'https://via.placeholder.com/40?text=P'}
-        alt={`${partner.name} logo`}
-        className="w-10 h-10 rounded-full object-cover shadow-md"
-      />
-      <div>
-        <h3 className="text-lg font-bold text-turq leading-tight">{partner.name}</h3>
-        <p className="text-xs text-gray-600 flex items-center">
-          <Filter size={10} className="inline mr-1" /> {partner.category}
-        </p>
-      </div>
-    </div>
-
-    <p className="text-sm font-semibold text-coral mb-2 flex items-start">
-      <Zap size={14} className="inline mr-1 mt-0.5 flex-shrink-0" />
-      {partner.privilege_title}
-    </p>
-
-    <p className="text-xs text-gray-500 mb-3">
-      📍 {partner.address}, {partner.city}
-    </p>
-
-    <Link
-      to={`/partner/${partner.id}`}
-      className="block w-full text-center py-2 bg-coral text-white rounded-lg text-sm font-medium hover:bg-turq transition-colors"
-    >
-      Voir le profil →
-    </Link>
-  </motion.div>
-);
-
-// --- COMPOSANT PRINCIPAL ---
-
-export default function MapPage() {
-  const [allPartners, setAllPartners] = useState([]);
-  const [filteredPartners, setFilteredPartners] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const [mapCenter, setMapCenter] = useState([46.8, 8.2]); // Centre de la Suisse
-  const [mapZoom, setMapZoom] = useState(8);
-  const [selectedCategory, setSelectedCategory] = useState('');
-
-  // 1. Chargement initial des partenaires
-  useEffect(() => {
-    setLoading(true);
-    fetch('/api/partners/search_v2?q=')
-      .then(response => {
-        if (!response.ok) throw new Error('Erreur de chargement des partenaires');
-        return response.json();
-      })
-      .then(data => {
-        setAllPartners(data);
-        setFilteredPartners(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("API Error:", err);
-        setError("Impossible de charger les partenaires. Veuillez réessayer.");
-        setLoading(false);
-      });
-  }, []);
-
-  // 2. Gestion de la recherche et du filtre
-  const handleSearchAndFilter = useCallback((query, category) => {
-    let results = allPartners;
-
-    // Filtrage par catégorie
-    if (category) {
-      results = results.filter(p => p.category === category);
-    }
-
-    // Filtrage par texte (nom, ville, catégorie)
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      results = results.filter(p =>
-        p.name.toLowerCase().includes(lowerQuery) ||
-        p.city.toLowerCase().includes(lowerQuery) ||
-        p.category.toLowerCase().includes(lowerQuery)
-      );
-    }
-    setFilteredPartners(results);
-  }, [allPartners]);
-
-  // Appliquer le filtre de catégorie
-  useEffect(() => {
-    handleSearchAndFilter('', selectedCategory);
-  }, [selectedCategory, handleSearchAndFilter]);
-
-
-  // 3. Géolocalisation utilisateur
-  const geolocateUser = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const newLocation = [latitude, longitude];
-          setUserLocation(newLocation);
-          // Force le recentrage même si la position est déjà connue
-          setMapCenter([...newLocation]); // Créer un nouveau tableau pour forcer le re-render
-          setMapZoom(13); // Zoom plus proche
-        },
-        (err) => {
-          console.error("Geolocation Error:", err);
-          setError("Géolocalisation refusée ou impossible. Veuillez autoriser l'accès à votre position.");
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    } else {
-      setError("Votre navigateur ne supporte pas la géolocalisation.");
-    }
-  };
-
-  // 4. Gestion de la recherche depuis la barre
-  const handleSearchBarSearch = (query) => {
-    handleSearchAndFilter(query, selectedCategory);
-  };
-
-  // 5. Gestion des erreurs et du chargement
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-turq border-t-transparent rounded-full"
-        />
-        <p className="ml-4 text-turq font-semibold">Chargement de la carte...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-screen w-full relative">
-      {/* Bouton de retour */}
-      <Link
-        to="/"
-        className="absolute top-4 left-4 z-[1000] bg-white p-3 rounded-full shadow-lg text-turq hover:bg-turq hover:text-white transition-colors hidden sm:flex"
-        aria-label="Retour à l'accueil"
-      >
-        <ArrowLeft />
-      </Link>
-
-      {/* Barre de recherche et Compteur */}
-      <SearchBar
-        onSearch={handleSearchBarSearch}
-        onGeolocate={geolocateUser}
-        partnersCount={filteredPartners.length}
-        onFilterChange={setSelectedCategory}
-        selectedCategory={selectedCategory}
-      />
-
-      {/* Affichage des erreurs */}
-      {error && (
-        <motion.div
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="absolute top-24 left-1/2 transform -translate-x-1/2 z-[1000] p-3 bg-coral text-white rounded-lg shadow-xl"
-          role="alert"
-        >
-          {error}
-          <button onClick={() => setError(null)} className="ml-4 font-bold">X</button>
-        </motion.div>
-      )}
-
-      {/* Conteneur de la Carte Leaflet */}
-      <MapContainer
-        center={mapCenter}
-        zoom={mapZoom}
-        scrollWheelZoom={true}
-        className="h-full w-full"
-      >
-        <MapController center={mapCenter} zoom={mapZoom} />
-
-        {/* TileLayer CartoDB Voyager pour un look moderne */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        />
-
-        {/* Géolocalisation utilisateur */}
-        {userLocation && (
-          <>
-            {/* Marker Utilisateur */}
-            <Marker position={userLocation} icon={userIcon}>
-              <Popup>Vous êtes ici</Popup>
-            </Marker>
-            {/* Cercle de 5km */}
-            <Circle
-              center={userLocation}
-              pathOptions={{ color: PEP_COLORS.TURQUOISE, fillColor: PEP_COLORS.TURQUOISE, fillOpacity: 0.1, weight: 2 }}
-              radius={5000} // 5 km en mètres
+      {/* Panel de filtres */}
+      {showFilterPanel && (
+        <div className="absolute top-20 left-4 right-4 z-[1000] bg-white rounded-xl shadow-2xl p-4 max-w-md">
+          <h4 className="font-bold text-lg mb-3 text-[#38B2AC]">🔍 Recherche & Filtres</h4>
+          
+          {/* Barre de recherche */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Rechercher un partenaire, une ville..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#38B2AC] focus:outline-none"
             />
+          </div>
+
+          {/* Filtres par catégorie */}
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-gray-700">Catégories :</p>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                    selectedCategory === cat
+                      ? 'bg-[#38B2AC] text-white shadow-lg scale-105'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {cat === 'all' ? '🌟 Tous' : `${getCategoryEmoji(cat)} ${cat}`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowFilterPanel(false)}
+            className="mt-4 w-full bg-[#F26D7D] text-white py-2 rounded-lg font-bold hover:bg-[#e05a6a] transition-colors"
+          >
+            Appliquer
+          </button>
+        </div>
+      )}
+
+      {/* Bouton de géolocalisation */}
+      {userPos && (
+        <button
+          onClick={() => {
+            const map = document.querySelector('.leaflet-container');
+            if (map) {
+              // Trigger recenter
+              setUserPos({...userPos});
+            }
+          }}
+          className="absolute bottom-4 right-4 z-[1000] bg-[#F26D7D] text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform"
+          title="Me localiser"
+        >
+          <Locate size={24} />
+        </button>
+      )}
+      
+      <MapContainer 
+        center={mapCenter} 
+        zoom={userPos ? 13 : 8} 
+        style={{height:"100%", width:"100%", paddingTop: "80px"}}
+        scrollWheelZoom={true}
+        className="z-0"
+      >
+        <TileLayer 
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+        />
+        
+        {userPos && (
+          <>
+            <Marker position={[userPos.lat, userPos.lng]} icon={UserIcon}>
+              <Popup>
+                <div className="text-center">
+                  <b className="text-[#F26D7D] text-lg">📍 Vous êtes ici</b>
+                  <p className="text-xs text-gray-600 mt-1">Position actuelle</p>
+                </div>
+              </Popup>
+            </Marker>
+            <MapRecenter lat={userPos.lat} lng={userPos.lng} />
           </>
         )}
 
-        {/* Clustering des Markers */}
-        <MarkerClusterGroup
-          chunkedLoading
-          maxClusterRadius={40} // Rendre le clustering plus agressif
-          spiderfyOnMaxZoom={true}
-          // Personnalisation du style du cluster
-          iconCreateFunction={(cluster) => {
-            const count = cluster.getChildCount();
-            return L.divIcon({
-              html: `<div class="cluster-icon" style="background-color: ${PEP_COLORS.CORAL}; border: 3px solid ${PEP_COLORS.TURQUOISE};"><span>${count}</span></div>`,
-              className: 'custom-cluster-marker',
-              iconSize: L.point(40, 40, true),
-            });
-          }}
-        >
-          {filteredPartners.map(p => (
-            <Marker
-              key={p.id}
-              position={[p.lat, p.lng]}
-              icon={createCustomIcon(p.category)}
-              // Animation bounce (implémentée via CSS sur la classe 'custom-marker:hover')
+        {filteredPartners.map(p => {
+          // Vérifier que le partenaire a des coordonnées valides
+          if (!p.latitude || !p.longitude) return null;
+          
+          return (
+            <Marker 
+              key={p.id} 
+              position={[p.latitude, p.longitude]}
+              icon={PulseIcon(p.category)}
+              eventHandlers={{
+                click: () => {
+                  if (onPartnerClick) onPartnerClick(p.id);
+                }
+              }}
             >
-              <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
-                <strong>{p.name}</strong>
-              </Tooltip>
-              <Popup>
-                <PartnerPopup partner={p} />
+              <Popup className="custom-popup">
+                <div className="text-center p-2">
+                  <div className="text-3xl mb-2">{getCategoryEmoji(p.category)}</div>
+                  <b className="text-[#38B2AC] text-lg">{p.name}</b><br/>
+                  <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+                    {p.category || 'Commerce'}
+                  </span><br/>
+                  <p className="text-sm text-gray-700 mt-2">📍 {p.city}</p>
+                  {p.distance && (
+                    <p className="font-bold text-sm text-[#F26D7D]">
+                      📏 {p.distance} km
+                    </p>
+                  )}
+                  <button 
+                    onClick={() => {
+                      const url = `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;
+                      window.open(url, '_blank');
+                    }}
+                    className="bg-gradient-to-r from-[#38B2AC] to-[#F26D7D] text-white text-sm px-4 py-2 rounded-full mt-3 flex items-center justify-center gap-2 mx-auto hover:scale-105 transition-transform shadow-lg font-bold"
+                  >
+                    <Navigation size={16}/> Y ALLER
+                  </button>
+                </div>
               </Popup>
             </Marker>
-          ))}
-        </MarkerClusterGroup>
+          );
+        })}
       </MapContainer>
 
-      {/* Affichage mobile du compteur (en bas) */}
-      <motion.div
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="sm:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[1000] p-2 bg-turq text-white rounded-full text-sm font-bold shadow-lg"
-      >
-        <Zap size={14} className="inline mr-1" />
-        <CountUp
-          end={filteredPartners.length}
-          duration={2.5}
-          suffix=" partenaires"
-          start={0}
-        />
-      </motion.div>
-
-      {/* Liste des partenaires à proximité */}
-      {userLocation && (
-        <div className="mt-4">
-          <PartnersList userLocation={userLocation} />
-        </div>
-      )}
+      {/* CSS pour l'animation pulse */}
+      <style jsx>{`
+        @keyframes ping {
+          75%, 100% {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+        .animate-ping {
+          animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .custom-popup .leaflet-popup-content-wrapper {
+          border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+      `}</style>
     </div>
   );
 }
