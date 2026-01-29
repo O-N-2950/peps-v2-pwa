@@ -22,6 +22,7 @@ from migrate_members_columns import run_members_columns_migration
 from migrate_schema_sync import run_schema_sync
 from migrate_partner_status import run_partner_status_migration
 from migrate_user_roles import run_user_roles_migration
+from migrate_create_missing_users import run_create_missing_users_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20_fixed import admin_bp_fixed as admin_bp
 from routes_stripe import stripe_bp
@@ -76,6 +77,7 @@ with app.app_context():
     run_tracking_migration()
     run_partner_status_migration()  # Migration V24: Vérification et correction statuts partenaires
     run_user_roles_migration()  # Migration V25: Système de rôles multiples
+    run_create_missing_users_migration()  # Migration V26: Créer comptes pour partenaires sans user_id
     db.create_all()
 
 # ==========================================
