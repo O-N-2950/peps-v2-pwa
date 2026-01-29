@@ -27,19 +27,30 @@ const PartnerDashboardV21 = () => {
 
       if (activeTab === 'stats') {
         const res = await fetch('/api/partner/statistics', { headers });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
         const data = await res.json();
         setStatistics(data);
       } else if (activeTab === 'privileges') {
         const res = await fetch('/api/partner/privileges', { headers });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
         const data = await res.json();
         setPrivileges(data);
       } else if (activeTab === 'profile') {
         const res = await fetch('/api/partner/profile', { headers });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
         const data = await res.json();
         setProfile(data);
       }
     } catch (error) {
-      console.error('Erreur chargement données:', error);
+      console.error('❌ Erreur chargement données:', error);
+      console.error('Détails:', error.message);
+      alert(`Erreur: ${error.message}`);
     }
     setLoading(false);
   };
