@@ -8,6 +8,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, Partner, Offer, PrivilegeUsage
 from sqlalchemy import func
 from datetime import datetime, timedelta
+from utils.date_helpers import format_datetime_for_js
 
 partner_dashboard_bp = Blueprint('partner_dashboard', __name__, url_prefix='/api/partner')
 
@@ -132,13 +133,13 @@ def get_privileges():
         
         result.append({
             'id': offer.id,
-            'title': offer.title,
-            'description': offer.description,
-            'offer_type': offer.offer_type,
-            'active': offer.active,
-            'discount_val': offer.discount_val,
-            'total_uses': total_uses,
-            'created_at': offer.created_at.isoformat() if offer.created_at else None
+            'title': offer.title or '',
+            'description': offer.description or '',
+            'offer_type': offer.offer_type or 'discount',
+            'active': bool(offer.active),
+            'discount_val': float(offer.discount_val) if offer.discount_val else 0,
+            'total_uses': int(total_uses),
+            'created_at': format_datetime_for_js(offer.created_at)
         })
     
     return jsonify(result)
@@ -168,7 +169,15 @@ def create_privilege():
     
     return jsonify({
         'message': 'Privilège créé avec succès',
-        'id': new_offer.id
+        'privilege': {
+            'id': new_offer.id,
+            'title': new_offer.title,
+            'description': new_offer.description,
+            'offer_type': new_offer.offer_type,
+            'active': bool(new_offer.active),
+            'discount_val': float(new_offer.discount_val) if new_offer.discount_val else 0,
+            'created_at': format_datetime_for_js(new_offer.created_at)
+        }
     }), 201
 
 @partner_dashboard_bp.route('/privileges/<int:offer_id>', methods=['PUT'])
@@ -196,7 +205,21 @@ def update_privilege(offer_id):
     
     db.session.commit()
     
-    return jsonify({'message': 'Privilège modifié avec succès'})
+    total_uses = PrivilegeUsage.query.filter_by(offer_id=offer.id).count()
+    
+    return jsonify({
+        'message': 'Privilège modifié avec succès',
+        'privilege': {
+            'id': offer.id,
+            'title': offer.title,
+            'description': offer.description,
+            'offer_type': offer.offer_type,
+            'active': bool(offer.active),
+            'discount_val': float(offer.discount_val) if offer.discount_val else 0,
+            'total_uses': int(total_uses),
+            'created_at': format_datetime_for_js(offer.created_at)
+        }
+    })
 
 @partner_dashboard_bp.route('/privileges/<int:offer_id>', methods=['DELETE'])
 @jwt_required()
