@@ -628,7 +628,7 @@ const HomePage = () => {
               className="rounded-2xl overflow-hidden shadow-2xl"
               style={{ height: '600px' }}
             >
-              <MapPage />
+              <MapPage partners={partners} />
             </motion.div>
           )}
 
