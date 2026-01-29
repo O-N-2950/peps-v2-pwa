@@ -9,7 +9,7 @@ from sqlalchemy import text, func, or_
 from flask_caching import Cache
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from models import db, User, Partner, Offer, Member, Pack, Subscription, AccessSlot, PrivilegeUsage
+from models import db, User, Partner, Offer, Member, Pack, Subscription, AccessSlot, PrivilegeUsage, PartnerFeedback
 try:
     from models_stripe import Payment
 except ImportError:
@@ -20,6 +20,7 @@ from migrate_partner_addresses import run_migration as run_partner_addresses_mig
 from migrate_tracking_feedback import run_migration as run_tracking_migration
 from migrate_members_columns import run_members_columns_migration
 from migrate_schema_sync import run_schema_sync
+from migrate_partner_status import run_partner_status_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20_fixed import admin_bp_fixed as admin_bp
 from routes_stripe import stripe_bp
@@ -68,6 +69,7 @@ with app.app_context():
     run_partner_addresses_migration()
     run_schema_sync()  # Migration V23: Synchronisation complète du schéma
     run_tracking_migration()
+    run_partner_status_migration()  # Migration V24: Vérification et correction statuts partenaires
     db.create_all()
 
 # ==========================================
@@ -233,6 +235,7 @@ def search_v2():
         "lat": p.latitude,
         "lng": p.longitude,
         "img": p.image_url,
+        "is_active": p.status == 'active',  # ✅ AJOUTÉ pour PartnerManagement
         # Compteur d'offres pour filtrage visuel (ex: marqueur gris si 0)
         "offer_count": len([o for o in p.offers if o.active])
     } for p in partners])
@@ -423,39 +426,8 @@ def reset_olivier_password_temp():
     else:
         return jsonify({"success": False, "message": "Utilisateur non trouvé"}), 404
 
-@app.route('/api/admin/partners')
-@jwt_required()
-def admin_get_partners():
-    if get_user().role != 'admin':
-        return jsonify(error="Accès refusé"), 403
-    partners = Partner.query.all()
-    return jsonify({"partners": [{
-        'id': p.id,
-        'name': p.name,
-        'category': p.category,
-        'city': p.city,
-        'status': p.status,
-        'latitude': p.latitude,
-        'longitude': p.longitude,
-        'address_street': p.address_street,
-        'address_number': p.address_number,
-        'address_postal_code': p.address_postal_code,
-        'address_city': p.address_city,
-        'phone': p.phone,
-        'website': p.website
-    } for p in partners]})
-
-@app.route('/api/admin/partners/<int:partner_id>', methods=['PUT'])
-@jwt_required()
-def admin_update_partner(partner_id):
-    if get_user().role != 'admin':
-        return jsonify(error="Accès refusé"), 403
-    partner = Partner.query.get_or_404(partner_id)
-    data = request.json
-    if 'status' in data:
-        partner.status = data['status']
-    db.session.commit()
-    return jsonify({"success": True, "message": "Partenaire mis à jour"})
+# ❌ ROUTES ADMIN SUPPRIMÉES - Maintenant dans routes_admin_v20_fixed.py
+# Ces routes étaient dupliquées et causaient des conflits de routing
 
 # ==========================================
 # 3. ROUTING SPA SÉCURISÉ (Pattern 404)
