@@ -21,6 +21,7 @@ from migrate_tracking_feedback import run_migration as run_tracking_migration
 from migrate_members_columns import run_members_columns_migration
 from migrate_schema_sync import run_schema_sync
 from migrate_partner_status import run_partner_status_migration
+from migrate_user_roles import run_user_roles_migration
 # IMPORTANT : Import du blueprint Admin
 from routes_admin_v20_fixed import admin_bp_fixed as admin_bp
 from routes_stripe import stripe_bp
@@ -73,6 +74,7 @@ with app.app_context():
     run_schema_sync()  # Migration V23: Synchronisation complète du schéma
     run_tracking_migration()
     run_partner_status_migration()  # Migration V24: Vérification et correction statuts partenaires
+    run_user_roles_migration()  # Migration V25: Système de rôles multiples
     db.create_all()
 
 # ==========================================
@@ -315,7 +317,24 @@ def login():
     d = request.json
     u = User.query.filter_by(email=d.get('email')).first()
     if u and check_password_hash(u.password_hash, d.get('password')):
-        return jsonify(token=create_access_token(identity=str(u.id), additional_claims={'role': u.role}, expires_delta=timedelta(hours=24)), role=u.role)
+        # Générer le JWT avec tous les rôles de l'utilisateur
+        user_roles = u.get_roles() if hasattr(u, 'get_roles') else [u.role]
+        if not user_roles:  # Fallback si aucun rôle dans user_roles
+            user_roles = [u.role] if u.role else ['member']
+        
+        return jsonify(
+            token=create_access_token(
+                identity=str(u.id), 
+                additional_claims={
+                    'role': u.role,  # Compatibilité avec l'ancien système
+                    'roles': user_roles,  # Nouveau système multi-rôles
+                    'email': u.email
+                }, 
+                expires_delta=timedelta(hours=24)
+            ), 
+            role=u.role,
+            roles=user_roles
+        )
     return jsonify(error="Incorrect"), 401
 
 # --- ADMIN ROUTES ---

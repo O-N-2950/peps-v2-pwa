@@ -9,6 +9,7 @@ from models import db, User, Partner, Offer, PrivilegeUsage
 from sqlalchemy import func
 from datetime import datetime, timedelta
 from utils.date_helpers import format_datetime_for_js
+from utils.auth_decorators import partner_required
 
 partner_dashboard_bp = Blueprint('partner_dashboard', __name__, url_prefix='/api/partner')
 
@@ -22,7 +23,7 @@ def get_partner_from_token():
         return None
 
 @partner_dashboard_bp.route('/statistics', methods=['GET'])
-@jwt_required()
+@partner_required
 def get_statistics():
     """Statistiques du partenaire en temps réel"""
     partner = get_partner_from_token()
@@ -117,7 +118,7 @@ def get_statistics():
     })
 
 @partner_dashboard_bp.route('/privileges', methods=['GET'])
-@jwt_required()
+@partner_required
 def get_privileges():
     """Liste des privilèges du partenaire"""
     partner = get_partner_from_token()
@@ -145,7 +146,7 @@ def get_privileges():
     return jsonify(result)
 
 @partner_dashboard_bp.route('/privileges', methods=['POST'])
-@jwt_required()
+@partner_required
 def create_privilege():
     """Créer un nouveau privilège"""
     partner = get_partner_from_token()
@@ -181,7 +182,7 @@ def create_privilege():
     }), 201
 
 @partner_dashboard_bp.route('/privileges/<int:offer_id>', methods=['PUT'])
-@jwt_required()
+@partner_required
 def update_privilege(offer_id):
     """Modifier un privilège existant"""
     partner = get_partner_from_token()
@@ -222,7 +223,7 @@ def update_privilege(offer_id):
     })
 
 @partner_dashboard_bp.route('/privileges/<int:offer_id>', methods=['DELETE'])
-@jwt_required()
+@partner_required
 def delete_privilege(offer_id):
     """Supprimer un privilège"""
     partner = get_partner_from_token()
@@ -239,7 +240,7 @@ def delete_privilege(offer_id):
     return jsonify({'message': 'Privilège supprimé avec succès'})
 
 @partner_dashboard_bp.route('/profile', methods=['GET'])
-@jwt_required()
+@partner_required
 def get_profile():
     """Profil du partenaire"""
     partner = get_partner_from_token()

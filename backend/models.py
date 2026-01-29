@@ -8,6 +8,19 @@ followers = db.Table('followers',
     db.Column('partner_id', db.Integer, db.ForeignKey('partners.id'), primary_key=True)
 )
 
+class UserRole(db.Model):
+    """Système de rôles multiples pour supporter Membre + Partenaire"""
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    role = db.Column(db.String(50), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'role', name='uq_user_role'),
+        db.CheckConstraint("role IN ('member', 'partner', 'admin')", name='ck_valid_role')
+    )
+
 class ActivitySector(db.Model):
     __tablename__ = 'activity_sectors'
     id = db.Column(db.Integer, primary_key=True)
@@ -44,7 +57,24 @@ class User(db.Model):
     member_profile = db.relationship('Member', backref='owner', uselist=False)
     company_profile = db.relationship('Company', backref='admin', uselist=False)
     followed_partners = db.relationship('Partner', secondary=followers, backref='followers_list')
+    roles_list = db.relationship('UserRole', backref='user', lazy=True, cascade='all, delete-orphan')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def get_roles(self):
+        """Retourne la liste des rôles de l'utilisateur"""
+        return [ur.role for ur in self.roles_list]
+    
+    def has_role(self, role):
+        """Vérifie si l'utilisateur a un rôle spécifique"""
+        return role in self.get_roles()
+    
+    def add_role(self, role):
+        """Ajoute un rôle à l'utilisateur"""
+        if not self.has_role(role):
+            new_role = UserRole(user_id=self.id, role=role)
+            db.session.add(new_role)
+            return True
+        return False
 
 class Subscription(db.Model):
     __tablename__ = 'subscriptions'
