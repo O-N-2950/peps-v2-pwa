@@ -439,7 +439,7 @@ const HomePage = () => {
         </div>
         
         {/* Contenu du Hero */}
-        <div className="relative z-10 text-center p-8 backdrop-blur-sm bg-black bg-opacity-30 rounded-xl mt-24">
+        <div className="relative z-10 text-center p-8 backdrop-blur-sm bg-black bg-opacity-30 rounded-xl mt-40">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
