@@ -5,9 +5,11 @@ Crée la table user_roles et migre les rôles existants
 from sqlalchemy import text
 from models import db
 import logging
+from utils.migration_lock import with_migration_lock
 
 logger = logging.getLogger(__name__)
 
+@with_migration_lock("V25_user_roles")
 def run_user_roles_migration():
     """Migre le système de rôles vers user_roles"""
     try:

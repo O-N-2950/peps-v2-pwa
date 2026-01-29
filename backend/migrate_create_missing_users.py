@@ -7,9 +7,11 @@ from models import db
 from werkzeug.security import generate_password_hash
 import logging
 import secrets
+from utils.migration_lock import with_migration_lock
 
 logger = logging.getLogger(__name__)
 
+@with_migration_lock("V26_create_missing_users")
 def run_create_missing_users_migration():
     """Crée automatiquement des comptes utilisateurs pour les partenaires sans user_id"""
     try:
