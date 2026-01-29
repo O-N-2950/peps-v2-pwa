@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { User, Store, Building, ChevronDown, CheckCircle, Heart, DollarSign, Map, Zap } from 'lucide-react';
-import MapViewWahoo from '../components/MapViewWahoo';
+
 import PWAInstallGuide from '../components/PWAInstallGuide';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import FlashOffersWidget from '../components/FlashOffersWidget';
@@ -625,7 +625,7 @@ const HomePage = () => {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              <MapViewWahoo partners={partners} showFilters={true} />
+              {/* MapViewWahoo supprimé - utiliser MapPage à la place */}
             </motion.div>
           )}
 
