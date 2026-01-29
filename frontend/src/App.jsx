@@ -23,6 +23,7 @@ import PartnerDashboardNew from './pages/PartnerDashboardNew';
 import ActivationPage from './pages/ActivationPage';
 import MemberSettings from './pages/MemberSettings';
 import PartnerSettings from './pages/PartnerSettings';
+import FavoritesPage from './pages/FavoritesPage';
 import PepiWidget from './components/PepiWidget';
 
 // Admin Components V20
@@ -74,6 +75,7 @@ function AnimatedRoutes() {
           <Route path="/book/:partnerId" element={<MemberBookingPage memberId={1} />} />
           <Route path="/activate/:partnerId" element={<ActivationPage />} />
           <Route path="/settings" element={<MemberSettings />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
         </Route>
         
         {/* Routes Admin V20 */}

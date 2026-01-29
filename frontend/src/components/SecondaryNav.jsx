@@ -10,7 +10,7 @@ export default function SecondaryNav({ role = 'member', hasMemberSubscription = 
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/member-dashboard' },
     { id: 'map', label: 'Carte', icon: '🗺️', path: '/map' },
     { id: 'flash', label: 'Offres Flash', icon: '⚡', path: '/flash-offers' },
-    { id: 'favorites', label: 'Favoris', icon: '⭐', path: '/map' },
+    { id: 'favorites', label: 'Favoris', icon: '⭐', path: '/favorites' },
   ];
 
   // Tabs pour les partenaires (nettoyées selon specs)
