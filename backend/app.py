@@ -45,6 +45,7 @@ from routes_followers import followers_bp
 from routes_ai_coach import ai_coach_bp
 from routes_pricing import pricing_bp
 from routes_subscription import subscription_bp
+from routes_fix_winwin import fix_winwin_bp
 
 import os
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'dist'))
@@ -102,7 +103,7 @@ app.register_blueprint(followers_bp)  # Système de followers partenaires
 app.register_blueprint(ai_coach_bp, url_prefix='/api/ai-coach')  # IA Coach Gemini Flash pour suggestions business
 app.register_blueprint(pricing_bp)  # Détection devise + calcul prix progressif
 app.register_blueprint(subscription_bp)  # Abonnements multi-accès + Stripe CHF/EUR
-  # IA Coach Gemini Flash pour suggestions business
+app.register_blueprint(fix_winwin_bp)  # Route temporaire pour corriger WIN WIN Finance Group
 
 # ==========================================
 # 2. ROUTE DE DEBUG (L'arme absolue)
