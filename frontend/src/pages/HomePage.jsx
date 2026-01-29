@@ -6,6 +6,7 @@ import PWAInstallGuide from '../components/PWAInstallGuide';
 import PWAInstallPrompt from '../components/PWAInstallPrompt';
 import FlashOffersWidget from '../components/FlashOffersWidget';
 import MapPage from '../components/MapPage';
+import PartnersList from '../components/PartnersList';
 import axios from 'axios';
 
 // --- COULEURS OFFICIELLES PEP'S ---
@@ -311,6 +312,24 @@ const HomePage = () => {
   const [partners, setPartners] = useState([]);
   const [loadingPartners, setLoadingPartners] = useState(true);
   const [showPWAGuide, setShowPWAGuide] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Récupérer la géolocalisation de l'utilisateur
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Erreur de géolocalisation:', error);
+        }
+      );
+    }
+  }, []);
 
   // Charger les partenaires depuis l'API
   useEffect(() => {
@@ -632,12 +651,23 @@ const HomePage = () => {
             </motion.div>
           )}
 
+          {/* Liste des partenaires géolocalisés */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-12"
+          >
+            <PartnersList userLocation={userLocation} />
+          </motion.div>
+
           {/* CTA pour télécharger l'app */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
             className="text-center mt-12"
           >
             <p className="text-lg text-gray-700 mb-4">

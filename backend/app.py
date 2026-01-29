@@ -38,6 +38,7 @@ from routes_favorites import favorites_bp
 from routes_debug_members import debug_members_bp
 from routes_debug_partners import debug_partners_bp
 from routes_flash_offers import flash_offers_bp
+from routes_nearby_partners import nearby_partners_bp
 from routes_migrate_flash_reservations import migrate_flash_reservations_bp
 from routes_gamification import gamification_bp
 from routes_activation import activation_bp
@@ -97,6 +98,7 @@ app.register_blueprint(favorites_bp)  # Système de favoris
 app.register_blueprint(debug_members_bp)  # Debug membres
 app.register_blueprint(debug_partners_bp)  # Debug partenaires
 app.register_blueprint(flash_offers_bp)  # Offres flash avec validation IA
+app.register_blueprint(nearby_partners_bp)  # Liste géolocalisée des partenaires
 app.register_blueprint(migrate_flash_reservations_bp)  # Migration flash_reservations
 app.register_blueprint(gamification_bp)  # Système de gamification membres
 app.register_blueprint(activation_bp)  # Système de tracking activations + feedback
