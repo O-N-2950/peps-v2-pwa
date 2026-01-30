@@ -121,29 +121,45 @@ def get_statistics():
 @partner_required
 def get_privileges():
     """Liste des privilèges du partenaire"""
-    partner = get_partner_from_token()
-    if not partner:
-        return jsonify({'error': 'Partenaire non trouvé'}), 404
-    
-    offers = Offer.query.filter_by(partner_id=partner.id).all()
-    
-    result = []
-    for offer in offers:
-        # Compter les utilisations
-        total_uses = PrivilegeUsage.query.filter_by(offer_id=offer.id).count()
+    try:
+        partner = get_partner_from_token()
+        if not partner:
+            return jsonify({'error': 'Partenaire non trouvé'}), 404
         
-        result.append({
-            'id': offer.id,
-            'title': offer.title or '',
-            'description': offer.description or '',
-            'offer_type': offer.offer_type or 'discount',
-            'active': bool(offer.active),
-            'discount_val': float(offer.discount_val) if offer.discount_val else 0,
-            'total_uses': int(total_uses),
-            'created_at': format_datetime_for_js(offer.created_at)
-        })
-    
-    return jsonify(result)
+        offers = Offer.query.filter_by(partner_id=partner.id).all()
+        
+        result = []
+        for offer in offers:
+            try:
+                # Compter les utilisations
+                total_uses = PrivilegeUsage.query.filter_by(offer_id=offer.id).count()
+            except Exception as e:
+                print(f"Erreur comptage utilisations pour offer {offer.id}: {str(e)}")
+                total_uses = 0
+            
+            try:
+                created_at_formatted = format_datetime_for_js(offer.created_at)
+            except Exception as e:
+                print(f"Erreur formatage date pour offer {offer.id}: {str(e)}")
+                created_at_formatted = None
+            
+            result.append({
+                'id': offer.id,
+                'title': offer.title or '',
+                'description': offer.description or '',
+                'offer_type': offer.offer_type or 'discount',
+                'active': bool(offer.active),
+                'discount_val': float(offer.discount_val) if offer.discount_val else 0,
+                'total_uses': int(total_uses),
+                'created_at': created_at_formatted
+            })
+        
+        return jsonify(result)
+    except Exception as e:
+        print(f"ERREUR get_privileges: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Erreur serveur', 'details': str(e)}), 500
 
 @partner_dashboard_bp.route('/privileges', methods=['POST'])
 @partner_required
