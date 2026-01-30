@@ -47,7 +47,7 @@ export default function PartnerDashboardNew() {
       const [statsRes, privsRes, flashRes] = await Promise.all([
         fetch(`${API_URL}/api/partner/statistics`, { headers }),
         fetch(`${API_URL}/api/partner/privileges`, { headers }),
-        fetch(`${API_URL}/api/partner/flash-offers`, { headers }),
+        fetch(`${API_URL}/api/partner/offers/flash`, { headers }),
       ]);
 
       const statsData = await statsRes.json();

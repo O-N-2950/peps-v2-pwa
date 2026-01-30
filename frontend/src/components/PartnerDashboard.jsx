@@ -22,7 +22,7 @@ export default function PartnerDashboard() {
         const [rStats, rPrivs, rFlash] = await Promise.all([
             fetch('/api/partner/statistics', {headers}).then(r=>r.json()),
             fetch('/api/partner/privileges', {headers}).then(r=>r.json()),
-            fetch('/api/partner/flash-offers', {headers}).then(r=>r.json())
+            fetch('/api/partner/offers/flash', {headers}).then(r=>r.json())
         ]);
         setStats(rStats); setPrivileges(rPrivs); setOffers(rFlash);
         setLoading(false);
@@ -34,7 +34,7 @@ export default function PartnerDashboard() {
   useEffect(() => { fetchData(); }, []);
 
   const createOffer = async () => {
-    const endpoint = showModal === 'flash' ? '/api/partner/flash-offers' : '/api/partner/privileges';
+    const endpoint = showModal === 'flash' ? '/api/partner/offers/flash' : '/api/partner/privileges';
     const body = { ...form, type: showModal === 'flash' ? 'flash' : 'permanent' };
     const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
     
