@@ -143,13 +143,20 @@ def get_privileges():
                 print(f"Erreur formatage date pour offer {offer.id}: {str(e)}")
                 created_at_formatted = None
             
+            # Convertir discount_val en float de manière sécurisée
+            try:
+                discount_value = float(offer.discount_val) if offer.discount_val else 0
+            except (ValueError, TypeError):
+                # Si la conversion échoue (ex: "Gratuit"), garder la valeur string
+                discount_value = str(offer.discount_val) if offer.discount_val else '0'
+            
             result.append({
                 'id': offer.id,
                 'title': offer.title or '',
                 'description': offer.description or '',
                 'offer_type': offer.offer_type or 'discount',
                 'active': bool(offer.active),
-                'discount_val': float(offer.discount_val) if offer.discount_val else 0,
+                'discount_val': discount_value,
                 'total_uses': int(total_uses),
                 'created_at': created_at_formatted
             })
